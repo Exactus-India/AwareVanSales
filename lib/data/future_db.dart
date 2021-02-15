@@ -2,11 +2,12 @@ import 'dart:async';
 import 'dart:io';
 import 'package:aware_van_sales/data/sales_customer.dart';
 import 'package:aware_van_sales/pages/wm_mb_LoginPage.dart';
-import 'package:aware_van_sales/wigdets/userListBuilder.dart';
 import './User_data.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+String gs_doc_type = 'DN90';
+String gs_company_code = 'BSG';
 Future<List> getAllUserName() async {
   var url = 'http://exactusnet.dyndns.org:4005/api/user';
   var response = await http.get(url);
@@ -23,6 +24,24 @@ Future<List> getAllRouteName() async {
   return jsonData;
 }
 
+Future<List> getAllSalesEntryDetails(doc_no) async {
+  var url =
+      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/DetailList/$gs_doc_type/$gs_company_code/$doc_no';
+  var response = await http.get(url);
+  var jsonBody = response.body;
+  var jsonData = json.decode(jsonBody.substring(0));
+  return jsonData;
+}
+
+Future<List> getAllSalesHDR(doc_no) async {
+  var url =
+      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/HDR/$gs_doc_type/$gs_company_code/$doc_no';
+  var response = await http.get(url);
+  var jsonBody = response.body;
+  var jsonData = json.decode(jsonBody.substring(0));
+  return jsonData;
+}
+
 // Future<List> customerlist() async {
 //   var url = 'http://exactusnet.dyndns.org:4005/api/sales/customerList';
 //   var response = await http.get(url);
@@ -31,8 +50,9 @@ Future<List> getAllRouteName() async {
 //   return jsonData;
 // }
 
-Future<List<Sales_Customer_Data>> customerlist() async {
-  var url = 'http://exactusnet.dyndns.org:4005/api/sales/customerList';
+Future<List<Sales_Customer_Data>> customersaleslist() async {
+  var url =
+      'http://exactusnet.dyndns.org:4005/api/sales/customerList/$gs_Route';
   var response = await http.get(url);
   var datas = List<Sales_Customer_Data>();
   if (response.statusCode == 200) {
@@ -44,10 +64,9 @@ Future<List<Sales_Customer_Data>> customerlist() async {
   return datas;
 }
 
-Future<List<Sales_Customer_Data>> sales_list(
-    doc_type, ac_code, salesman_code) async {
+Future<List<Sales_Customer_Data>> sales_list(ac_code, salesman_code) async {
   var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesList/$doc_type/$ac_code/$salesman_code';
+      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesList/$gs_doc_type/$ac_code/$salesman_code';
   var response = await http.get(url);
   var datas = List<Sales_Customer_Data>();
   if (response.statusCode == 200) {
@@ -55,8 +74,6 @@ Future<List<Sales_Customer_Data>> sales_list(
     for (var dataJson in datasJson) {
       datas.add(Sales_Customer_Data.fromJson_Sales(dataJson));
     }
-    gs_sales_customer_name = datas[0].party_name.toString();
-    gs_sales_doc_date = datas[0].doc_date.toString();
   }
   return datas;
 }

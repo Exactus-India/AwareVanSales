@@ -14,9 +14,24 @@ textField(_text, _controller, _validate) {
     obscureText: obs,
     decoration: InputDecoration(
         labelText: _text,
+        border: const OutlineInputBorder(),
+        contentPadding: EdgeInsets.all(10),
         errorText: _validate ? 'Value Can\'t Be Empty' : null,
         focusColor: Colors.blue,
         labelStyle: TextStyle(color: Colors.black54)),
+    controller: _controller,
+  );
+}
+
+widget_textFiled1(_text, _controller, _icon, onpressed) {
+  return TextField(
+    decoration: InputDecoration(
+        labelText: _text,
+        suffixIcon: IconButton(
+          icon: Icon(_icon),
+          onPressed: () {},
+        ),
+        border: const OutlineInputBorder()),
     controller: _controller,
   );
 }
@@ -67,13 +82,25 @@ rowData_2(first, last, size) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: <Widget>[
-      columnRow(
-          first.toString(), MainAxisAlignment.start, size, TextAlign.left),
+      if (first != null || first != 'null')
+        columnRow(
+            first.toString(), MainAxisAlignment.start, size, TextAlign.left),
       if (last != null || last != 'null')
         columnRow(
             last.toString(), MainAxisAlignment.end, size, TextAlign.right),
     ],
   );
+}
+
+noValue() {
+  return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: <Widget>[
+        Center(
+          heightFactor: 12,
+          child: textData("No Records Found", Colors.red, 28.0),
+        ),
+      ]);
 }
 
 align(alignment, _text, size) {
@@ -84,19 +111,27 @@ align(alignment, _text, size) {
   );
 }
 
-widget_textFiled(_text, _controller) {
-  return TextField(
-    decoration: InputDecoration(labelText: _text),
-    controller: _controller,
+button_print(page, context) {
+  return RaisedButton(
+    onPressed: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => page),
+      );
+    },
+    child: Icon(Icons.print),
   );
 }
 
-button(text, page, context) {
+button_generate(page, context) {
   return RaisedButton(
-    child: Text(text),
-    onPressed: () => Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => page),
-    ),
+    color: Colors.green[400],
+    onPressed: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => page),
+      );
+    },
+    child: Text('Generate'),
   );
 }

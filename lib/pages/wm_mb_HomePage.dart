@@ -1,5 +1,6 @@
 import 'package:aware_van_sales/pages/wm_mb_customer.dart';
 import 'package:aware_van_sales/wigdets/card.dart';
+import 'package:aware_van_sales/wigdets/salesentry.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:flutter/material.dart';
 
@@ -15,6 +16,7 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: text("Menu", Colors.white),
+        centerTitle: true,
         elevation: .1,
         backgroundColor: Color.fromRGBO(59, 87, 110, 1.0),
       ),
@@ -25,12 +27,12 @@ class _HomePageState extends State<HomePage> {
           //padding: EdgeInsets.all(13.0),
           children: <Widget>[
             //--------------------------SALE-------------------------
-            card("SALE", CustomerList(), Icons.attach_money, Colors.blue[800],
-                this.context),
+            card("SALE", CustomerList(pageno: 1), Icons.attach_money,
+                Colors.blue[800], this.context),
 
             //--------------------------RETURNS-------------------------
-            card(
-                "RETURNS", null, Icons.restore, Colors.blue[800], this.context),
+            card("RETURNS", CustomerList(pageno: 3), Icons.restore,
+                Colors.blue[800], this.context),
 
             //--------------------------RECEIPT-------------------------
             card(
