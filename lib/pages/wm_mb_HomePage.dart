@@ -1,6 +1,5 @@
 import 'package:aware_van_sales/pages/wm_mb_customer.dart';
 import 'package:aware_van_sales/wigdets/card.dart';
-import 'package:aware_van_sales/wigdets/salesentry.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:flutter/material.dart';
 
