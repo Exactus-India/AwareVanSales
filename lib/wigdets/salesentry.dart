@@ -200,26 +200,4 @@ class _SalesEntryState extends State<SalesEntry> {
   //   );
   // }
 
-  bottom_list_head() {
-    return Expanded(
-      child: Column(children: <Widget>[
-        Row(children: <Widget>[
-          text("Prod Code", Colors.black),
-          text("Prod Code", Colors.black),
-          text("Prod Name", Colors.black),
-          // text("PUOM", Colors.black),
-          // text('QTY PUOM', Colors.black),
-        ]),
-        Row(
-          children: <Widget>[
-            text('LUOM', Colors.black),
-            text("QTY LUOM", Colors.black),
-            text("AMOUNT", Colors.black),
-            // text("VAT", Colors.black),
-            // text("NET AMT", Colors.black),
-          ],
-        ),
-      ]),
-    );
-  }
 }
