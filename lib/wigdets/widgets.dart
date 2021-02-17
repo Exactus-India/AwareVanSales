@@ -7,10 +7,11 @@ Widget logo() {
   );
 }
 
-textField(_text, _controller, _validate) {
+textField(_text, _controller, _validate, read) {
   bool obs = false;
   if (_text == 'Password') obs = true;
   return TextField(
+    readOnly: read,
     obscureText: obs,
     decoration: InputDecoration(
         labelText: _text,
@@ -36,7 +37,7 @@ widget_textFiled1(_text, _controller, _icon, onpressed) {
   );
 }
 
-text(_text, clr) {
+Widget text(_text, clr) {
   return Text(
     _text,
     style: TextStyle(
@@ -93,14 +94,10 @@ rowData_2(first, last, size) {
 }
 
 noValue() {
-  return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: <Widget>[
-        Center(
-          heightFactor: 12,
-          child: textData("No Records Found", Colors.red, 28.0),
-        ),
-      ]);
+  return Padding(
+    padding: EdgeInsets.only(top: 100.0),
+    child: textData("No Records Found", Colors.red, 22.0),
+  );
 }
 
 align(alignment, _text, size) {
@@ -127,10 +124,11 @@ button_generate(page, context) {
   return RaisedButton(
     color: Colors.green[400],
     onPressed: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => page),
-      );
+      // Navigator.push(
+      //   context,
+      //   MaterialPageRoute(builder: (context) => page),
+      // );
+      page;
     },
     child: Text('Generate'),
   );
