@@ -24,19 +24,6 @@ textField(_text, _controller, _validate, read) {
   );
 }
 
-widget_textFiled1(_text, _controller, _icon, onpressed) {
-  return TextField(
-    decoration: InputDecoration(
-        labelText: _text,
-        suffixIcon: IconButton(
-          icon: Icon(_icon),
-          onPressed: () {},
-        ),
-        border: const OutlineInputBorder()),
-    controller: _controller,
-  );
-}
-
 Widget text(_text, clr) {
   return Text(
     _text,
