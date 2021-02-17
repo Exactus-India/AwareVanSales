@@ -1,23 +1,36 @@
-import 'package:aware_van_sales/wigdets/userListBuilder.dart';
-import 'package:aware_van_sales/wigdets/widgets.dart';
+import 'package:aware_van_sales/data/future_db.dart';
+import 'package:aware_van_sales/wigdets/listing_Builder.dart';
 import 'package:flutter/material.dart';
 
-class CustomerList_Returns extends StatefulWidget {
+class SalesReturns extends StatefulWidget {
   @override
-  _CustomerList_ReturnsState createState() => _CustomerList_ReturnsState();
+  SalesReturnsState createState() => SalesReturnsState();
 }
 
-class _CustomerList_ReturnsState extends State<CustomerList_Returns> {
+class SalesReturnsState extends State<SalesReturns> {
+  List _datas = List();
+  @override
+  void initState() {
+    customersaleslist().then((value) {
+      setState(() {
+        _datas.addAll(value);
+        list_length = 0;
+        list_length = _datas.length;
+        print(list_length.toString() + '....');
+      });
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: text("Customer List", Colors.white),
-          elevation: .1,
-          backgroundColor: Color.fromRGBO(59, 87, 110, 1.0),
-        ),
-        body: Container(
-          child: ListBuilder(pageno: 3),
-        ));
+      appBar: AppBar(
+        title: Text("Customer List", style: TextStyle(color: Colors.white)),
+        elevation: .1,
+        backgroundColor: Color.fromRGBO(59, 87, 110, 1.0),
+      ),
+      body: ListBuilderCommon(datas: _datas, toPage: null, head: false),
+    );
   }
 }
