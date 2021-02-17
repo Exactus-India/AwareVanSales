@@ -1,5 +1,5 @@
-import 'package:aware_van_sales/wigdets/salesentry.dart';
-import 'package:aware_van_sales/wigdets/userListBuilder.dart';
+import 'package:aware_van_sales/data/future_db.dart';
+import 'package:aware_van_sales/wigdets/listing_Builder.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:flutter/material.dart';
 
@@ -12,13 +12,17 @@ class SalesList extends StatefulWidget {
   _SalesListState createState() => _SalesListState();
 }
 
-String sales_customer_name;
-
 class _SalesListState extends State<SalesList> {
+  List _datas = List();
   @override
   void initState() {
-    setState(() {
-      sales_customer_name = widget.customer;
+    saleslist(gs_sales_param1).then((value) {
+      setState(() {
+        _datas.addAll(value);
+        list_length = 0;
+        list_length = _datas.length;
+        print(list_length.toString() + '....');
+      });
     });
     super.initState();
   }
@@ -33,19 +37,14 @@ class _SalesListState extends State<SalesList> {
         actions: <Widget>[
           GestureDetector(
               onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => SalesEntry(index: null)));
+                gs_sales_param1 = null;
+                Navigator.pushNamed(context, '/SalesEntry');
               },
               child: Icon(Icons.add)),
           SizedBox(width: 20.0),
         ],
       ),
-      body: ListBuilder(
-        pageno: 2,
-        ac_code: widget.ac_code,
-      ),
+      body: ListBuilderCommon(toPage: '/SalesEntry', datas: _datas, head: true),
     );
   }
 }
