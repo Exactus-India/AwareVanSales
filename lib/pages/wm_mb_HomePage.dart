@@ -1,3 +1,4 @@
+import 'package:aware_van_sales/pages/wm_mb_SaleReturns.dart';
 import 'package:aware_van_sales/pages/wm_mb_customer.dart';
 import 'package:aware_van_sales/wigdets/card.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
@@ -26,36 +27,36 @@ class _HomePageState extends State<HomePage> {
           //padding: EdgeInsets.all(13.0),
           children: <Widget>[
             //--------------------------SALE-------------------------
-            card("SALE", CustomerList(pageno: 1), Icons.attach_money,
-                Colors.blue[800], this.context),
+            card("SALE", CustomerList(), Colors.blue[800], this.context,
+                'sale.png'),
 
             //--------------------------RETURNS-------------------------
-            card("RETURNS", CustomerList(pageno: 3), Icons.restore,
-                Colors.blue[800], this.context),
+            card("RETURNS", SalesReturns(), Colors.blue[800], this.context,
+                'sale_returns.jpg'),
 
             //--------------------------RECEIPT-------------------------
             card(
-                "RECEIPT", null, Icons.receipt, Colors.blue[800], this.context),
+                "RECEIPT", null, Colors.blue[800], this.context, 'receipt.png'),
 
             //--------------------------SALE SUMMARY-------------------------
-            card("SALE SUMMARY", null, Icons.pages, Colors.blue[800],
-                this.context),
+            card("SALE SUMMARY", null, Colors.blue[800], this.context,
+                'sales_summary.png'),
 
             //--------------------------STOCK TRANSFER-------------------------
-            card("STOCK TRANSFER", null, Icons.transform, Colors.blue[800],
-                this.context),
+            card("STOCK TRANSFER", null, Colors.blue[800], this.context,
+                'stock_transfer.png'),
 
             //--------------------------O/S AGEING-------------------------
-            card("O/S AGEING", null, Icons.group, Colors.blue[800],
-                this.context),
+            card("O/S AGEING", null, Colors.blue[800], this.context,
+                'os_ageing.png'),
 
             //--------------------------STOCK SUMMARY-------------------------
-            card("STOCK SUMMARY", null, Icons.pages, Colors.blue[800],
-                this.context),
+            card("STOCK SUMMARY", null, Colors.blue[800], this.context,
+                'stock_summary.png'),
 
             //--------------------------DAILY ACTIVITY-------------------------
-            card("DAILY ACTIVITY", null, Icons.details, Colors.blue[800],
-                this.context)
+            card("DAILY ACTIVITY", null, Colors.blue[800], this.context,
+                'daily_activity.png')
           ],
         ),
       ),
