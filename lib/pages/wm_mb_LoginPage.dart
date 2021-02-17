@@ -14,11 +14,10 @@ String gs_Route;
 String gs_currentUser;
 String gs_currentUser_empid;
 
-List user_list = List();
-List route_list = List();
-
 class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
+  List user_list = List();
+  List route_list = List();
 
   TextEditingController _password = new TextEditingController();
   String selectedUser;
@@ -27,16 +26,17 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
   bool _validatePassword = false;
   @override
   void initState() {
-    // gs_Route = 'ALL';
     _password.clear();
     getAllUserName().then((value) {
       setState(() {
         user_list.addAll(value);
+        user_list.sort((a, b) => a['RPT_NAME'].compareTo(b['RPT_NAME']));
       });
     });
     getAllRouteName().then((value) {
       setState(() {
         route_list.addAll(value);
+        route_list.sort((a, b) => a['ROUTE_NAME'].compareTo(b['ROUTE_NAME']));
       });
     });
     super.initState();
@@ -102,7 +102,8 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
                         children: <Widget>[
                           dropDown_username(),
                           SizedBox(height: 10.0),
-                          textField("Password", _password, _validatePassword),
+                          textField(
+                              "Password", _password, _validatePassword, false),
                           SizedBox(height: 10.0),
                           dropDown_route(),
                         ],
