@@ -1,5 +1,6 @@
-import 'package:aware_van_sales/pages/wm_mb_HomePage.dart';
+import 'package:aware_van_sales/wigdets/salesentry.dart';
 import 'package:aware_van_sales/pages/wm_mb_LoginPage.dart';
+import 'package:aware_van_sales/pages/wm_mb_sales.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -13,6 +14,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Aware Van Sales',
+      initialRoute: '/',
+      routes: {
+        '/SalesList': (context) => SalesList(),
+        '/SalesEntry': (context) => SalesEntry(),
+      },
       home: Wm_mb_LoginPage(),
     );
   }
