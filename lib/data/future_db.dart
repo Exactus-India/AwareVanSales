@@ -48,15 +48,24 @@ Future<List> getAllProductDetails() async {
   var url =
       'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/search';
   var response = await http.get(url);
-  var datas = List<Saleslog>();
-  if (response.statusCode == 200) {
-    Object datasJson = json.decode(response.body.substring(0));
-    for (var dataJson in datasJson) {
-      datas.add(Saleslog.fromJson(dataJson));
-    }
-  }
-  return datas;
+  var jsonBody = response.body;
+  var jsonData = json.decode(jsonBody.substring(0));
+  return jsonData;
 }
+
+// Future<List> getAllProductDetails() async {
+//   var url =
+//       'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/search';
+//   var response = await http.get(url);
+//   var datas = List<Saleslog>();
+//   if (response.statusCode == 200) {
+//     Object datasJson = json.decode(response.body.substring(0));
+//     for (var dataJson in datasJson) {
+//       datas.add(Saleslog.fromJson(dataJson));
+//     }
+//   }
+//   return datas;
+// }
 
 Future<List<Customer>> customersaleslist() async {
   var url =
