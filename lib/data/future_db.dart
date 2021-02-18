@@ -27,6 +27,17 @@ Future<List> getAllRouteName() async {
   return jsonData;
 }
 
+Future<int> getSerialno() async {
+  var url =
+      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/serialno';
+  var response = await http.get(url);
+  var jsonBody = response.body;
+  var jsonData = json.decode(jsonBody.substring(0));
+  print(jsonData[0]['SERIAL_NO'].toString() + "..........");
+
+  return jsonData[0]['SERIAL_NO'];
+}
+
 Future<List> getAllSalesEntryDetails(doc_no) async {
   var url =
       'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/DetailList/$gs_doc_type/$gs_company_code/$doc_no';
