@@ -94,3 +94,12 @@ align(alignment, _text, size) {
     child: textData(_text, Colors.black, size),
   );
 }
+
+labelWidget(_text, clr) {
+  return TextField(
+    decoration: InputDecoration(
+        border: InputBorder.none,
+        labelText: _text,
+        labelStyle: TextStyle(color: clr)),
+  );
+}
