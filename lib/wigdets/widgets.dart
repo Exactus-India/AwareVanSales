@@ -94,29 +94,3 @@ align(alignment, _text, size) {
     child: textData(_text, Colors.black, size),
   );
 }
-
-button_print(page, context) {
-  return RaisedButton(
-    onPressed: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => page),
-      );
-    },
-    child: Icon(Icons.print),
-  );
-}
-
-button_generate(page, context) {
-  return RaisedButton(
-    color: Colors.green[400],
-    onPressed: () {
-      // Navigator.push(
-      //   context,
-      //   MaterialPageRoute(builder: (context) => page),
-      // );
-      page;
-    },
-    child: Text('Generate'),
-  );
-}
