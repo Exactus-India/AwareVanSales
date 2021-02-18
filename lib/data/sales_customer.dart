@@ -34,6 +34,7 @@ class Customer {
 }
 
 class Sales {
+  var val;
   var val1;
   var val2;
   var val3;
@@ -50,7 +51,7 @@ class Sales {
   var param2;
 
   Sales.fromJson_Sales(Map<String, dynamic> json) {
-    val1 = json['DOC_DATE'];
+    val = json['DOC_DATE'];
     val2 = json['DOC_NO'];
     val3 = json['SALE_TYPE'];
     val4 = json['REF_NO'];
@@ -62,5 +63,6 @@ class Sales {
     search = json['DOC_NO'];
     param1 = json['DOC_NO'];
     param2 = json['PARTY_NAME'];
+    val1 = val.toString().split('T')[0];
   }
 }
