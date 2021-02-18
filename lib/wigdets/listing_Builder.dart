@@ -8,8 +8,10 @@ class ListBuilderCommon extends StatefulWidget {
   final List datas;
   final toPage;
   final bool head;
+  final bool popBack;
 
-  const ListBuilderCommon({Key key, this.datas, this.toPage, this.head})
+  const ListBuilderCommon(
+      {Key key, this.datas, this.toPage, this.head, this.popBack})
       : super(key: key);
   @override
   _ListBuilderCommonState createState() => _ListBuilderCommonState();
@@ -19,15 +21,18 @@ int list_length;
 
 String gs_sales_param1;
 String gs_sales_param2;
+int gs_list_index;
 
 class _ListBuilderCommonState extends State<ListBuilderCommon> {
   List _datas = List();
   List _datasForDisplay = List();
   bool _timer_ = false;
+  bool pop = false;
 
   @override
   void initState() {
     setState(() {
+      if (widget.popBack == true) pop = true;
       _datas = widget.datas;
       _datasForDisplay = _datas;
     });
@@ -111,10 +116,13 @@ class _ListBuilderCommonState extends State<ListBuilderCommon> {
               ],
             ),
             onTap: () {
-              if (widget.toPage != null) {
+              if (widget.toPage != null && pop == false) {
                 gs_sales_param1 = _datasForDisplay[index].param1.toString();
                 gs_sales_param2 = _datasForDisplay[index].param2.toString();
                 Navigator.pushNamed(context, toPage);
+              } else if (pop == true) {
+                gs_list_index = index;
+                Navigator.of(context).pop(true);
               }
             },
           ),
