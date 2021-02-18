@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:aware_van_sales/data/salesDetail.dart';
+import 'package:aware_van_sales/data/sales_details.dart';
+import 'package:aware_van_sales/data/salesproducts.dart';
 import 'package:aware_van_sales/data/sales_customer.dart';
 import 'package:aware_van_sales/pages/wm_mb_LoginPage.dart';
 import './User_data.dart';
@@ -44,28 +45,33 @@ Future<List> getAllSalesHDR(doc_no) async {
   return jsonData;
 }
 
-Future<List> getAllProductDetails() async {
+Future<List> salesmiddile(docno, serialno) async {
+  var url =
+      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/Detail/$gs_doc_type/$gs_company_code/$docno/$serialno';
+  var response = await http.get(url);
+  var datas = List<Salesmiddle>();
+  if (response.statusCode == 200) {
+    Object datasJson = json.decode(response.body.substring(0));
+    for (var dataJson in datasJson) {
+      datas.add(Salesmiddle.fromJson(dataJson));
+    }
+  }
+  return datas;
+}
+
+Future<List> getAllProduct() async {
   var url =
       'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/search';
   var response = await http.get(url);
-  var jsonBody = response.body;
-  var jsonData = json.decode(jsonBody.substring(0));
-  return jsonData;
+  var datas = List<Productlist>();
+  if (response.statusCode == 200) {
+    Object datasJson = json.decode(response.body.substring(0));
+    for (var dataJson in datasJson) {
+      datas.add(Productlist.fromJson(dataJson));
+    }
+  }
+  return datas;
 }
-
-// Future<List> getAllProductDetails() async {
-//   var url =
-//       'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/search';
-//   var response = await http.get(url);
-//   var datas = List<Saleslog>();
-//   if (response.statusCode == 200) {
-//     Object datasJson = json.decode(response.body.substring(0));
-//     for (var dataJson in datasJson) {
-//       datas.add(Saleslog.fromJson(dataJson));
-//     }
-//   }
-//   return datas;
-// }
 
 Future<List<Customer>> customersaleslist() async {
   var url =
