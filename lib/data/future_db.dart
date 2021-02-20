@@ -27,15 +27,45 @@ Future<List> getAllRouteName() async {
   return jsonData;
 }
 
-Future<int> getSerialno() async {
+Future<int> getSerialno(doc_no) async {
   var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/serialno';
+      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/serialno/$doc_no';
   var response = await http.get(url);
   var jsonBody = response.body;
   var jsonData = json.decode(jsonBody.substring(0));
   print(jsonData[0]['SERIAL_NO'].toString() + "..........");
 
   return jsonData[0]['SERIAL_NO'];
+}
+
+Future product_insertion(serial_no, prod_code, prod_name, p_uom, qty_puom,
+    l_uom, qty_luom, amt, vat, net_amt) async {
+  Map data = {
+    "SERIAL_NO": serial_no,
+    "PROD_CODE": prod_code,
+    "PROD_NAME": prod_name,
+    "P_UOM": p_uom,
+    "QTY_PUOM": qty_puom,
+    "L_UOM": l_uom,
+    "QTY_LUOM": qty_luom,
+    "AMOUNT": amt,
+    "TX_COMPNT_AMT_1": vat,
+    "NET_AMOUNT": net_amt,
+  };
+  var value = json.encode(data);
+  var url =
+      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/insert';
+  var response = await http.post(url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+      body: value);
+
+  if (response.statusCode == 200) {
+    return 1;
+  } else {
+    return null;
+  }
 }
 
 Future<List> getAllSalesEntryDetails(doc_no) async {
