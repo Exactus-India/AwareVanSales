@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 Widget logo() {
   return Container(
@@ -95,11 +96,23 @@ align(alignment, _text, size) {
   );
 }
 
-labelWidget(_text, clr) {
+labelWidget(clr, _controller) {
   return TextField(
+    style: TextStyle(color: clr),
     decoration: InputDecoration(
-        border: InputBorder.none,
-        labelText: _text,
-        labelStyle: TextStyle(color: clr)),
+      border: InputBorder.none,
+    ),
+    controller: _controller,
   );
+}
+
+showToast(msg) {
+  Fluttertoast.showToast(
+      msg: msg,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.grey,
+      textColor: Colors.black,
+      fontSize: 16.0);
 }
