@@ -9,6 +9,10 @@ class Productlist {
   var val8;
   var val9;
   var search;
+  var luom;
+  var puom;
+  var stk_luom;
+  var stk_puom;
 
   Productlist.fromJson(Map<String, dynamic> json) {
     val1 = json['PROD_NAME'];
@@ -18,5 +22,9 @@ class Productlist {
     val9 = json['UNIT_PRICE'];
     val3 = val7.toString() + " " + val8.toString();
     search = val1;
+    puom = val8;
+    stk_puom = val7;
+    luom = json['L_UOM'];
+    stk_luom = json['STK_LUOM'];
   }
 }
