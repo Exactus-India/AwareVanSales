@@ -1,5 +1,3 @@
-import 'package:flutter/cupertino.dart';
-
 class RouteData {
   String route_code;
   String route_name;
