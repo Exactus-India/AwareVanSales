@@ -7,8 +7,10 @@ class Salesmiddle {
   var luom;
   var qty_luom;
   var amount;
-  var tax;
+  var unit_price;
+  var vat;
   var net_amount;
+  var tot_qty;
 
   Salesmiddle.fromJson(Map<String, dynamic> json) {
     serial_no = json['SERIAL_NO'];
@@ -18,8 +20,10 @@ class Salesmiddle {
     qty_puom = json['QTY_PUOM'];
     luom = json['L_UOM'];
     qty_luom = json['QTY_LUOM'];
+    unit_price = json['UNIT_PRICE'];
     amount = json['AMOUNT'];
-    tax = json['TX_COMPNT_AMT_1'];
-    net_amount = json['NET_AMOUNT'];
+    vat = json['TX_COMPNT_AMT_1'];
+    net_amount = json['AMOUNT'];
+    tot_qty = json['QUANTITY'];
   }
 }
