@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:aware_van_sales/data/sales_details.dart';
+import 'package:aware_van_sales/data/sales_Middle.dart';
+import 'package:aware_van_sales/data/sales_detailList.dart';
 import 'package:aware_van_sales/data/salesproducts.dart';
 import 'package:aware_van_sales/data/sales_customer.dart';
 import 'package:aware_van_sales/pages/wm_mb_LoginPage.dart';
@@ -33,7 +34,7 @@ Future<int> getSerialno(doc_no) async {
   var response = await http.get(url);
   var jsonBody = response.body;
   var jsonData = json.decode(jsonBody.substring(0));
-  print(jsonData[0]['SERIAL_NO'].toString() + "..........");
+  print(jsonData[0]['SERIAL_NO'].toString() + "last serial");
 
   return jsonData[0]['SERIAL_NO'];
 }
@@ -69,6 +70,20 @@ Future product_insertion(serial_no, prod_code, prod_name, p_uom, qty_puom,
 }
 
 Future<List> getAllSalesEntryDetails(doc_no) async {
+  var url =
+      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/DetailList/$gs_doc_type/$gs_company_code/$doc_no';
+  var response = await http.get(url);
+  var datas = List<SalesDetail>();
+  if (response.statusCode == 200) {
+    Object datasJson = json.decode(response.body.substring(0));
+    for (var dataJson in datasJson) {
+      datas.add(SalesDetail.fromJson(dataJson));
+    }
+  }
+  return datas;
+}
+
+Future<List> getAllSalesEntryDetails_1(doc_no) async {
   var url =
       'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/DetailList/$gs_doc_type/$gs_company_code/$doc_no';
   var response = await http.get(url);
