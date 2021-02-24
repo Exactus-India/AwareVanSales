@@ -39,8 +39,26 @@ Future<int> getSerialno(doc_no) async {
   return jsonData[0]['SERIAL_NO'];
 }
 
-Future product_insertion(serial_no, prod_code, prod_name, p_uom, qty_puom,
-    l_uom, qty_luom, amt, vat, net_amt) async {
+Future product_insertion(
+    serial_no,
+    prod_code,
+    prod_name,
+    p_uom,
+    qty_puom,
+    l_uom,
+    qty_luom,
+    amt,
+    vat,
+    net_amt,
+    doc_no,
+    dept_code,
+    // cancelled,
+    // inv_ref_type,
+    // tx_id_no,
+    // tx_cat_code,
+    qty,
+    unit_rate,
+    curr_code) async {
   Map data = {
     "SERIAL_NO": serial_no,
     "PROD_CODE": prod_code,
@@ -51,7 +69,20 @@ Future product_insertion(serial_no, prod_code, prod_name, p_uom, qty_puom,
     "QTY_LUOM": qty_luom,
     "AMOUNT": amt,
     "TX_COMPNT_AMT_1": vat,
-    "NET_AMOUNT": net_amt,
+    "NET_PRICE": net_amt,
+    "DOC_NO": doc_no,
+    "DOC_TYPE": gs_doc_type,
+    "SALESMAN_CODE": gs_currentUser_empid,
+    "DEPT_CODE": dept_code,
+    // "CANCELLED": cancelled,
+    "USER_ID": gs_currentUser,
+    // "INV_REF_TYPE": inv_ref_type,
+    // "TX_IDENTITY_NUMBER": gs_doc_type + '' + tx_id_no,
+    // "TX_CAT_CODE": tx_cat_code,
+    "QUANTITY": qty,
+    "UNIT_PRICE": unit_rate,
+    "CURR_CODE": curr_code,
+    "COMPANY_CODE": gs_company_code
   };
   var value = json.encode(data);
   var url =
@@ -66,6 +97,57 @@ Future product_insertion(serial_no, prod_code, prod_name, p_uom, qty_puom,
     return 1;
   } else {
     return null;
+  }
+}
+
+Future product_updation(
+  serial_no,
+  qty_puom,
+  qty_luom,
+  amt,
+  vat,
+  net_amt,
+  doc_no,
+  qty,
+  unit_rate,
+) async {
+  Map data = {
+    "SERIAL_NO": serial_no,
+    "QTY_PUOM": qty_puom,
+    "QTY_LUOM": qty_luom,
+    "AMOUNT": amt,
+    "TX_COMPNT_AMT_1": vat,
+    "NET_PRICE": net_amt,
+    "DOC_NO": doc_no,
+    "DOC_TYPE": gs_doc_type,
+    "QUANTITY": qty,
+    "UNIT_PRICE": unit_rate,
+    "COMPANY_CODE": gs_company_code
+  };
+  var value = json.encode(data);
+  var url =
+      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/update';
+  var response = await http.put(url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+      body: value);
+
+  if (response.statusCode == 200) {
+    return 1;
+  } else {
+    return null;
+  }
+}
+
+Future<bool> salesDelete(serial_no, doc_no) async {
+  var url =
+      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/delete/$serial_no/$doc_no/$gs_company_code/$gs_doc_type';
+  var response = await http.delete(url);
+  if (response.statusCode == 200) {
+    return true;
+  } else {
+    return false;
   }
 }
 
