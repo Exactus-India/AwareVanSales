@@ -1,7 +1,12 @@
+import 'dart:async';
+
 import 'package:aware_van_sales/data/future_db.dart';
+import 'package:aware_van_sales/wigdets/List_horizontal.dart';
 import 'package:aware_van_sales/wigdets/alert.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:flutter/material.dart';
+
+import 'package:http/http.dart' as http;
 
 import 'listing_Builder.dart';
 
@@ -30,19 +35,23 @@ class _SalesEntryState extends State<SalesEntry> {
   List salestypes = ['CASH', 'CREDIT'];
   String selectedtype;
   bool middle_view = false;
+  bool sales_delete = false;
   List salesHDR = List();
-  var serial_no;
   List salesdetails = List();
+  List salesmiddleList = List();
   List productList = List();
+  var serial_no;
   var _puom;
   var _luom;
   var stk_puom;
   var stk_luom;
+  double sales = 0;
+  bool prod_update = false;
 
   @override
   void initState() {
     if (gs_sales_param1 == null) customer.text = gs_sales_param2;
-    if (gs_sales_param1 != null)
+    if (gs_sales_param1 != null) {
       getAllSalesHDR(gs_sales_param1).then((value) {
         setState(() {
           salesHDR.addAll(value);
@@ -55,18 +64,22 @@ class _SalesEntryState extends State<SalesEntry> {
           print(salesHDR[0]['PARTY_NAME'].toString());
         });
       });
-    if (gs_sales_param1 != null) fetch_saleseEntry();
+      fetch_saleseEntry(gs_sales_param1);
+    }
     getAllProduct().then((value) {
       setState(() {
+        productList.clear();
         productList.addAll(value);
       });
     });
-    print(doc_no.text);
-    gs_sales_param1 != null
-        ? getSerialno(gs_sales_param1)
-            .then((value) => serial_no = value.toInt() + 1)
-        : serial_no = 1;
+    print(doc_no.text + ' doc no');
+    gs_sales_param1 != null ? getSerialno_fun() : serial_no = 1;
     super.initState();
+  }
+
+  getSerialno_fun() {
+    return getSerialno(gs_sales_param1)
+        .then((value) => serial_no = value.toInt() + 1);
   }
 
   dropDown_salestype() {
@@ -103,7 +116,9 @@ class _SalesEntryState extends State<SalesEntry> {
           GestureDetector(
               onTap: () {
                 setState(() {
-                  productInsert();
+                  prod_update == false ? productInsert() : productupdation();
+                  // clearFields();
+                  print('serial_no' + serial_no.toString());
                 });
               },
               child: Icon(Icons.save)),
@@ -111,14 +126,32 @@ class _SalesEntryState extends State<SalesEntry> {
           GestureDetector(
               onTap: () {
                 setState(() {
+                  prod_update = false;
+                  clearFields();
                   middle_view = true;
-                  print(serial_no.toString());
+                  gs_sales_param1 != null ? getSerialno_fun() : serial_no = 1;
+                  print(serial_no.toString() + "in new");
                   gs_list_index = null;
                 });
               },
               child: Icon(Icons.add)),
           SizedBox(width: 20.0),
-          GestureDetector(onTap: () {}, child: Icon(Icons.delete)),
+          GestureDetector(
+              onTap: () {
+                salesDelete(serial_no, doc_no.text).then((value) {
+                  setState(() {
+                    sales_delete = value;
+                    if (sales_delete == true) {
+                      fetch_saleseEntry(doc_no.text);
+                      getSerialno_fun();
+                      showToast('Deleted Succesfully');
+                      print(serial_no + " new after delete");
+                      clearFields();
+                    }
+                  });
+                });
+              },
+              child: Icon(Icons.delete)),
           SizedBox(width: 20.0),
         ],
       ),
@@ -150,9 +183,7 @@ class _SalesEntryState extends State<SalesEntry> {
           Flexible(child: textField("Doc_no", doc_no, false, true)),
           if (doc_no.text.isEmpty)
             Flexible(
-              child: Padding(
-                  padding: EdgeInsets.only(left: 30.0),
-                  child: button_generate(null, context)),
+              child: Padding(padding: EdgeInsets.only(left: 30.0), child: null),
             ),
         ]),
         SizedBox(height: 10),
@@ -217,6 +248,10 @@ class _SalesEntryState extends State<SalesEntry> {
   }
 
   saleslist() {
+    // return Container(
+    //     height: 400.0,
+    //     width: 300.0,
+    //     child: ListHorizontal(datas: salesdetails));
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: DataTable(
@@ -235,7 +270,15 @@ class _SalesEntryState extends State<SalesEntry> {
           rows: salesdetails
               .map(
                 (saleslog) => DataRow(cells: <DataCell>[
-                  DataCell(Text(saleslog['SERIAL_NO'].toString())),
+                  DataCell(Text(saleslog['SERIAL_NO'].toString()), onTap: () {
+                    setState(() {
+                      if (middle_view == false) middle_view = true;
+                      prod_update = true;
+                      print(prod_update);
+                      String sno = saleslog['SERIAL_NO'].toString();
+                      selectListItem(sno);
+                    });
+                  }),
                   DataCell(Text(saleslog['PROD_CODE'].toString())),
                   DataCell(Text(saleslog['PROD_NAME'].toString())),
                   DataCell(Text(saleslog['P_UOM'].toString())),
@@ -243,9 +286,8 @@ class _SalesEntryState extends State<SalesEntry> {
                   DataCell(Text(saleslog['L_UOM'].toString())),
                   DataCell(Text(saleslog['QTY_LUOM'].toString())),
                   DataCell(Text(saleslog['AMOUNT'].toString())),
-                  DataCell(
-                      Text(saleslog['TX_COMPNT_AMT_1'].toStringAsFixed(3))),
-                  DataCell(Text(saleslog['NET_AMOUNT'].toStringAsFixed(3))),
+                  DataCell(Text(saleslog['TX_COMPNT_AMT_1'].toString())),
+                  DataCell(Text(saleslog['NET_AMOUNT'].toString())),
                 ]),
               )
               .toList()),
@@ -267,6 +309,12 @@ class _SalesEntryState extends State<SalesEntry> {
                           .then((value) {
                         setState(() {
                           if (gs_list_index != null) {
+                            prod_update = false;
+                            gs_sales_param1 != null
+                                ? getSerialno_fun()
+                                : serial_no = 1;
+                            print(serial_no.toString() + "in new");
+                            print(prod_update);
                             productClick();
                           }
                         });
@@ -285,20 +333,6 @@ class _SalesEntryState extends State<SalesEntry> {
             width: 300.0,
             child: ListBuilderCommon(
                 datas: productList, head: false, toPage: null, popBack: true)));
-  }
-
-  button_generate(page, context) {
-    return RaisedButton(
-      color: Colors.green[400],
-      onPressed: () {
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(builder: (context) => page),
-        // );
-        page;
-      },
-      child: Text('Generate'),
-    );
   }
 
   textField(_text, _controller, _validate, read) {
@@ -325,11 +359,45 @@ class _SalesEntryState extends State<SalesEntry> {
     );
   }
 
-  fetch_saleseEntry() {
-    return getAllSalesEntryDetails(gs_sales_param1).then((value) {
+  fetch_saleseEntry(param1) {
+    return getAllSalesEntryDetails_1(param1).then((value) {
       setState(() {
         salesdetails.clear();
         salesdetails.addAll(value);
+        list_length = 0;
+        list_length = salesdetails.length;
+        // for (int i = 0; i < salesdetails.length; i++)
+        //   sales += salesdetails[i].val10.toDouble();
+
+        // print(sales.toString()+'total');
+      });
+    });
+  }
+
+  selectListItem(serialno) {
+    salesmiddile(doc_no.text, serialno).then((value) {
+      new Timer(const Duration(milliseconds: 300), () {
+        setState(() {
+          salesmiddleList.clear();
+          salesmiddleList.addAll(value);
+          clearFields();
+          print(salesmiddleList.length.toString() + 'list Size');
+          serial_no = serialno;
+          product.text = salesmiddleList[0].product_code.toString();
+          product_name.text = salesmiddleList[0].product_name.toString();
+          puom.text = salesmiddleList[0].qty_puom.toString();
+          luom.text = salesmiddleList[0].qty_luom.toString();
+          rate.text = salesmiddleList[0].unit_price.toString();
+          amt.text = salesmiddleList[0].amount.toString();
+          vat.text = salesmiddleList[0].vat.toString();
+          net_amt.text =
+              (double.parse(amt.text) + double.parse(vat.text)).toString();
+          qty.text = salesmiddleList[0].tot_qty.toString();
+          // bal_stk.text = salesmiddleList[0].tot_qty.toString() +
+          //     ' ' +
+          //     salesmiddleList[0].puom.toString();
+          print(serial_no.toString() + "*");
+        });
       });
     });
   }
@@ -358,42 +426,86 @@ class _SalesEntryState extends State<SalesEntry> {
     luom.text.isNotEmpty ? luoms = int.parse(luom.text) : luoms = 0;
     var _qty = puoms + luoms;
     qty.text = _qty.toString();
-    var _rate = double.parse(rate.text);
-    var _amt = _qty * _rate;
-    amt.text = (_qty * _rate).toString();
-    var _vat = (_rate * (5 / 100)) * _qty;
-    vat.text = _vat.toStringAsFixed(3);
-    net_amt.text = (_amt + _vat).toString();
+    if (qty.text.isNotEmpty) {
+      var _rate = double.parse(rate.text);
+      var _amt = _qty * _rate;
+      amt.text = (_qty * _rate).toString();
+      var _vat = (_rate * (5 / 100)) * _qty;
+      if (amt.text.isNotEmpty) vat.text = _vat.toStringAsFixed(2);
+      net_amt.text = (_amt + _vat).toString();
+    }
   }
 
   productInsert() async {
-    if (!_formkey.currentState.validate()) {
-      String _msg = "required";
-      if (qty.text.isEmpty) {
-        return alert(this.context, 'puom or luom is ' + _msg, Colors.red);
-      }
+    if (product.text.isEmpty || qty.text.isEmpty || net_amt.text.isEmpty) {
+      String _msg = "Empty";
+      return alert(this.context, 'Fields are ' + _msg, Colors.red);
     } else {
       // ---------------------Login Success--------------------------
       setState(() {
         _message = 'Loading....';
       });
+      if (luom.text.isEmpty) luom.text = '0';
       var resp = await product_insertion(
-          doc_no.text,
-          product.text,
-          product_name.text,
-          _puom,
-          puom.text,
-          _luom,
-          luom.text,
-          amt.text,
-          vat.text,
-          net_amt.text);
+        serial_no,
+        product.text,
+        product_name.text,
+        _puom,
+        puom.text,
+        _luom,
+        luom.text,
+        amt.text,
+        vat.text,
+        net_amt.text,
+        doc_no.text,
+        "DC",
+        // "N",
+        // "SI90",
+        // "doc_no.text",
+        // "31",
+        qty.text,
+        rate.text,
+        "AED",
+      );
       if (resp == 1) {
         setState(() {
           clearFields();
-          fetch_saleseEntry();
+          fetch_saleseEntry(doc_no.text);
           // Navigator.of(context).pop(true);
           showToast('Created Succesfully');
+        });
+      } else {
+        showToast('error');
+      }
+    }
+  }
+
+  productupdation() async {
+    if (product.text.isEmpty && qty.text.isEmpty) {
+      return alert(this.context, 'Fields are empty', Colors.red);
+    } else {
+      // ---------------------Login Success--------------------------
+      setState(() {
+        _message = 'Loading....';
+      });
+      if (luom.text.isEmpty) luom.text = '0';
+      var resp = await product_updation(
+        serial_no,
+        puom.text,
+        luom.text,
+        amt.text,
+        vat.text,
+        net_amt.text,
+        doc_no.text,
+        qty.text,
+        rate.text,
+      );
+      if (resp == 1) {
+        setState(() {
+          clearFields();
+          fetch_saleseEntry(doc_no.text);
+          // Navigator.of(context).pop(true);
+          showToast('Updated Succesfully');
         });
       } else {
         showToast('error');
@@ -411,5 +523,6 @@ class _SalesEntryState extends State<SalesEntry> {
     qty.clear();
     puom.clear();
     luom.clear();
+    bal_stk.clear();
   }
 }
