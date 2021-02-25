@@ -4,6 +4,9 @@ import 'package:aware_van_sales/wigdets/card.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:flutter/material.dart';
 
+import 'wm_mb_sales_summary.dart';
+import 'wm_mb_stock_summary.dart';
+
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
@@ -39,7 +42,7 @@ class _HomePageState extends State<HomePage> {
                 "RECEIPT", null, Colors.blue[800], this.context, 'receipt.png'),
 
             //--------------------------SALE SUMMARY-------------------------
-            card("SALE SUMMARY", null, Colors.blue[800], this.context,
+            card("SALE SUMMARY", SalesSummary(), Colors.blue[800], this.context,
                 'sales_summary.png'),
 
             //--------------------------STOCK TRANSFER-------------------------
@@ -51,8 +54,8 @@ class _HomePageState extends State<HomePage> {
                 'os_ageing.png'),
 
             //--------------------------STOCK SUMMARY-------------------------
-            card("STOCK SUMMARY", null, Colors.blue[800], this.context,
-                'stock_summary.png'),
+            card("STOCK SUMMARY", StockSummary(), Colors.blue[800],
+                this.context, 'stock_summary.png'),
 
             //--------------------------DAILY ACTIVITY-------------------------
             card("DAILY ACTIVITY", null, Colors.blue[800], this.context,
