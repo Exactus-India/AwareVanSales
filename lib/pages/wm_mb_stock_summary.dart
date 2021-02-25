@@ -1,3 +1,4 @@
+import 'package:aware_van_sales/data/stock_sum_data.dart';
 import 'package:flutter/material.dart';
 
 import '../data/future_db.dart';
@@ -38,9 +39,14 @@ var now = new DateTime.now();
 String formatter = DateFormat('yMd').format(now);
 
 class _StockSummaryState extends State<StockSummary> {
-  List stockreport = List();
+  // List stockreport = List();
+  List<StockSum> stockreport = List<StockSum>();
+
+  List<DataRow> rows = [];
+
   @override
   void initState() {
+    stock_summary_pro("12-FEB-2021", "12-FEB-2021");
     setState(() {
       stock_summary().then((value) {
         stockreport.addAll(value);
@@ -81,55 +87,55 @@ class _StockSummaryState extends State<StockSummary> {
                 ),
                 text("User: " + gs_currentUser, Colors.black),
                 text("Date: " + formatter, Colors.black),
+                _getData01(stockreport),
                 SingleChildScrollView(
                   padding: EdgeInsets.only(top: 20.0),
                   scrollDirection: Axis.horizontal,
-                  child: DataTable(
-                      columns: [
-                        DataColumn(
-                          label: text("PRODUCT\nCODE", Colors.black),
-                        ),
-                        DataColumn(label: text("OPEN\nSTOCK", Colors.black)),
-                        DataColumn(
-                          label: text("QTY\nIN", Colors.black),
-                        ),
-                        DataColumn(
-                          label: text("QTY\nOUT", Colors.black),
-                        ),
-                        DataColumn(
-                            label: text("CLOSING\nSTOCK", Colors.black),
-                            numeric: true),
-                      ],
-                      rows: stockreport
-                          .map(
-                            (stocksum) => DataRow(cells: <DataCell>[
-                              DataCell(
-                                Container(
-                                  child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(stocksum['PROD_NAME'].toString()),
-                                        // Text(stocksum['PROD_CODE'].toString()),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(stocksum['PROD_CODE']
-                                                .toString()),
-                                            Text(stocksum['L_UOM'].toString()),
-                                          ],
-                                        )
-                                      ]),
-                                ),
-                              ),
-                              DataCell(Text(stocksum['OP_STK'].toString())),
-                              DataCell(Text(stocksum['IN_QTY'].toString())),
-                              DataCell(Text(stocksum['OUT_QTY'].toString())),
-                              DataCell(Text(stocksum['CL_STOCK'].toString())),
-                            ]),
-                          )
-                          .toList()),
+                  child: DataTable(columns: [
+                    DataColumn(
+                      label: text("PRODUCT\nCODE", Colors.black),
+                    ),
+                    DataColumn(label: text("OPEN\nSTOCK", Colors.black)),
+                    DataColumn(
+                      label: text("QTY\nIN", Colors.black),
+                    ),
+                    DataColumn(
+                      label: text("QTY\nOUT", Colors.black),
+                    ),
+                    DataColumn(
+                        label: text("CLOSING\nSTOCK", Colors.black),
+                        numeric: true),
+                  ], rows: rows
+                      //  stockreport.forEach((stat) {
+                      // stat.item.forEach((row) {
+                      //   rows.add( DataRow(cells: <DataCell>[
+                      //                         DataCell(
+                      //                           Container(
+                      //                             child: Column(
+                      //                                 crossAxisAlignment:
+                      //                                     CrossAxisAlignment.start,
+                      //                                 children: [
+                      //                                   Text(row.prod_code.toString()),
+                      //                                   // Text(stocksum['PROD_CODE'].toString()),
+                      //                                   Row(
+                      //                                     mainAxisAlignment:
+                      //                                         MainAxisAlignment.spaceBetween,
+                      //                                     children: [
+                      //                                       Text(row.prod_name.toString()),
+                      //                                       Text(row.l_uom.toString()),
+                      //                                     ],
+                      //                                   )
+                      //                                 ]),
+                      //                           ),
+                      //                         ),
+                      //                         DataCell(Text(row.op_stk.toString())),
+                      //                         DataCell(Text(row.in_qty.toString())),
+                      //                         DataCell(Text(row.out_qty.toString())),
+                      //                         DataCell(Text(row.cl_stock.toString())),
+                      //                       ]),
+                      //                    );
+                      //                   });}),
+                      ),
                 ),
               ],
             ),
@@ -137,5 +143,32 @@ class _StockSummaryState extends State<StockSummary> {
         ),
       ),
     );
+  }
+
+  Widget _getData01(List listOfData) {
+    listOfData.forEach((stat) {
+      stat.item.forEach((row) {
+        rows.add(DataRow(cells: [
+          DataCell(
+            Text(row.prod_name),
+          ),
+          DataCell(
+            Text(row.prod_name),
+          ),
+          // DataCell(
+          //   Text("${row.symbol}"),
+          // ),
+        ]));
+      });
+    });
+
+    // return DataTable(
+    //   columns: listOfData
+    //       .map((column) => DataColumn(
+    //             label: Container(),
+    //           ))
+    //       .toList(),
+    //   rows: rows,
+    // );
   }
 }

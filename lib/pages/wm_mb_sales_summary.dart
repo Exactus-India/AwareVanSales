@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../wigdets/widgets.dart';
 import 'wm_mb_LoginPage.dart';
+import '../data/future_db.dart';
 
 class SalesSummary extends StatefulWidget {
   @override
@@ -35,13 +36,17 @@ List salessummary = [
 class _SalesSummaryState extends State<SalesSummary> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextEditingController date = TextEditingController();
-  TextEditingController totalcash = TextEditingController();
   int totalCash = 0;
+  List stockreport = List();
   @override
   void initState() {
-    setState(() {
-      totalcash.text = totalCash.toString();
+    sales_sum_pro();
+    sales_sum1().then((value) {
+      setState(() {
+        stockreport.addAll(value);
+      });
     });
+
     super.initState();
   }
 
@@ -106,14 +111,6 @@ class _SalesSummaryState extends State<SalesSummary> {
                     Column(children: [textData("525", Colors.grey, 20.0)]),
                   ]),
                 ]),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Flexible(
-                    flex: 2, child: labelWidget(Colors.blue[500], totalcash)),
-                Flexible(child: labelWidget(Colors.blue[500], totalcash)),
-              ],
-            ),
             SizedBox(
               height: 10,
             ),
@@ -126,9 +123,7 @@ class _SalesSummaryState extends State<SalesSummary> {
               ],
               rows: salessummary.map((salessum) {
                 setState(() {
-                  totalcash.clear();
                   totalCash = salessum['QTY_PUOM'] + totalCash;
-                  totalcash.text = totalcash.toString();
                 });
                 return DataRow(cells: <DataCell>[
                   // totalCash+=salessum['QTY_PUOM'];
