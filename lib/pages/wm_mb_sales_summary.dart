@@ -17,17 +17,17 @@ List salessummary = [
     "L_UOM": 34
   },
   {
-    "PROD_CODE": 46,
+    "PROD_CODE": 45,
     "PROD_NAME": "hgfg",
     "P_UOM": "pcs",
-    "QTY_PUOM": 58,
+    "QTY_PUOM": 54,
     "L_UOM": 34
   },
   {
-    "PROD_CODE": 47,
+    "PROD_CODE": 45,
     "PROD_NAME": "hgfg",
     "P_UOM": "pcs",
-    "QTY_PUOM": 58,
+    "QTY_PUOM": 54,
     "L_UOM": 34
   }
 ];
@@ -35,15 +35,12 @@ List salessummary = [
 class _SalesSummaryState extends State<SalesSummary> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextEditingController date = TextEditingController();
-  TextEditingController empid = TextEditingController();
-  TextEditingController totalamount = TextEditingController();
-  TextEditingController labelcash = TextEditingController();
+  TextEditingController totalcash = TextEditingController();
   int totalCash = 0;
   @override
   void initState() {
     setState(() {
-      totalamount.clear();
-      labelcash.text = 'TOTAL CASH';
+      totalcash.text = totalCash.toString();
     });
     super.initState();
   }
@@ -67,7 +64,7 @@ class _SalesSummaryState extends State<SalesSummary> {
         padding: const EdgeInsets.all(12.0),
         child: Column(
           children: [
-            align(Alignment.centerLeft, gs_currentUser, 18.0),
+            textData(gs_currentUser, Colors.black, 18.0),
             SizedBox(height: 20.0),
             Form(
               key: _formKey,
@@ -75,21 +72,50 @@ class _SalesSummaryState extends State<SalesSummary> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Flexible(
-                      flex: 2, child: textField("Date", date, false, true)),
-                  Flexible(child: textField("Emp id", empid, false, true)),
+                      flex: 2, child: textField("abcd", date, false, true)),
+                  Flexible(child: textField("fg", date, false, true)),
                 ],
               ),
             ),
             SizedBox(
-              height: 10,
+              height: 30,
             ),
+            Table(
+                defaultColumnWidth: FixedColumnWidth(120.0),
+                border: TableBorder.all(
+                    color: Colors.black, style: BorderStyle.solid, width: 2),
+                children: [
+                  TableRow(children: [
+                    Column(
+                        children: [textData("Cash Sales", Colors.black, 20.0)]),
+                    Column(children: [
+                      textData("Credit Sales", Colors.black, 20.0)
+                    ]),
+                    Column(children: [
+                      textData("Total Sales", Colors.black, 20.0)
+                    ]),
+                  ]),
+                  TableRow(children: [
+                    Column(children: [textData("1", Colors.grey, 20.0)]),
+                    Column(children: [textData("0", Colors.grey, 20.0)]),
+                    Column(children: [textData("1", Colors.grey, 20.0)]),
+                  ]),
+                  TableRow(children: [
+                    Column(children: [textData("525", Colors.grey, 20.0)]),
+                    Column(children: [textData("0", Colors.grey, 20.0)]),
+                    Column(children: [textData("525", Colors.grey, 20.0)]),
+                  ]),
+                ]),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Flexible(child: labelWidget(Colors.blue[500], labelcash)),
                 Flexible(
-                    flex: 2, child: labelWidget(Colors.blue[500], totalamount)),
+                    flex: 2, child: labelWidget(Colors.blue[500], totalcash)),
+                Flexible(child: labelWidget(Colors.blue[500], totalcash)),
               ],
+            ),
+            SizedBox(
+              height: 10,
             ),
             DataTable(
               columns: [
@@ -100,9 +126,9 @@ class _SalesSummaryState extends State<SalesSummary> {
               ],
               rows: salessummary.map((salessum) {
                 setState(() {
-                  totalamount.clear();
+                  totalcash.clear();
                   totalCash = salessum['QTY_PUOM'] + totalCash;
-                  totalamount.text = totalCash.toString();
+                  totalcash.text = totalcash.toString();
                 });
                 return DataRow(cells: <DataCell>[
                   // totalCash+=salessum['QTY_PUOM'];

@@ -20,15 +20,6 @@ Future<List> getAllUserName() async {
   return jsonData;
 }
 
-Future<List> stock_summary() async {
-  var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/stocksummary/${gs_company_code}';
-  var response = await http.get(url);
-  var jsonBody = response.body;
-  var jsonData = json.decode(jsonBody.substring(0));
-  return jsonData;
-}
-
 Future<List> getAllRouteName() async {
   var url = 'http://exactusnet.dyndns.org:4005/api/routes';
   var response = await http.get(url);
@@ -46,6 +37,24 @@ Future<int> getSerialno(doc_no) async {
   print(jsonData[0]['SERIAL_NO'].toString() + "last serial");
 
   return jsonData[0]['SERIAL_NO'];
+}
+
+Future<List> stock_summary() async {
+  var url =
+      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/stocksummary/${gs_company_code}';
+  var response = await http.get(url);
+  var jsonBody = response.body;
+  var jsonData = json.decode(jsonBody.substring(0));
+  return jsonData;
+}
+
+Future<List> stock_summary_pro(datefrom, dateto) async {
+  var url =
+      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/stocksummary/$gs_company_code/$datefrom/$dateto/Z01';
+  var response = await http.get(url);
+  var jsonBody = response.body;
+  var jsonData = json.decode(jsonBody.substring(0));
+  return jsonData;
 }
 
 Future product_insertion(
