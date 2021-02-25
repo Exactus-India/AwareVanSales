@@ -212,9 +212,9 @@ class _SalesEntryState extends State<SalesEntry> {
           "", product_name, false, product_name.text != null ? true : false),
       SizedBox(height: 10),
       Row(children: <Widget>[
-        Flexible(child: textField("PUOM", puom, false, false)),
+        Flexible(child: textField("QTY PUOM", puom, false, false)),
         SizedBox(width: 10.0),
-        Flexible(child: textField("LUOM", luom, false, false)),
+        Flexible(child: textField("QTY LUOM", luom, false, false)),
       ]),
       SizedBox(height: 10),
       Row(children: <Widget>[
