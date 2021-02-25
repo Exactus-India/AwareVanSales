@@ -5,9 +5,12 @@ import 'package:aware_van_sales/data/sales_detailList.dart';
 import 'package:aware_van_sales/data/salesproducts.dart';
 import 'package:aware_van_sales/data/sales_customer.dart';
 import 'package:aware_van_sales/pages/wm_mb_LoginPage.dart';
+import 'package:intl/intl.dart';
 import './User_data.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+
+import 'stock_sum_data.dart';
 
 String gs_doc_type = 'DN90';
 String gs_company_code = 'BSG';
@@ -39,22 +42,52 @@ Future<int> getSerialno(doc_no) async {
   return jsonData[0]['SERIAL_NO'];
 }
 
-Future<List> stock_summary() async {
+Future<List<StockSum>> stock_summary() async {
   var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/stocksummary/${gs_company_code}';
+      'http://exactusnet.dyndns.org:4005/api/sales/customerList/stocksummary/$gs_company_code';
   var response = await http.get(url);
-  var jsonBody = response.body;
-  var jsonData = json.decode(jsonBody.substring(0));
-  return jsonData;
+  var datas = List<StockSum>();
+  if (response.statusCode == 200) {
+    Object datasJson = json.decode(response.body.substring(0));
+    for (var dataJson in datasJson) {
+      datas.add(StockSum.fromJson(dataJson));
+    }
+  }
+  return datas;
 }
 
-Future<List> stock_summary_pro(datefrom, dateto) async {
+Future stock_summary_pro(datefrom, dateto) async {
   var url =
       'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/stocksummary/$gs_company_code/$datefrom/$dateto/Z01';
   var response = await http.get(url);
   var jsonBody = response.body;
   var jsonData = json.decode(jsonBody.substring(0));
   return jsonData;
+}
+
+Future sales_sum_pro() async {
+  var date = DateFormat("dd-MMM-yyyy").format(DateTime.now());
+  print(date.toString());
+  var url =
+      'http://exactusnet.dyndns.org:4005/api/sales/customerList/prosalessummary/$gs_company_code/$date/$gs_currentUser_empid';
+  var response = await http.get(url);
+  var jsonBody = response.body;
+  var jsonData = json.decode(jsonBody.substring(0));
+  return jsonData;
+}
+
+Future<List<StockSum>> sales_sum1() async {
+  var url =
+      'http://exactusnet.dyndns.org:4005/api/sales/sales/customerList/salestype/summary01';
+  var response = await http.get(url);
+  var datas = List<StockSum>();
+  if (response.statusCode == 200) {
+    Object datasJson = json.decode(response.body.substring(0));
+    for (var dataJson in datasJson) {
+      datas.add(StockSum.fromJson(dataJson));
+    }
+  }
+  return datas;
 }
 
 Future product_insertion(
