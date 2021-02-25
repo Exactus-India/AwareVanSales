@@ -17,17 +17,17 @@ List salessummary = [
     "L_UOM": 34
   },
   {
-    "PROD_CODE": 45,
+    "PROD_CODE": 46,
     "PROD_NAME": "hgfg",
     "P_UOM": "pcs",
-    "QTY_PUOM": 54,
+    "QTY_PUOM": 58,
     "L_UOM": 34
   },
   {
-    "PROD_CODE": 45,
+    "PROD_CODE": 47,
     "PROD_NAME": "hgfg",
     "P_UOM": "pcs",
-    "QTY_PUOM": 54,
+    "QTY_PUOM": 58,
     "L_UOM": 34
   }
 ];
@@ -35,12 +35,15 @@ List salessummary = [
 class _SalesSummaryState extends State<SalesSummary> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextEditingController date = TextEditingController();
-  TextEditingController totalcash = TextEditingController();
+  TextEditingController empid = TextEditingController();
+  TextEditingController totalamount = TextEditingController();
+  TextEditingController labelcash = TextEditingController();
   int totalCash = 0;
   @override
   void initState() {
     setState(() {
-      totalcash.text = totalCash.toString();
+      totalamount.clear();
+      labelcash.text = 'TOTAL CASH';
     });
     super.initState();
   }
@@ -64,7 +67,7 @@ class _SalesSummaryState extends State<SalesSummary> {
         padding: const EdgeInsets.all(12.0),
         child: Column(
           children: [
-            textData(gs_currentUser, Colors.black, 18.0),
+            align(Alignment.centerLeft, gs_currentUser, 18.0),
             SizedBox(height: 20.0),
             Form(
               key: _formKey,
@@ -72,8 +75,8 @@ class _SalesSummaryState extends State<SalesSummary> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Flexible(
-                      flex: 2, child: textField("abcd", date, false, true)),
-                  Flexible(child: textField("fg", date, false, true)),
+                      flex: 2, child: textField("Date", date, false, true)),
+                  Flexible(child: textField("Emp id", empid, false, true)),
                 ],
               ),
             ),
@@ -83,8 +86,9 @@ class _SalesSummaryState extends State<SalesSummary> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Flexible(flex: 2, child: textField("abcd", date, false, false)),
-                Flexible(child: labelWidget(Colors.blue[500], totalcash)),
+                Flexible(child: labelWidget(Colors.blue[500], labelcash)),
+                Flexible(
+                    flex: 2, child: labelWidget(Colors.blue[500], totalamount)),
               ],
             ),
             DataTable(
@@ -96,9 +100,9 @@ class _SalesSummaryState extends State<SalesSummary> {
               ],
               rows: salessummary.map((salessum) {
                 setState(() {
-                  totalcash.clear();
+                  totalamount.clear();
                   totalCash = salessum['QTY_PUOM'] + totalCash;
-                  totalcash.text = totalcash.toString();
+                  totalamount.text = totalCash.toString();
                 });
                 return DataRow(cells: <DataCell>[
                   // totalCash+=salessum['QTY_PUOM'];
