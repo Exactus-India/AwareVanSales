@@ -77,15 +77,29 @@ Future sales_sum_pro() async {
   return jsonData;
 }
 
-Future<List<Salessum>> sales_sum1() async {
+Future<List<Salessum1>> sales_sum1() async {
   var url =
       'http://exactusnet.dyndns.org:4005/api/sales/customerList/salestype/summary01';
   var response = await http.get(url);
-  var datas = List<Salessum>();
+  var datas = List<Salessum1>();
   if (response.statusCode == 200) {
     Object datasJson = json.decode(response.body.substring(0));
     for (var dataJson in datasJson) {
-      datas.add(Salessum.fromJson(dataJson));
+      datas.add(Salessum1.fromJson(dataJson));
+    }
+  }
+  return datas;
+}
+
+Future<List<Salessum2>> sales_sum2() async {
+  var url =
+      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salestype/summary02';
+  var response = await http.get(url);
+  var datas = List<Salessum2>();
+  if (response.statusCode == 200) {
+    Object datasJson = json.decode(response.body.substring(0));
+    for (var dataJson in datasJson) {
+      datas.add(Salessum2.fromJson(dataJson));
     }
   }
   return datas;
