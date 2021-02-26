@@ -1,3 +1,5 @@
+import 'package:aware_van_sales/wigdets/dataTable_widget.dart';
+import 'package:aware_van_sales/wigdets/listing_Builder.dart';
 import 'package:flutter/material.dart';
 
 import '../wigdets/widgets.dart';
@@ -9,42 +11,40 @@ class SalesSummary extends StatefulWidget {
   _SalesSummaryState createState() => _SalesSummaryState();
 }
 
-List salessummary = [
-  {
-    "PROD_CODE": 45,
-    "PROD_NAME": "hgfg",
-    "P_UOM": "pcs",
-    "QTY_PUOM": 54,
-    "L_UOM": 34
-  },
-  {
-    "PROD_CODE": 45,
-    "PROD_NAME": "hgfg",
-    "P_UOM": "pcs",
-    "QTY_PUOM": 54,
-    "L_UOM": 34
-  },
-  {
-    "PROD_CODE": 45,
-    "PROD_NAME": "hgfg",
-    "P_UOM": "pcs",
-    "QTY_PUOM": 54,
-    "L_UOM": 34
-  }
-];
-
 class _SalesSummaryState extends State<SalesSummary> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextEditingController date = TextEditingController();
   int totalCash = 0;
-  List stockreport = List();
+  List salesumm_1 = List();
+  List salesumm_2 = List();
+  List salessummary_col2 = ["Sl No.", "Description", "Items", "Amount"];
+  List salessummary_col1 = ["", "", ""];
+  String finalDate = '';
+  getDate() {
+    var date = new DateTime.now().toString();
+    var dateParse = DateTime.parse(date);
+    var formattedDate = "${dateParse.day}-${dateParse.month}-${dateParse.year}";
+    setState(() {
+      finalDate = formattedDate.toString();
+      print(finalDate);
+    });
+  }
+
   @override
   void initState() {
-    sales_sum_pro();
-    sales_sum1().then((value) {
-      setState(() {
-        stockreport.addAll(value);
-        print("summary list length " + stockreport.length.toString());
+    sales_sum_pro().then((value) {
+      sales_sum1().then((value) {
+        setState(() {
+          salesumm_1.addAll(value);
+          list_length = salesumm_1.length;
+          print("summary1 list length " + salesumm_1.length.toString());
+        });
+      });
+      sales_sum2().then((value) {
+        setState(() {
+          salesumm_2.addAll(value);
+          print("summary2 list length " + salesumm_2.length.toString());
+        });
       });
     });
 
@@ -66,78 +66,65 @@ class _SalesSummaryState extends State<SalesSummary> {
           )
         ],
       ),
-      body: new Padding(
+      body: SingleChildScrollView(
+          child: new Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
           children: [
-            textData(gs_currentUser, Colors.black, 18.0),
-            SizedBox(height: 20.0),
+            Padding(
+              padding: EdgeInsets.only(bottom: 15.0),
+              child: align(Alignment.topLeft, gs_currentUser, 18.0),
+            ),
             Form(
               key: _formKey,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Flexible(
-                      flex: 2, child: textField("abcd", date, false, true)),
-                  Flexible(child: textField("fg", date, false, true)),
+                      flex: 2, child: textField("DD-MM-YY", date, false, true)),
+                  Flexible(
+                      child:
+                          textField(gs_currentUser_empid, date, false, true)),
                 ],
               ),
             ),
             SizedBox(
-              height: 30,
-            ),
-            Table(
-                defaultColumnWidth: FixedColumnWidth(120.0),
-                border: TableBorder.all(
-                    color: Colors.black, style: BorderStyle.solid, width: 2),
-                children: [
-                  TableRow(children: [
-                    Column(
-                        children: [textData("Cash Sales", Colors.black, 20.0)]),
-                    Column(children: [
-                      textData("Credit Sales", Colors.black, 20.0)
-                    ]),
-                    Column(children: [
-                      textData("Total Sales", Colors.black, 20.0)
-                    ]),
-                  ]),
-                  TableRow(children: [
-                    Column(children: [textData("1", Colors.grey, 20.0)]),
-                    Column(children: [textData("0", Colors.grey, 20.0)]),
-                    Column(children: [textData("1", Colors.grey, 20.0)]),
-                  ]),
-                  TableRow(children: [
-                    Column(children: [textData("525", Colors.grey, 20.0)]),
-                    Column(children: [textData("0", Colors.grey, 20.0)]),
-                    Column(children: [textData("525", Colors.grey, 20.0)]),
-                  ]),
-                ]),
-            SizedBox(
               height: 10,
             ),
-            DataTable(
-              columns: [
-                DataColumn(label: Text('Sno')),
-                DataColumn(label: Text('Description')),
-                DataColumn(label: Text('Items')),
-                DataColumn(label: Text('Amount')),
-              ],
-              rows: salessummary.map((salessum) {
-                setState(() {
-                  totalCash = salessum['QTY_PUOM'] + totalCash;
-                });
-                return DataRow(cells: <DataCell>[
-                  // totalCash+=salessum['QTY_PUOM'];
-                  DataCell(Text(salessum['PROD_CODE'].toString())),
-                  DataCell(Text(salessum['PROD_NAME'].toString())),
-                  DataCell(Text(salessum['P_UOM'].toString())),
-                  DataCell(Text(salessum['QTY_PUOM'].toString())),
-                ]);
-              }).toList(),
-            ),
+            if (salesumm_1.isNotEmpty)
+              Container(
+                  height: 120,
+                  width: 400,
+                  color: Colors.lightBlue[100],
+                  child: listView(salesumm_1)),
+            if (salesumm_2.isNotEmpty)
+              WidgetdataTable(
+                column: salessummary_col2,
+                row: salesumm_2,
+              ),
           ],
         ),
-      ),
+      )),
+    );
+  }
+
+  listView(datasForDisplay) {
+    return ListView.builder(
+      itemBuilder: (context, index) {
+        return Container(
+          height: 40,
+          child: Card(
+            child: ListTile(
+              subtitle: rowData3(
+                  datasForDisplay[index].val1.toString(),
+                  datasForDisplay[index].val2.toString(),
+                  datasForDisplay[index].val3.toString(),
+                  14.0),
+            ),
+          ),
+        );
+      },
+      itemCount: datasForDisplay.length,
     );
   }
 }

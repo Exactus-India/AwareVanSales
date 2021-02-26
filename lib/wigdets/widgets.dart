@@ -136,3 +136,23 @@ showToast(msg) {
       textColor: Colors.black,
       fontSize: 16.0);
 }
+
+listView_row_3_fields(List datasForDisplay, container_height) {
+  return ListView.builder(
+    itemBuilder: (context, index) {
+      return Container(
+        height: container_height,
+        child: Card(
+          child: ListTile(
+            subtitle: rowData3(
+                datasForDisplay[index].val1.toString(),
+                datasForDisplay[index].val2.toString(),
+                datasForDisplay[index].val3.toString(),
+                14.0),
+          ),
+        ),
+      );
+    },
+    itemCount: datasForDisplay.length,
+  );
+}
