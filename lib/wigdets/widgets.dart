@@ -81,6 +81,26 @@ rowData_2(first, last, size) {
   );
 }
 
+rowData3(first, middle, last, size) {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: <Widget>[
+      Flexible(
+          fit: FlexFit.tight,
+          child: columnRow(
+              first.toString(), MainAxisAlignment.start, size, TextAlign.left)),
+      Flexible(
+          fit: FlexFit.tight,
+          child: columnRow(middle.toString(), MainAxisAlignment.center, size,
+              TextAlign.center)),
+      Flexible(
+          fit: FlexFit.tight,
+          child: columnRow(last.toString(), MainAxisAlignment.spaceEvenly, size,
+              TextAlign.right)),
+    ],
+  );
+}
+
 noValue() {
   return Padding(
     padding: EdgeInsets.only(top: 100.0),
