@@ -96,7 +96,7 @@ class _SalesSummaryState extends State<SalesSummary> {
                   height: 120,
                   width: 400,
                   color: Colors.lightBlue[100],
-                  child: listView(salesumm_1)),
+                  child: listView_row_3_fields(salesumm_1, 40.0)),
             if (salesumm_2.isNotEmpty)
               WidgetdataTable(
                 column: salessummary_col2,
@@ -105,26 +105,6 @@ class _SalesSummaryState extends State<SalesSummary> {
           ],
         ),
       )),
-    );
-  }
-
-  listView(datasForDisplay) {
-    return ListView.builder(
-      itemBuilder: (context, index) {
-        return Container(
-          height: 40,
-          child: Card(
-            child: ListTile(
-              subtitle: rowData3(
-                  datasForDisplay[index].val1.toString(),
-                  datasForDisplay[index].val2.toString(),
-                  datasForDisplay[index].val3.toString(),
-                  14.0),
-            ),
-          ),
-        );
-      },
-      itemCount: datasForDisplay.length,
     );
   }
 }
