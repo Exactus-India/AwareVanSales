@@ -60,9 +60,12 @@ class _WidgetdataTableState extends State<WidgetdataTable> {
                 ),
               ),
               DataCell(Text(rowList[index].val4.toString())),
-              DataCell(Text(rowList[index].val5.toString())),
-              DataCell(Text(rowList[index].val6.toString())),
-              DataCell(Text(rowList[index].val7.toString())),
+              if (rowList[index].val5 != null)
+                DataCell(Text(rowList[index].val5.toString())),
+              if (rowList[index].val6 != null)
+                DataCell(Text(rowList[index].val6.toString())),
+              if (rowList[index].val7 != null)
+                DataCell(Text(rowList[index].val7.toString())),
             ]),
           )),
     );
