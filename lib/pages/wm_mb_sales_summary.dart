@@ -44,6 +44,7 @@ class _SalesSummaryState extends State<SalesSummary> {
     sales_sum1().then((value) {
       setState(() {
         stockreport.addAll(value);
+        print("summary list length " + stockreport.length.toString());
       });
     });
 
