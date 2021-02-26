@@ -70,7 +70,7 @@ Future sales_sum_pro() async {
   var date = DateFormat("dd-MMM-yyyy").format(DateTime.now());
   print(date.toString());
   var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/prosalessummary/$gs_company_code/$date/$gs_currentUser_empid';
+      'http://exactusnet.dyndns.org:4005/api/sales/customerList/prosalessummary/$gs_company_code/12-FEB-2021/$gs_currentUser_empid';
   var response = await http.get(url);
   var jsonBody = response.body;
   var jsonData = json.decode(jsonBody.substring(0));
