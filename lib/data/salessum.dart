@@ -8,14 +8,9 @@ class Salessum1 {
   var val7;
 
   Salessum1.fromJson(Map<String, dynamic> json) {
-    val1 = json['SR_NO'];
-    val2 = null;
-    val3 = null;
-    val4 = json['DESCRIPTION'];
-    val5 = json['COUNT_NO'];
-    val6 = json['AMOUNT'];
-    // val7 = json['sale_type'];
-    val7 = null;
+    val1 = json['DESCRIPTION'];
+    val2 = json['COUNT_NO'];
+    val3 = json['AMOUNT'];
   }
 }
 
