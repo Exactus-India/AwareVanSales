@@ -42,7 +42,7 @@ Future<int> getSerialno(doc_no) async {
   return jsonData[0]['SERIAL_NO'];
 }
 
-Future<List<StockSum>> stock_summary() async {
+Future<List> stock_summary() async {
   var url =
       'http://exactusnet.dyndns.org:4005/api/sales/customerList/stocksummary/$gs_company_code';
   var response = await http.get(url);

@@ -1,19 +1,19 @@
 class StockSum {
-  var prod_code;
-  var prod_name;
-  var l_uom;
-  var op_stk;
-  var in_qty;
-  var out_qty;
-  var cl_stock;
+  var val1;
+  var val2;
+  var val3;
+  var val4;
+  var val5;
+  var val6;
+  var val7;
 
   StockSum.fromJson(Map<String, dynamic> json) {
-    prod_code = json['PROD_CODE'];
-    prod_name = json['PROD_NAME'];
-    l_uom = json['L_UOM'];
-    op_stk = json['OP_STK'];
-    in_qty = json['IN_QTY'];
-    out_qty = json['OUT_QTY'];
-    cl_stock = json['CL_STOCK'];
+    val1 = json['PROD_NAME'];
+    val2 = json['PROD_CODE'];
+    val3 = json['L_UOM'];
+    val4 = json['OP_STK'];
+    val5 = json['IN_QTY'];
+    val6 = json['OUT_QTY'];
+    val7 = json['CL_STOCK'];
   }
 }
