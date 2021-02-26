@@ -39,19 +39,21 @@ var now = new DateTime.now();
 String formatter = DateFormat('yMd').format(now);
 
 class _StockSummaryState extends State<StockSummary> {
-  // List stockreport = List();
-  List<StockSum> stockreport = List<StockSum>();
+  List stockreport = List();
+  // List<StockSum> stockreport = List<StockSum>();
 
   List<DataRow> rows = [];
 
   @override
   void initState() {
-    stock_summary_pro("12-FEB-2021", "12-FEB-2021");
-    setState(() {
-      stock_summary().then((value) {
-        stockreport.addAll(value);
-      });
-    });
+    stock_summary_pro("12-FEB-2021", "12-FEB-2021")
+        .then((value) => stock_summary().then((value) {
+              setState(() {
+                stockreport.addAll(value);
+                print("size " + stockreport.length.toString());
+                _getData01(stockreport);
+              });
+            }));
 
     super.initState();
   }
