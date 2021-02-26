@@ -4,6 +4,7 @@ import 'package:aware_van_sales/data/sales_Middle.dart';
 import 'package:aware_van_sales/data/sales_detailList.dart';
 import 'package:aware_van_sales/data/salesproducts.dart';
 import 'package:aware_van_sales/data/sales_customer.dart';
+import 'package:aware_van_sales/data/salessum.dart';
 import 'package:aware_van_sales/pages/wm_mb_LoginPage.dart';
 import 'package:intl/intl.dart';
 import './User_data.dart';
@@ -76,15 +77,15 @@ Future sales_sum_pro() async {
   return jsonData;
 }
 
-Future<List<StockSum>> sales_sum1() async {
+Future<List<Salessum>> sales_sum1() async {
   var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/sales/customerList/salestype/summary01';
+      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salestype/summary01';
   var response = await http.get(url);
-  var datas = List<StockSum>();
+  var datas = List<Salessum>();
   if (response.statusCode == 200) {
     Object datasJson = json.decode(response.body.substring(0));
     for (var dataJson in datasJson) {
-      datas.add(StockSum.fromJson(dataJson));
+      datas.add(Salessum.fromJson(dataJson));
     }
   }
   return datas;
