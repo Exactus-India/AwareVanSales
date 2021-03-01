@@ -1,6 +1,8 @@
-import 'package:aware_van_sales/wigdets/dataTable_widget.dart';
 import 'package:aware_van_sales/wigdets/listing_Builder.dart';
+import 'package:aware_van_sales/wigdets/widget_litView_row.dart';
+import 'package:aware_van_sales/wigdets/widget_rowData.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../wigdets/widgets.dart';
 import 'wm_mb_LoginPage.dart';
@@ -11,24 +13,17 @@ class SalesSummary extends StatefulWidget {
   _SalesSummaryState createState() => _SalesSummaryState();
 }
 
+var now = new DateTime.now();
+String formatter = DateFormat('yMd').format(now);
+
 class _SalesSummaryState extends State<SalesSummary> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextEditingController date = TextEditingController();
   int totalCash = 0;
   List salesumm_1 = List();
   List salesumm_2 = List();
-  List salessummary_col2 = ["Sl No.", "Description", "Items", "Amount"];
-  List salessummary_col1 = ["", "", ""];
+
   String finalDate = '';
-  getDate() {
-    var date = new DateTime.now().toString();
-    var dateParse = DateTime.parse(date);
-    var formattedDate = "${dateParse.day}-${dateParse.month}-${dateParse.year}";
-    setState(() {
-      finalDate = formattedDate.toString();
-      print(finalDate);
-    });
-  }
 
   @override
   void initState() {
@@ -43,6 +38,7 @@ class _SalesSummaryState extends State<SalesSummary> {
       sales_sum2().then((value) {
         setState(() {
           salesumm_2.addAll(value);
+          print(salesumm_2);
           print("summary2 list length " + salesumm_2.length.toString());
         });
       });
@@ -81,7 +77,7 @@ class _SalesSummaryState extends State<SalesSummary> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Flexible(
-                      flex: 2, child: textField("DD-MM-YY", date, false, true)),
+                      flex: 2, child: textField(formatter, date, false, true)),
                   Flexible(
                       child:
                           textField(gs_currentUser_empid, date, false, true)),
@@ -98,10 +94,16 @@ class _SalesSummaryState extends State<SalesSummary> {
                   color: Colors.lightBlue[100],
                   child: listView_row_3_fields(salesumm_1, 40.0)),
             if (salesumm_2.isNotEmpty)
-              WidgetdataTable(
-                column: salessummary_col2,
-                row: salesumm_2,
+              SizedBox(
+                height: 30,
               ),
+            rowData4("Sl.No", "Description   ", " Items", "Amount      ", 15.0),
+            SizedBox(height: 10),
+            Container(
+                height: 110,
+                width: 500,
+                color: Colors.lightBlue[100],
+                child: listView_row_4_fields(salesumm_2, 110.0)),
           ],
         ),
       )),
