@@ -69,16 +69,19 @@ rowData4(first, second, third, last, size) {
           fit: FlexFit.tight,
           child: columnRow(third.toString(), CrossAxisAlignment.center,
               MainAxisAlignment.center, size, TextAlign.center)),
-      Container(
+      Flexible(
+          fit: FlexFit.tight,
           // width: 50,
-          padding: EdgeInsets.only(right: 8.0),
+          // padding: EdgeInsets.only(right: 8.0),
           child: columnRow(last.toString(), CrossAxisAlignment.end,
-              MainAxisAlignment.spaceEvenly, size, TextAlign.right)),
+              MainAxisAlignment.spaceEvenly, size, TextAlign.center)),
     ],
   );
 }
 
 rowData5(first, second, third, fourth, last, size, color) {
+  var flex = FlexFit.tight;
+  if (last == null) flex = FlexFit.loose;
   return Row(
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: <Widget>[
@@ -95,7 +98,7 @@ rowData5(first, second, third, fourth, last, size, color) {
           child: columnRow1(third.toString(), MainAxisAlignment.center, size,
               TextAlign.center, color)),
       Flexible(
-          fit: FlexFit.tight,
+          fit: flex,
           child: columnRow1(fourth.toString(), MainAxisAlignment.center, size,
               TextAlign.right, color)),
       if (last != null)
@@ -115,18 +118,18 @@ rowData6(first, second, third, fourth, fivth, last, size) {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          Container(
-            width: 230,
+          Flexible(
+            flex: 2,
             child: columnRow(first.toString(), CrossAxisAlignment.start,
-                MainAxisAlignment.start, 18.0, TextAlign.left),
+                MainAxisAlignment.start, 16.0, TextAlign.left),
           ),
-          textData(last.toString(), Colors.deepPurpleAccent, 18.0)
+          Flexible(child: textData(last.toString(), Colors.black, 15.0))
         ],
       ),
       SizedBox(
         height: 10,
       ),
-      rowData5("<15", "16-30", "31-60", "Above 60", null, 15.0,
+      rowData5("<15 Days", "16-30 Days", "31-60 Days", "60< Days", null, 13.0,
           Colors.deepPurpleAccent),
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -145,7 +148,7 @@ rowData6(first, second, third, fourth, fivth, last, size) {
               child: columnRow(fourth.toString(), CrossAxisAlignment.start,
                   MainAxisAlignment.spaceEvenly, size, TextAlign.center)),
           Flexible(
-              fit: FlexFit.tight,
+              fit: FlexFit.loose,
               child: columnRow(fivth.toString(), CrossAxisAlignment.start,
                   MainAxisAlignment.spaceEvenly, size, TextAlign.center)),
         ],
