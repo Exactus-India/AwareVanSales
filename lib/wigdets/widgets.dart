@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 
 Widget logo() {
   return Container(
@@ -44,60 +45,19 @@ textData(_text, clr, size) {
   );
 }
 
-columnRow(val, pos, size, talign) {
+columnRow(val, cross_pos, pos, size, talign) {
   return Column(
     mainAxisAlignment: pos,
+    crossAxisAlignment: cross_pos,
     children: <Widget>[textData(val, Colors.black, size)],
   );
 }
 
-rowData_3(first, middle, last, clr, size) {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: <Widget>[
-      columnRow(
-          first.toString(), MainAxisAlignment.start, size, TextAlign.left),
-      if (middle != null)
-        columnRow(middle.toString(), MainAxisAlignment.center, size,
-            TextAlign.center),
-      if (last != null)
-        columnRow(
-            last.toString(), MainAxisAlignment.end, size, TextAlign.right),
-    ],
-  );
-}
-
-rowData_2(first, last, size) {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: <Widget>[
-      if (first != null || first != 'null')
-        columnRow(
-            first.toString(), MainAxisAlignment.start, size, TextAlign.left),
-      if (last != null || last != 'null')
-        columnRow(
-            last.toString(), MainAxisAlignment.end, size, TextAlign.right),
-    ],
-  );
-}
-
-rowData3(first, middle, last, size) {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: <Widget>[
-      Flexible(
-          fit: FlexFit.tight,
-          child: columnRow(
-              first.toString(), MainAxisAlignment.start, size, TextAlign.left)),
-      Flexible(
-          fit: FlexFit.tight,
-          child: columnRow(middle.toString(), MainAxisAlignment.center, size,
-              TextAlign.center)),
-      Flexible(
-          fit: FlexFit.tight,
-          child: columnRow(last.toString(), MainAxisAlignment.spaceEvenly, size,
-              TextAlign.right)),
-    ],
+columnRow1(val, pos, size, talign, color) {
+  return Column(
+    mainAxisAlignment: pos,
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: <Widget>[textData(val, color, size)],
   );
 }
 
@@ -135,24 +95,4 @@ showToast(msg) {
       backgroundColor: Colors.grey,
       textColor: Colors.black,
       fontSize: 16.0);
-}
-
-listView_row_3_fields(List datasForDisplay, container_height) {
-  return ListView.builder(
-    itemBuilder: (context, index) {
-      return Container(
-        height: container_height,
-        child: Card(
-          child: ListTile(
-            subtitle: rowData3(
-                datasForDisplay[index].val1.toString(),
-                datasForDisplay[index].val2.toString(),
-                datasForDisplay[index].val3.toString(),
-                14.0),
-          ),
-        ),
-      );
-    },
-    itemCount: datasForDisplay.length,
-  );
 }
