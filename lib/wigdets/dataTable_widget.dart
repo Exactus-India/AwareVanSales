@@ -49,12 +49,15 @@ class _WidgetdataTableState extends State<WidgetdataTable> {
                         Text(rowList[index].val1.toString()),
                         if (rowList[index].val2 != null &&
                             rowList[index].val3 != null)
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(rowList[index].val2.toString()),
-                              Text(rowList[index].val3.toString()),
-                            ],
+                          Flexible(
+                            fit: FlexFit.tight,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(rowList[index].val2.toString()),
+                                Text(rowList[index].val3.toString()),
+                              ],
+                            ),
                           )
                       ]),
                 ),
