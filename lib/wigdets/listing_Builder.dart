@@ -96,6 +96,10 @@ class _ListBuilderCommonState extends State<ListBuilderCommon> {
   listView(List datasForDisplay, toPage) {
     return ListView.builder(
       itemBuilder: (context, index) {
+        var val3;
+        datasForDisplay[index].val3 is num
+            ? val3 = getNumberFormat(datasForDisplay[index].val3)
+            : val3 = datasForDisplay[index].val3;
         return Card(
           color: Colors.green[200],
           child: ListTile(
@@ -105,7 +109,7 @@ class _ListBuilderCommonState extends State<ListBuilderCommon> {
                   align(Alignment.centerLeft,
                       datasForDisplay[index].val1.toString(), 14.0),
                 rowData_2(datasForDisplay[index].val2.toString(),
-                    datasForDisplay[index].val3.toString(), 14.0),
+                    val3.toString(), 14.0),
                 if (datasForDisplay[index].val4 != null)
                   align(Alignment.centerLeft,
                       datasForDisplay[index].val4.toString(), 14.0),
