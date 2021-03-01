@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 
 Widget logo() {
   return Container(
@@ -94,4 +95,8 @@ showToast(msg) {
       backgroundColor: Colors.grey,
       textColor: Colors.black,
       fontSize: 16.0);
+}
+
+getNumberFormat(number) {
+  return NumberFormat("#,##,##0.00", "en_US").format(number);
 }
