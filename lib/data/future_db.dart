@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:aware_van_sales/data/os_summ.dart';
 import 'package:aware_van_sales/data/sales_Middle.dart';
 import 'package:aware_van_sales/data/sales_detailList.dart';
 import 'package:aware_van_sales/data/salesproducts.dart';
@@ -100,6 +101,32 @@ Future<List<Salessum2>> sales_sum2() async {
     Object datasJson = json.decode(response.body.substring(0));
     for (var dataJson in datasJson) {
       datas.add(Salessum2.fromJson(dataJson));
+    }
+  }
+  return datas;
+}
+
+// ldt_date_to
+Future os_summary_pro() async {
+  var date = DateFormat("dd-MMM-yyyy").format(DateTime.now());
+  print(date.toString());
+  var url =
+      'http://exactusnet.dyndns.org:4005/api/sales/customerList/proOS/Summary/$gs_company_code/25-JAN-2021';
+  var response = await http.get(url);
+  var jsonBody = response.body;
+  var jsonData = json.decode(jsonBody.substring(0));
+  return jsonData;
+}
+
+Future<List<Ossumm>> os_summary() async {
+  var url =
+      'http://exactusnet.dyndns.org:4005/api/sales/customerList/OS/Summary/01';
+  var response = await http.get(url);
+  var datas = List<Ossumm>();
+  if (response.statusCode == 200) {
+    Object datasJson = json.decode(response.body.substring(0));
+    for (var dataJson in datasJson) {
+      datas.add(Ossumm.fromJson(dataJson));
     }
   }
   return datas;
