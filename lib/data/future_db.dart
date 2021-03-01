@@ -7,6 +7,7 @@ import 'package:aware_van_sales/data/salesproducts.dart';
 import 'package:aware_van_sales/data/sales_customer.dart';
 import 'package:aware_van_sales/data/salessum.dart';
 import 'package:aware_van_sales/pages/wm_mb_LoginPage.dart';
+import 'package:aware_van_sales/pages/wm_mb_sales.dart';
 import 'package:intl/intl.dart';
 import './User_data.dart';
 import 'dart:convert';
@@ -16,6 +17,7 @@ import 'stock_sum_data.dart';
 
 String gs_doc_type = 'DN90';
 String gs_company_code = 'BSG';
+var gs_date = DateFormat("dd-MMM-yyyy").format(DateTime.now());
 
 Future<List> getAllUserName() async {
   var url = 'http://exactusnet.dyndns.org:4005/api/user';
@@ -44,6 +46,17 @@ Future<int> getSerialno(doc_no) async {
   return jsonData[0]['SERIAL_NO'];
 }
 
+Future<int> getDocno() async {
+  var url =
+      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/dnno';
+  var response = await http.get(url);
+  var jsonBody = response.body;
+  var jsonData = json.decode(jsonBody.substring(0));
+  print(jsonData[0]['DOC_NO'].toString() + "last dnno");
+
+  return jsonData[0]['DOC_NO'];
+}
+
 Future<List> stock_summary() async {
   var url =
       'http://exactusnet.dyndns.org:4005/api/sales/customerList/stocksummary/$gs_company_code';
@@ -68,8 +81,6 @@ Future stock_summary_pro(datefrom, dateto) async {
 }
 
 Future sales_sum_pro() async {
-  var date = DateFormat("dd-MMM-yyyy").format(DateTime.now());
-  print(date.toString());
   var url =
       'http://exactusnet.dyndns.org:4005/api/sales/customerList/prosalessummary/$gs_company_code/12-FEB-2021/$gs_currentUser_empid';
   var response = await http.get(url);
@@ -108,8 +119,7 @@ Future<List<Salessum2>> sales_sum2() async {
 
 // ldt_date_to
 Future os_summary_pro() async {
-  var date = DateFormat("dd-MMM-yyyy").format(DateTime.now());
-  print(date.toString());
+  print(gs_date.toString());
   var url =
       'http://exactusnet.dyndns.org:4005/api/sales/customerList/proOS/Summary/$gs_company_code/25-JAN-2021';
   var response = await http.get(url);
@@ -221,6 +231,41 @@ Future product_updation(
   var url =
       'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/update';
   var response = await http.put(url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+      body: value);
+
+  if (response.statusCode == 200) {
+    return 1;
+  } else {
+    return null;
+  }
+}
+
+Future docno_insert(
+  party_name,
+  doc_no,
+  sales_type,
+  ref_no,
+) async {
+  Map data = {
+    "COMPANY_CODE": gs_company_code,
+    "DOC_TYPE": gs_doc_type,
+    "DOC_NO": doc_no,
+    "AC_CODE": gs_ac_code,
+    "PARTY_NAME": party_name,
+    "PARTY_ADDRESS": gs_party_address,
+    "SALESMAN_CODE": gs_currentUser_empid,
+    "SALE_TYPE": sales_type,
+    "USER_ID": gs_currentUser,
+    "REF_NO": ref_no,
+    "CURR_CODE": "AED",
+  };
+  var value = json.encode(data);
+  var url =
+      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/doc_no_insert';
+  var response = await http.post(url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8'
       },
