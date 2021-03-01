@@ -1,5 +1,5 @@
+import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import 'widget_rowData.dart';
 
@@ -13,8 +13,7 @@ listView_row_3_fields(List datasForDisplay, container_height) {
             subtitle: rowData3(
                 datasForDisplay[index].val1.toString(),
                 datasForDisplay[index].val2.toString(),
-                NumberFormat("#,##0.00", "en_US")
-                    .format(datasForDisplay[index].val3),
+                getNumberFormat(datasForDisplay[index].val3),
                 14.0),
           ),
         ),
@@ -36,8 +35,7 @@ listView_row_4_fields(List datasForDisplay, container_height) {
                 datasForDisplay[index].val1.toString(),
                 datasForDisplay[index].val2.toString(),
                 datasForDisplay[index].val3.toString(),
-                NumberFormat("#,##0.00", "en_US")
-                    .format(datasForDisplay[index].val4),
+                getNumberFormat(datasForDisplay[index].val4),
                 14.0),
           ),
         ),
@@ -79,17 +77,24 @@ listView_row_6_fields(List datasForDisplay, container_height) {
           height: container_height,
           child: Card(
             child: ListTile(
-              // title: rowData4("Sl.No", "Description", "Items", "Amount", 15.0),
               subtitle: rowData6(
                   datasForDisplay[index].val2.toString(),
-                  datasForDisplay[index].val4.toStringAsFixed(2),
-                  datasForDisplay[index].val5.toStringAsFixed(2),
-                  datasForDisplay[index].val6.toStringAsFixed(2),
-                  datasForDisplay[index].val7.toStringAsFixed(2),
-                  datasForDisplay[index].val3.toStringAsFixed(2),
-                  // NumberFormat("#,##0.00", "en_US")
-                  //     .format(datasForDisplay[index].val4),
-                  14.0),
+                  datasForDisplay[index].val4 != 0
+                      ? getNumberFormat(datasForDisplay[index].val4)
+                      : datasForDisplay[index].val4.toStringAsFixed(2),
+                  datasForDisplay[index].val5 != 0
+                      ? getNumberFormat(datasForDisplay[index].val5)
+                      : datasForDisplay[index].val5.toStringAsFixed(2),
+                  datasForDisplay[index].val6 != 0
+                      ? getNumberFormat(datasForDisplay[index].val6)
+                      : datasForDisplay[index].val6.toStringAsFixed(2),
+                  datasForDisplay[index].val7 != 0
+                      ? getNumberFormat(datasForDisplay[index].val7)
+                      : datasForDisplay[index].val7.toStringAsFixed(2),
+                  datasForDisplay[index].val3 != 0
+                      ? getNumberFormat(datasForDisplay[index].val3)
+                      : datasForDisplay[index].val3.toStringAsFixed(2),
+                  13.0),
             ),
           ));
     },
