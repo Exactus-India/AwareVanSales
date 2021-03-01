@@ -1,5 +1,6 @@
 import 'package:aware_van_sales/pages/wm_mb_SaleReturns.dart';
 import 'package:aware_van_sales/pages/wm_mb_customer.dart';
+import 'package:aware_van_sales/pages/wm_mbs_os_summary.dart';
 import 'package:aware_van_sales/wigdets/card.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:flutter/material.dart';
@@ -50,7 +51,7 @@ class _HomePageState extends State<HomePage> {
                 'stock_transfer.png'),
 
             //--------------------------O/S AGEING-------------------------
-            card("O/S AGEING", null, Colors.blue[800], this.context,
+            card("O/S AGEING", OsSummary(), Colors.blue[800], this.context,
                 'os_ageing.png'),
 
             //--------------------------STOCK SUMMARY-------------------------
