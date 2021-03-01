@@ -14,6 +14,7 @@ class Customer {
   var search;
   var param1;
   var param2;
+  var param3;
 
   Customer.fromJson_Customer(Map<String, dynamic> json) {
     val2 = json['AC_CODE'];
@@ -30,6 +31,7 @@ class Customer {
     search = json['AC_NAME'];
     param1 = json['AC_CODE'];
     param2 = json['AC_NAME'];
+    param3 = json['ADDRESS_1'];
   }
 }
 
@@ -49,6 +51,7 @@ class Sales {
   var search;
   var param1;
   var param2;
+  var param3;
 
   Sales.fromJson_Sales(Map<String, dynamic> json) {
     val = json['DOC_DATE'];
@@ -63,6 +66,7 @@ class Sales {
     search = json['DOC_NO'];
     param1 = json['DOC_NO'];
     param2 = json['PARTY_NAME'];
+    param3 = json['AC_CODE'];
     val1 = val.toString().split('T')[0];
   }
 }
