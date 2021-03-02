@@ -126,7 +126,8 @@ class _ListBuilderCommonState extends State<ListBuilderCommon> {
               if (widget.toPage != null && pop == false) {
                 gs_sales_param1 = _datasForDisplay[index].param1.toString();
                 gs_sales_param2 = _datasForDisplay[index].param2.toString();
-                gs_sales_param3 = _datasForDisplay[index].param3.toString();
+                if (_datasForDisplay[index].param3 != null)
+                  gs_sales_param3 = _datasForDisplay[index].param3.toString();
                 Navigator.pushNamed(context, toPage);
               } else if (pop == true) {
                 gs_list_index = index;

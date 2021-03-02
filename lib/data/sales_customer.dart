@@ -51,7 +51,7 @@ class Sales {
   var search;
   var param1;
   var param2;
-  var param3;
+  var param3 = null;
 
   Sales.fromJson_Sales(Map<String, dynamic> json) {
     val = json['DOC_DATE'];
@@ -66,7 +66,6 @@ class Sales {
     search = json['DOC_NO'];
     param1 = json['DOC_NO'];
     param2 = json['PARTY_NAME'];
-    param3 = json['AC_CODE'];
     val1 = val.toString().split('T')[0];
   }
 }
