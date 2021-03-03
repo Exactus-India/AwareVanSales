@@ -1,11 +1,13 @@
 import 'dart:async';
 
 import 'package:aware_van_sales/data/future_db.dart';
+import 'package:aware_van_sales/pages/wm_mb_sales.dart';
 import 'package:aware_van_sales/wigdets/alert.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:flutter/material.dart';
 
-import 'listing_Builder.dart';
+import '../wigdets/dataTable_widget.dart';
+import '../wigdets/listing_Builder.dart';
 
 class SalesEntry extends StatefulWidget {
   @override
@@ -13,7 +15,6 @@ class SalesEntry extends StatefulWidget {
 }
 
 class _SalesEntryState extends State<SalesEntry> {
-  String _message = '';
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
   TextEditingController customer = new TextEditingController();
   TextEditingController doc_no = new TextEditingController();
@@ -29,6 +30,7 @@ class _SalesEntryState extends State<SalesEntry> {
   TextEditingController amt = new TextEditingController();
   TextEditingController vat = new TextEditingController();
   TextEditingController net_amt = new TextEditingController();
+  TextEditingController sal_ty = new TextEditingController();
   List salestypes = ['CASH', 'CREDIT'];
   String selectedtype;
   bool middle_view = false;
@@ -44,20 +46,41 @@ class _SalesEntryState extends State<SalesEntry> {
   var stk_luom;
   double sales = 0;
   bool prod_update = false;
+  bool hdr = false;
+  bool details_list = false;
+
+  List saleslog_col = [
+    "SERIAL NO",
+    "PRODUCT CODE",
+    "PRODUCT NAME",
+    "PUOM",
+    "QTY PUOM",
+    "LUOM",
+    "QTY LUOM",
+    "AMOUNT ",
+    "VAT",
+    "NET AMOUNT"
+  ];
 
   @override
   void initState() {
+    print(gs_ac_code + '' + gs_party_address);
     if (gs_sales_param1 == null) customer.text = gs_sales_param2;
     if (gs_sales_param1 != null) {
       getAllSalesHDR(gs_sales_param1).then((value) {
         setState(() {
+          salesHDR.clear();
           salesHDR.addAll(value);
-          selectedtype = salesHDR[0]['SALE_TYPE'].toString();
+          hdr = true;
+          if (salesHDR[0]['SALE_TYPE'] != null)
+            selectedtype = salesHDR[0]['SALE_TYPE'].toString();
           customer.text = salesHDR[0]['PARTY_NAME'].toString();
           var doc = salesHDR[0]['DOC_NO'].toString();
           if (doc != 'null') doc_no.text = doc.toString();
-          var ref = salesHDR[0]['REF_NO'].toString();
-          if (ref != 'null') ref_no.text = ref.toString();
+          var ref = salesHDR[0]['REF_NO'];
+
+          ref != null ? ref_no.text = ref.toString() : ref_no.text = '';
+          print(salesHDR[0]['REF_NO'].toString() + ' 666');
           print(salesHDR[0]['PARTY_NAME'].toString());
         });
       });
@@ -75,8 +98,12 @@ class _SalesEntryState extends State<SalesEntry> {
   }
 
   getSerialno_fun() {
-    return getSerialno(gs_sales_param1)
-        .then((value) => serial_no = value.toInt() + 1);
+    return getSerialno(gs_sales_param1).then((value) {
+      print(value);
+      if (value == null) serial_no = 1;
+      if (value != null) serial_no = value.toInt() + 1;
+      print(serial_no.toString() + '.....');
+    });
   }
 
   dropDown_salestype() {
@@ -84,7 +111,7 @@ class _SalesEntryState extends State<SalesEntry> {
       padding: new EdgeInsets.all(10.0),
       child: new DropdownButton(
         isExpanded: true,
-        hint: Text("Select Sales Type"),
+        hint: Text("Sales Type"),
         value: selectedtype,
         onChanged: (newValue) {
           setState(() {
@@ -113,7 +140,26 @@ class _SalesEntryState extends State<SalesEntry> {
           GestureDetector(
               onTap: () {
                 setState(() {
-                  prod_update == false ? productInsert() : productupdation();
+                  if (hdr != true)
+                    docno_insert(customer.text, doc_no.text, selectedtype,
+                            ref_no.text)
+                        .then((value) {
+                      middle_view = true;
+                      gs_sales_param1 != null
+                          ? getSerialno_fun()
+                          : serial_no = 1;
+                      hdr = true;
+                    });
+                  else {
+                    if (net_amt.text != null && qty.text.isNotEmpty)
+                      prod_update == false
+                          ? productInsert()
+                          : productupdation();
+                    if (net_amt.text == null && qty.text.isEmpty)
+                      alert(context, "Field is Empty", Colors.orange);
+
+                    details_list = true;
+                  }
                   // clearFields();
                   print('serial_no' + serial_no.toString());
                 });
@@ -135,18 +181,19 @@ class _SalesEntryState extends State<SalesEntry> {
           SizedBox(width: 20.0),
           GestureDetector(
               onTap: () {
-                salesDelete(serial_no, doc_no.text).then((value) {
-                  setState(() {
-                    sales_delete = value;
-                    if (sales_delete == true) {
-                      fetch_saleseEntry(doc_no.text);
-                      getSerialno_fun();
-                      showToast('Deleted Succesfully');
-                      print(serial_no + " new after delete");
-                      clearFields();
-                    }
+                if (product_name.text != null && details_list == true)
+                  salesDelete(serial_no, doc_no.text).then((value) {
+                    setState(() {
+                      sales_delete = value;
+                      if (sales_delete == true) {
+                        fetch_saleseEntry(doc_no.text);
+                        getSerialno_fun();
+                        showToast('Deleted Succesfully');
+                        print(serial_no + " new after delete");
+                        clearFields();
+                      }
+                    });
                   });
-                });
               },
               child: Icon(Icons.delete)),
           SizedBox(width: 20.0),
@@ -163,7 +210,7 @@ class _SalesEntryState extends State<SalesEntry> {
                   head(),
                   SizedBox(height: 10),
                   if (middle_view == true) middle(),
-                  saleslist(),
+                  if (details_list != false) saleslist(),
                 ],
               ),
             )),
@@ -180,23 +227,31 @@ class _SalesEntryState extends State<SalesEntry> {
           Flexible(child: textField("Doc_no", doc_no, false, true)),
           if (doc_no.text.isEmpty)
             Flexible(
-              child: Padding(padding: EdgeInsets.only(left: 30.0), child: null),
+              child: Padding(
+                  padding: EdgeInsets.only(left: 30.0),
+                  child: generate_docno()),
             ),
         ]),
         SizedBox(height: 10),
-        textField("Ref_no", ref_no, false, ref_no.text != null ? true : false),
+        textField("Ref_no", ref_no, false, ref_no.text == null ? true : false),
         SizedBox(height: 10),
         Row(children: <Widget>[
           Flexible(child: dropDown_salestype()),
+          SizedBox(
+            width: 20.0,
+          ),
           Flexible(
               child: IconButton(
-            icon: Icon(Icons.print),
+            icon: Icon(
+              Icons.print,
+              size: 30.0,
+            ),
             onPressed: () {},
           )),
         ]),
         SizedBox(height: 10),
         textField(
-            "Remarks", remarks, false, remarks.text != null ? true : false)
+            "Remarks", remarks, false, remarks.text == null ? true : false)
       ]),
     );
   }
@@ -244,52 +299,55 @@ class _SalesEntryState extends State<SalesEntry> {
     ]);
   }
 
+// WidgetdataTable
+
   saleslist() {
-    // return Container(
-    //     height: 400.0,
-    //     width: 300.0,
-    //     child: ListHorizontal(datas: salesdetails));
+    print(saleslog_col.length.toString());
     return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: DataTable(
-          columns: [
-            DataColumn(label: text("SERIAL NO", Colors.black), numeric: false),
-            DataColumn(label: text("PROD CODE", Colors.black), numeric: false),
-            DataColumn(label: text("PROD NAME", Colors.black), numeric: false),
-            DataColumn(label: text("PUOM", Colors.black), numeric: false),
-            DataColumn(label: text("QTY PUOM", Colors.black)),
-            DataColumn(label: text("LUOM", Colors.black), numeric: false),
-            DataColumn(label: text("QTY LUOM", Colors.black)),
-            DataColumn(label: text("AMOUNT", Colors.black)),
-            DataColumn(label: text("VAT", Colors.black)),
-            DataColumn(label: text("NET AMOUNT", Colors.black)),
-          ],
-          rows: salesdetails
-              .map(
-                (saleslog) => DataRow(cells: <DataCell>[
-                  DataCell(Text(saleslog['SERIAL_NO'].toString()), onTap: () {
-                    setState(() {
-                      if (middle_view == false) middle_view = true;
-                      prod_update = true;
-                      print(prod_update);
-                      String sno = saleslog['SERIAL_NO'].toString();
-                      selectListItem(sno);
-                    });
-                  }),
-                  DataCell(Text(saleslog['PROD_CODE'].toString())),
-                  DataCell(Text(saleslog['PROD_NAME'].toString())),
-                  DataCell(Text(saleslog['P_UOM'].toString())),
-                  DataCell(Text(saleslog['QTY_PUOM'].toString())),
-                  DataCell(Text(saleslog['L_UOM'].toString())),
-                  DataCell(Text(saleslog['QTY_LUOM'].toString())),
-                  DataCell(Text(saleslog['AMOUNT'].toString())),
-                  DataCell(Text(saleslog['TX_COMPNT_AMT_1'].toString())),
-                  DataCell(Text(saleslog['NET_AMOUNT'].toString())),
-                ]),
-              )
-              .toList()),
-    );
+        child: WidgetdataTable(column: saleslog_col, row: salesdetails));
   }
+  // saleslist() {
+  //   return SingleChildScrollView(
+  //     scrollDirection: Axis.horizontal,
+  //     child: DataTable(
+  //         columns: [
+  //           DataColumn(label: text("SERIAL NO", Colors.black), numeric: false),
+  //           DataColumn(label: text("PROD CODE", Colors.black), numeric: false),
+  //           DataColumn(label: text("PROD NAME", Colors.black), numeric: false),
+  //           DataColumn(label: text("PUOM", Colors.black), numeric: false),
+  //           DataColumn(label: text("QTY PUOM", Colors.black)),
+  //           DataColumn(label: text("LUOM", Colors.black), numeric: false),
+  //           DataColumn(label: text("QTY LUOM", Colors.black)),
+  //           DataColumn(label: text("AMOUNT", Colors.black)),
+  //           DataColumn(label: text("VAT", Colors.black)),
+  //           DataColumn(label: text("NET AMOUNT", Colors.black)),
+  //         ],
+  //         rows: salesdetails
+  //             .map(
+  //               (saleslog) => DataRow(cells: <DataCell>[
+  //                 DataCell(Text(saleslog['SERIAL_NO'].toString()), onTap: () {
+  //                   setState(() {
+  //                     if (middle_view == false) middle_view = true;
+  //                     prod_update = true;
+  //                     print(prod_update);
+  //                     String sno = saleslog['SERIAL_NO'].toString();
+  //                     selectListItem(sno);
+  //                   });
+  //                 }),
+  //                 DataCell(Text(saleslog['PROD_CODE'].toString())),
+  //                 DataCell(Text(saleslog['PROD_NAME'].toString())),
+  //                 DataCell(Text(saleslog['P_UOM'].toString())),
+  //                 DataCell(Text(saleslog['QTY_PUOM'].toString())),
+  //                 DataCell(Text(saleslog['L_UOM'].toString())),
+  //                 DataCell(Text(saleslog['QTY_LUOM'].toString())),
+  //                 DataCell(Text(saleslog['AMOUNT'].toString())),
+  //                 DataCell(Text(saleslog['TX_COMPNT_AMT_1'].toString())),
+  //                 DataCell(Text(saleslog['NET_AMOUNT'].toString())),
+  //               ]),
+  //             )
+  //             .toList()),
+  //   );
+  // }
 
   product_row(_text, _controller) {
     return Row(
@@ -357,12 +415,21 @@ class _SalesEntryState extends State<SalesEntry> {
   }
 
   fetch_saleseEntry(param1) {
-    return getAllSalesEntryDetails_1(param1).then((value) {
+    return getAllSalesEntryDetails(gs_sales_param1).then((value) {
       setState(() {
-        salesdetails.clear();
         salesdetails.addAll(value);
-        list_length = 0;
-        list_length = salesdetails.length;
+        if (salesdetails.isNotEmpty) {
+          // getAllSalesEntryDetails_1(gs_sales_param1).then((value1) {
+          //   setState(() {
+          //     salesdetails.clear();
+          // salesdetails.addAll(value1);
+          print("in details");
+          details_list = true;
+          list_length = 0;
+          list_length = salesdetails.length;
+          // });
+          // });
+        }
         // for (int i = 0; i < salesdetails.length; i++)
         //   sales += salesdetails[i].val10.toDouble();
 
@@ -439,9 +506,7 @@ class _SalesEntryState extends State<SalesEntry> {
       return alert(this.context, 'Fields are ' + _msg, Colors.red);
     } else {
       // ---------------------Login Success--------------------------
-      setState(() {
-        _message = 'Loading....';
-      });
+
       if (luom.text.isEmpty) luom.text = '0';
       var resp = await product_insertion(
         serial_no,
@@ -456,10 +521,6 @@ class _SalesEntryState extends State<SalesEntry> {
         net_amt.text,
         doc_no.text,
         "DC",
-        // "N",
-        // "SI90",
-        // "doc_no.text",
-        // "31",
         qty.text,
         rate.text,
         "AED",
@@ -482,9 +543,7 @@ class _SalesEntryState extends State<SalesEntry> {
       return alert(this.context, 'Fields are empty', Colors.red);
     } else {
       // ---------------------Login Success--------------------------
-      setState(() {
-        _message = 'Loading....';
-      });
+
       if (luom.text.isEmpty) luom.text = '0';
       var resp = await product_updation(
         serial_no,
@@ -508,6 +567,20 @@ class _SalesEntryState extends State<SalesEntry> {
         showToast('error');
       }
     }
+  }
+
+  generate_docno() {
+    return GestureDetector(
+        onTap: () {
+          getDocno().then((value) {
+            setState(() {
+              var docno = value.toInt() + 1;
+              doc_no.text = docno.toString();
+              print(doc_no.text);
+            });
+          });
+        },
+        child: Icon(Icons.build));
   }
 
   clearFields() {
