@@ -24,6 +24,7 @@ int list_length;
 String gs_sales_param1;
 String gs_sales_param2;
 String gs_sales_param3;
+String gs_sales_param4;
 int gs_list_index;
 
 class _ListBuilderCommonState extends State<ListBuilderCommon> {
@@ -128,6 +129,8 @@ class _ListBuilderCommonState extends State<ListBuilderCommon> {
                 gs_sales_param2 = _datasForDisplay[index].param2.toString();
                 if (_datasForDisplay[index].param3 != null)
                   gs_sales_param3 = _datasForDisplay[index].param3.toString();
+                if (_datasForDisplay[index].param4 != null)
+                  gs_sales_param4 = _datasForDisplay[index].param4.toString();
                 Navigator.pushNamed(context, toPage);
               } else if (pop == true) {
                 gs_list_index = index;
