@@ -11,6 +11,7 @@ class Salesmiddle {
   var vat;
   var net_amount;
   var tot_qty;
+  var uppp;
 
   Salesmiddle.fromJson(Map<String, dynamic> json) {
     serial_no = json['SERIAL_NO'];
@@ -25,5 +26,6 @@ class Salesmiddle {
     vat = json['TX_COMPNT_AMT_1'];
     net_amount = json['AMOUNT'];
     tot_qty = json['QUANTITY'];
+    uppp = json['UPPP'];
   }
 }

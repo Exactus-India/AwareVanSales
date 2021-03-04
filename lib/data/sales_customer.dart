@@ -15,6 +15,7 @@ class Customer {
   var param1;
   var param2;
   var param3;
+  var param4;
 
   Customer.fromJson_Customer(Map<String, dynamic> json) {
     val2 = json['AC_CODE'];
@@ -32,6 +33,7 @@ class Customer {
     param1 = json['AC_CODE'];
     param2 = json['AC_NAME'];
     param3 = json['ADDRESS_1'];
+    param4 = val2;
   }
 }
 
@@ -52,6 +54,7 @@ class Sales {
   var param1;
   var param2;
   var param3 = null;
+  var param4 = null;
 
   Sales.fromJson_Sales(Map<String, dynamic> json) {
     val = json['DOC_DATE'];
