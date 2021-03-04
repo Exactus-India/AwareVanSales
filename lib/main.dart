@@ -1,4 +1,4 @@
-import 'package:aware_van_sales/pages/_wm_mb_salesentry.dart';
+import 'package:aware_van_sales/pages/wm_mb_salesentry.dart';
 import 'package:aware_van_sales/pages/wm_mb_LoginPage.dart';
 import 'package:aware_van_sales/pages/wm_mb_sales.dart';
 import 'package:flutter/material.dart';
