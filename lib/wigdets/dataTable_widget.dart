@@ -36,7 +36,8 @@ class _WidgetdataTableState extends State<WidgetdataTable> {
       child: Column(
         children: <Widget>[
           if (columnList.length <= 7) dataTablecolumn_7(),
-          if (columnList.length > 7) dataTablecolumn_10()
+          if (columnList.length > 7)
+            dataTablecolumn_10(numItems, rowList, widget.column)
         ],
       ),
     );
@@ -85,12 +86,12 @@ class _WidgetdataTableState extends State<WidgetdataTable> {
         ));
   }
 
-  dataTablecolumn_10() {
+  dataTablecolumn_10(numItems, rowList, column) {
     return DataTable(
         columns: [
-          for (int i = 0; i <= widget.column.length - 1; i++)
+          for (int i = 0; i <= column.length - 1; i++)
             DataColumn(
-              label: text(widget.column[i], Colors.black),
+              label: text(column[i], Colors.black),
             ),
         ],
         rows: List<DataRow>.generate(
