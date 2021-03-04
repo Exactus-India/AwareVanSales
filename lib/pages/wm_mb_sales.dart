@@ -18,9 +18,10 @@ class _SalesListState extends State<SalesList> {
     saleslist(gs_sales_param1).then((value) {
       setState(() {
         _datas.addAll(value);
+        gs_ac_code = gs_sales_param4;
+        gs_party_address = gs_sales_param3;
         if (_datas.isNotEmpty) {
           gs_ac_code = _datas[0].val9.toString();
-          gs_party_address = gs_sales_param3;
         }
         list_length = 0;
         list_length = _datas.length;
