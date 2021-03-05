@@ -35,6 +35,23 @@ class Customer {
     param3 = json['ADDRESS_1'];
     param4 = val2;
   }
+  Customer.fromJson_CustomerReturns(Map<String, dynamic> json) {
+    val1 = json['AC_CODE'];
+    val4 = json['AC_NAME'];
+    val5 = json['CONTACT_PERSON'];
+    val6 = json['ADDRESS_1'];
+    val7 = json['PHONE'];
+    val8 = json['MOBILE_NO'];
+    val9 = json['TERRITORY_NAME'];
+    val10 = json['ROUTE_NAME'];
+    val11 = json['TODAY_SALE_IND'];
+    val12 = json['ROUTE_CODE'];
+    search = json['AC_NAME'];
+    param1 = json['AC_CODE'];
+    param2 = json['AC_NAME'];
+    param3 = json['ADDRESS_1'];
+    param4 = val2;
+  }
 }
 
 class Sales {

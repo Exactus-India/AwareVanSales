@@ -417,3 +417,22 @@ Future loginCheck(String uname, String pass) async {
     return 0;
   }
 }
+
+Future<List<Customer>> customersalesReturnlist() async {
+  var url =
+      'http://exactusnet.dyndns.org:4005/api/sales_return/customerList/$gs_Route';
+  var response = await http.get(url);
+  var datas = List<Customer>();
+  if (response.statusCode == 200) {
+    Object datasJson = json.decode(response.body.substring(0));
+    for (var dataJson in datasJson) {
+      datas.add(Customer.fromJson_CustomerReturns(dataJson));
+    }
+  }
+  datas.sort((a, b) {
+    var ab = a.val1;
+    var ba = b.val1;
+    return ab.compareTo(ba);
+  });
+  return datas;
+}
