@@ -6,7 +6,6 @@ import 'package:aware_van_sales/wigdets/alert.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:flutter/material.dart';
 
-import '../wigdets/dataTable_widget.dart';
 import '../wigdets/listing_Builder.dart';
 
 class SalesEntry extends StatefulWidget {
@@ -40,6 +39,7 @@ class _SalesEntryState extends State<SalesEntry> {
   List salesmiddleList = List();
   List productList = List();
   var serial_no;
+  var uppp;
   var _puom;
   var _luom;
   var stk_puom;
@@ -64,8 +64,13 @@ class _SalesEntryState extends State<SalesEntry> {
 
   @override
   void initState() {
+    _puom = "PUOM";
+    _luom = "LUOM";
     print(gs_ac_code + '' + gs_party_address);
-    if (gs_sales_param1 == null) customer.text = gs_sales_param2;
+    if (gs_sales_param1 == null) {
+      customer.text = gs_sales_param2;
+      selectedtype = salestypes[0];
+    }
     if (gs_sales_param1 != null) {
       getAllSalesHDR(gs_sales_param1).then((value) {
         setState(() {
@@ -151,12 +156,10 @@ class _SalesEntryState extends State<SalesEntry> {
                       hdr = true;
                     });
                   else {
-                    if (net_amt.text != null && qty.text.isNotEmpty)
-                      prod_update == false
-                          ? productInsert()
-                          : productupdation();
-                    if (net_amt.text == null && qty.text.isEmpty)
-                      alert(context, "Field is Empty", Colors.orange);
+                    // if (net_amt.text != null && qty.text.isNotEmpty)
+                    prod_update == false ? productInsert() : productupdation();
+                    // if (net_amt.text == null && qty.text.isEmpty)
+                    //   alert(context, "Field is Empty", Colors.orange);
 
                     details_list = true;
                   }
@@ -264,9 +267,15 @@ class _SalesEntryState extends State<SalesEntry> {
           "", product_name, false, product_name.text != null ? true : false),
       SizedBox(height: 10),
       Row(children: <Widget>[
+        Flexible(child: textData(_puom.toString(), Colors.purple, 16.0)),
+        SizedBox(width: 18.0),
         Flexible(child: textField("QTY PUOM", puom, false, false)),
-        SizedBox(width: 10.0),
-        Flexible(child: textField("QTY LUOM", luom, false, false)),
+        SizedBox(width: 25.0),
+        if (_puom.toString() != _luom.toString())
+          Flexible(child: textData(_luom.toString(), Colors.purple, 16.0)),
+        SizedBox(width: 18.0),
+        if (_puom.toString() != _luom.toString())
+          Flexible(child: textField("QTY LUOM", luom, false, false)),
       ]),
       SizedBox(height: 10),
       Row(children: <Widget>[
@@ -308,6 +317,46 @@ class _SalesEntryState extends State<SalesEntry> {
     );
   }
 
+  dataTable(numItems, rowList, column) {
+    return DataTable(
+        showCheckboxColumn: false,
+        columns: [
+          for (int i = 0; i <= column.length - 1; i++)
+            DataColumn(
+              label: text(column[i], Colors.black),
+            ),
+        ],
+        rows: List<DataRow>.generate(
+          numItems,
+          (index) => DataRow(
+              // selected: middle_view == false,
+              onSelectChanged: (va) {
+                if (va) {
+                  setState(() {
+                    if (middle_view == false) middle_view = true;
+                    prod_update = true;
+                    print(prod_update);
+                    String sno = rowList[index].val1.toString();
+                    selectListItem(sno);
+                  });
+                }
+              },
+              cells: <DataCell>[
+                DataCell(Text(rowList[index].val1.toString())),
+                DataCell(Text(rowList[index].val2.toString())),
+                DataCell(Text(rowList[index].val3.toString())),
+                DataCell(Text(rowList[index].val4.toString())),
+                DataCell(Text(rowList[index].val5.toString())),
+                DataCell(Text(rowList[index].val6.toString())),
+                DataCell(Text(rowList[index].val7.toString())),
+                DataCell(Text(getNumberFormat(rowList[index].val8).toString())),
+                DataCell(Text(getNumberFormat(rowList[index].val9).toString())),
+                DataCell(
+                    Text(getNumberFormat(rowList[index].val10).toString())),
+              ]),
+        ));
+  }
+
   product_row(_text, _controller) {
     return Row(
       children: <Widget>[
@@ -340,6 +389,7 @@ class _SalesEntryState extends State<SalesEntry> {
   }
 
   prodlist() {
+    list_length = productList.length;
     return AlertDialog(
         title: Text('Products'),
         content: Container(
@@ -376,6 +426,7 @@ class _SalesEntryState extends State<SalesEntry> {
   fetch_saleseEntry(param1) {
     return getAllSalesEntryDetails(gs_sales_param1).then((value) {
       setState(() {
+        salesdetails.clear();
         salesdetails.addAll(value);
         if (salesdetails.isNotEmpty) {
           print("in details");
@@ -393,30 +444,37 @@ class _SalesEntryState extends State<SalesEntry> {
 
   selectListItem(serialno) {
     salesmiddile(doc_no.text, serialno).then((value) {
-      new Timer(const Duration(milliseconds: 300), () {
-        setState(() {
-          salesmiddleList.clear();
-          salesmiddleList.addAll(value);
-          middle_view = true;
-          prod_update = true;
-          print(prod_update);
-          clearFields();
-          print(salesmiddleList.length.toString() + 'list Size');
-          serial_no = serialno;
-          product.text = salesmiddleList[0].product_code.toString();
-          product_name.text = salesmiddleList[0].product_name.toString();
-          puom.text = salesmiddleList[0].qty_puom.toString();
-          luom.text = salesmiddleList[0].qty_luom.toString();
-          rate.text = salesmiddleList[0].unit_price.toString();
-          amt.text = salesmiddleList[0].amount.toString();
-          vat.text = salesmiddleList[0].vat.toString();
-          net_amt.text =
-              (double.parse(amt.text) + double.parse(vat.text)).toString();
-          qty.text = salesmiddleList[0].tot_qty.toString();
-          // bal_stk.text = salesmiddleList[0].tot_qty.toString() +
-          //     ' ' +
-          //     salesmiddleList[0].puom.toString();
-          print(serial_no.toString() + "*");
+      setState(() {
+        new Timer(const Duration(milliseconds: 300), () {
+          _puom = "";
+          _luom = "";
+          setState(() {
+            salesmiddleList.clear();
+            salesmiddleList.addAll(value);
+            middle_view = true;
+            prod_update = true;
+            print(prod_update);
+            clearFields();
+            print(salesmiddleList.length.toString() + 'list Size');
+            serial_no = serialno;
+            product.text = salesmiddleList[0].product_code.toString();
+            product_name.text = salesmiddleList[0].product_name.toString();
+            puom.text = salesmiddleList[0].qty_puom.toString();
+            luom.text = salesmiddleList[0].qty_luom.toString();
+            rate.text = salesmiddleList[0].unit_price.toString();
+            amt.text = getNumberFormat(salesmiddleList[0].amount).toString();
+            vat.text = getNumberFormat(salesmiddleList[0].vat).toString();
+            _puom = salesmiddleList[0].puom.toString();
+            _luom = salesmiddleList[0].luom.toString();
+            uppp = salesmiddleList[0].uppp;
+            net_amt.text =
+                getNumberFormat(salesmiddleList[0].net_amount).toString();
+            qty.text = salesmiddleList[0].tot_qty.toString();
+            // bal_stk.text = salesmiddleList[0].tot_qty.toString() +
+            //     ' ' +
+            //     salesmiddleList[0].puom.toString();
+            print(serial_no.toString() + "*");
+          });
         });
       });
     });
@@ -429,6 +487,7 @@ class _SalesEntryState extends State<SalesEntry> {
     stk_luom = productList[gs_list_index].stk_luom.toString();
     product.text = productList[gs_list_index].val2.toString();
     product_name.text = productList[gs_list_index].val1.toString();
+    uppp = productList[gs_list_index].uppp;
     rate.text = productList[gs_list_index].val9.toString();
     bal_stk.text = 'Bal: ' + stk_puom + ' ' + _puom;
     amt.clear();
@@ -444,15 +503,15 @@ class _SalesEntryState extends State<SalesEntry> {
     var luoms;
     puom.text.isNotEmpty ? puoms = int.parse(puom.text) : puoms = 0;
     luom.text.isNotEmpty ? luoms = int.parse(luom.text) : luoms = 0;
-    var _qty = puoms + luoms;
+    var _qty = (puoms * uppp) + luoms;
     qty.text = _qty.toString();
     if (qty.text.isNotEmpty) {
-      var _rate = double.parse(rate.text);
+      double _rate = double.parse(rate.text);
       var _amt = _qty * _rate;
-      amt.text = (_qty * _rate).toString();
-      var _vat = (_rate * (5 / 100)) * _qty;
-      if (amt.text.isNotEmpty) vat.text = _vat.toStringAsFixed(2);
-      net_amt.text = (_amt + _vat).toString();
+      amt.text = getNumberFormat(_qty * _rate).toString();
+      var _vat = (_rate * 0.05) * _qty;
+      if (amt.text.isNotEmpty) vat.text = getNumberFormat(_vat).toString();
+      net_amt.text = getNumberFormat(_amt + _vat).toString();
     }
   }
 
@@ -462,7 +521,9 @@ class _SalesEntryState extends State<SalesEntry> {
       return alert(this.context, 'Fields are ' + _msg, Colors.red);
     } else {
       // ---------------------Login Success--------------------------
-
+      amt.text = numberWithCommas(amt.text);
+      vat.text = numberWithCommas(vat.text);
+      net_amt.text = numberWithCommas(net_amt.text);
       if (luom.text.isEmpty) luom.text = '0';
       var resp = await product_insertion(
         serial_no,
@@ -495,7 +556,7 @@ class _SalesEntryState extends State<SalesEntry> {
   }
 
   productupdation() async {
-    if (product.text.isEmpty && qty.text.isEmpty) {
+    if (product.text.isEmpty || qty.text.isEmpty) {
       return alert(this.context, 'Fields are empty', Colors.red);
     } else {
       // ---------------------Login Success--------------------------
@@ -551,80 +612,4 @@ class _SalesEntryState extends State<SalesEntry> {
     luom.clear();
     bal_stk.clear();
   }
-
-  dataTable(numItems, rowList, column) {
-    return DataTable(
-        columns: [
-          for (int i = 0; i <= column.length - 1; i++)
-            DataColumn(
-              label: text(column[i], Colors.black),
-            ),
-        ],
-        rows: List<DataRow>.generate(
-          numItems,
-          (index) => DataRow(cells: <DataCell>[
-            DataCell(Text(rowList[index].val1.toString()), onTap: () {
-              setState(() {
-                if (middle_view == false) middle_view = true;
-                prod_update = true;
-                print(prod_update);
-                String sno = rowList[index].val1.toString();
-                selectListItem(sno);
-              });
-            }),
-            DataCell(Text(rowList[index].val2.toString())),
-            DataCell(Text(rowList[index].val3.toString())),
-            DataCell(Text(rowList[index].val4.toString())),
-            DataCell(Text(rowList[index].val5.toString())),
-            DataCell(Text(rowList[index].val6.toString())),
-            DataCell(Text(rowList[index].val7.toString())),
-            DataCell(Text(rowList[index].val8.toString())),
-            DataCell(Text(rowList[index].val9.toString())),
-            DataCell(Text(rowList[index].val10.toString())),
-          ]),
-        ));
-  }
-
-  // saleslist() {
-  //   return SingleChildScrollView(
-  //     scrollDirection: Axis.horizontal,
-  //     child: DataTable(
-  //         columns: [
-  //           DataColumn(label: text("SERIAL NO", Colors.black), numeric: false),
-  //           DataColumn(label: text("PROD CODE", Colors.black), numeric: false),
-  //           DataColumn(label: text("PROD NAME", Colors.black), numeric: false),
-  //           DataColumn(label: text("PUOM", Colors.black), numeric: false),
-  //           DataColumn(label: text("QTY PUOM", Colors.black)),
-  //           DataColumn(label: text("LUOM", Colors.black), numeric: false),
-  //           DataColumn(label: text("QTY LUOM", Colors.black)),
-  //           DataColumn(label: text("AMOUNT", Colors.black)),
-  //           DataColumn(label: text("VAT", Colors.black)),
-  //           DataColumn(label: text("NET AMOUNT", Colors.black)),
-  //         ],
-  //         rows: salesdetails
-  //             .map(
-  //               (saleslog) => DataRow(cells: <DataCell>[
-  //                 DataCell(Text(saleslog['SERIAL_NO'].toString()), onTap: () {
-  //                   setState(() {
-  //                     if (middle_view == false) middle_view = true;
-  //                     prod_update = true;
-  //                     print(prod_update);
-  //                     String sno = saleslog['SERIAL_NO'].toString();
-  //                     selectListItem(sno);
-  //                   });
-  //                 }),
-  //                 DataCell(Text(saleslog['PROD_CODE'].toString())),
-  //                 DataCell(Text(saleslog['PROD_NAME'].toString())),
-  //                 DataCell(Text(saleslog['P_UOM'].toString())),
-  //                 DataCell(Text(saleslog['QTY_PUOM'].toString())),
-  //                 DataCell(Text(saleslog['L_UOM'].toString())),
-  //                 DataCell(Text(saleslog['QTY_LUOM'].toString())),
-  //                 DataCell(Text(saleslog['AMOUNT'].toString())),
-  //                 DataCell(Text(saleslog['TX_COMPNT_AMT_1'].toString())),
-  //                 DataCell(Text(saleslog['NET_AMOUNT'].toString())),
-  //               ]),
-  //             )
-  //             .toList()),
-  //   );
-  // }
 }
