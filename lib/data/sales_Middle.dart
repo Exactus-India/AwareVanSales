@@ -24,7 +24,7 @@ class Salesmiddle {
     unit_price = json['UNIT_PRICE'];
     amount = json['AMOUNT'];
     vat = json['TX_COMPNT_AMT_1'];
-    net_amount = json['AMOUNT'];
+    net_amount = json['NET_PRICE'];
     tot_qty = json['QUANTITY'];
     uppp = json['UPPP'];
   }
