@@ -436,3 +436,22 @@ Future<List<Customer>> customersalesReturnlist() async {
   });
   return datas;
 }
+
+Future<List<Sales>> salesReturnlist(ac_code) async {
+  var url =
+      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesListReturn/$gs_doc_type/$ac_code/$gs_currentUser_empid';
+  var response = await http.get(url);
+  var datas = List<Sales>();
+  if (response.statusCode == 200) {
+    Object datasJson = json.decode(response.body.substring(0));
+    for (var dataJson in datasJson) {
+      datas.add(Sales.fromJson_Sales(dataJson));
+    }
+  }
+  datas.sort((a, b) {
+    var ab = a.val2;
+    var ba = b.val2;
+    return ab.compareTo(ba);
+  });
+  return datas;
+}
