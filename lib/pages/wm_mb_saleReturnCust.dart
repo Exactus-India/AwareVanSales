@@ -30,7 +30,8 @@ class _SaleRetunCustomerListState extends State<SaleRetunCustomerList> {
         elevation: .1,
         backgroundColor: Color.fromRGBO(59, 87, 110, 1.0),
       ),
-      body: ListBuilderCommon(datas: _datas, toPage: null, head: false),
+      body: ListBuilderCommon(
+          datas: _datas, toPage: '/SalesReturnList', head: false),
     );
   }
 }
