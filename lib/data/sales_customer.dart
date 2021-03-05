@@ -36,7 +36,8 @@ class Customer {
     param4 = val2;
   }
   Customer.fromJson_CustomerReturns(Map<String, dynamic> json) {
-    val1 = json['AC_CODE'];
+    val2 = json['AC_CODE'];
+    val3 = json['OS_AMOUNT'];
     val4 = json['AC_NAME'];
     val5 = json['CONTACT_PERSON'];
     val6 = json['ADDRESS_1'];

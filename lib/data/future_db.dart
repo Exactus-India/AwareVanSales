@@ -430,8 +430,8 @@ Future<List<Customer>> customersalesReturnlist() async {
     }
   }
   datas.sort((a, b) {
-    var ab = a.val1;
-    var ba = b.val1;
+    var ab = a.val2;
+    var ba = b.val2;
     return ab.compareTo(ba);
   });
   return datas;
