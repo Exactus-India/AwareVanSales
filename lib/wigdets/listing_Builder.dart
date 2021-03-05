@@ -110,8 +110,10 @@ class _ListBuilderCommonState extends State<ListBuilderCommon> {
                 if (datasForDisplay[index].val1 != null)
                   align(Alignment.centerLeft,
                       datasForDisplay[index].val1.toString(), 14.0),
-                rowData_2(datasForDisplay[index].val2.toString(),
-                    val3.toString(), 14.0),
+                if (datasForDisplay[index].val2 != null &&
+                    datasForDisplay[index].val3 != null)
+                  rowData_2(datasForDisplay[index].val2.toString(),
+                      val3.toString(), 14.0),
                 if (datasForDisplay[index].val4 != null)
                   align(Alignment.centerLeft,
                       datasForDisplay[index].val4.toString(), 14.0),
