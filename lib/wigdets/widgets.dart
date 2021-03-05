@@ -100,3 +100,7 @@ showToast(msg) {
 getNumberFormat(number) {
   return NumberFormat("#,##,##0.00", "en_US").format(number);
 }
+
+numberWithCommas(x) {
+  return x.toString().replaceAll(',', '');
+}
