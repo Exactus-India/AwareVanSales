@@ -1,4 +1,4 @@
-import 'package:aware_van_sales/pages/wm_mb_salesReturn_entry.dart';
+import 'package:aware_van_sales/pages/wm_mb_saleReturn_entry.dart';
 import 'package:aware_van_sales/pages/wm_mb_customer.dart';
 import 'package:aware_van_sales/pages/wm_mb_saleReturnCust.dart';
 import 'package:aware_van_sales/pages/wm_mb_os_summary.dart';

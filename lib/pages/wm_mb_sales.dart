@@ -17,6 +17,7 @@ class _SalesListState extends State<SalesList> {
   void initState() {
     saleslist(gs_sales_param1).then((value) {
       setState(() {
+        print("saleslist" + gs_sales_param1);
         _datas.addAll(value);
         gs_ac_code = gs_sales_param4;
         gs_party_address = gs_sales_param3;

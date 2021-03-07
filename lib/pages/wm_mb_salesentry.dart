@@ -589,7 +589,7 @@ class _SalesEntryState extends State<SalesEntry> {
   generate_docno() {
     return GestureDetector(
         onTap: () {
-          getDocno().then((value) {
+          getDNDocno().then((value) {
             setState(() {
               var docno = value.toInt() + 1;
               doc_no.text = docno.toString();
