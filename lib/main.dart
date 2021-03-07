@@ -1,8 +1,10 @@
 import 'package:aware_van_sales/pages/wm_mb_salesentry.dart';
 import 'package:aware_van_sales/pages/wm_mb_LoginPage.dart';
 import 'package:aware_van_sales/pages/wm_mb_sales.dart';
-import 'package:aware_van_sales/pages/wm_mbs_salesReturnList.dart';
+import 'package:aware_van_sales/pages/wm_mb_salesReturnList.dart';
 import 'package:flutter/material.dart';
+
+import 'pages/wm_mb_salesReturn_entry.dart';
 
 void main() {
   runApp(MyApp());
@@ -20,6 +22,7 @@ class MyApp extends StatelessWidget {
         '/SalesList': (context) => SalesList(),
         '/SalesEntry': (context) => SalesEntry(),
         '/SalesReturnList': (context) => SalesReturnList(),
+        '/SalesReturnEntry': (context) => SalesEntryComman(),
       },
       home: Wm_mb_LoginPage(),
     );
