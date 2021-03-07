@@ -42,7 +42,7 @@ class _SalesReturnListState extends State<SalesReturnList> {
         actions: <Widget>[
           GestureDetector(
               onTap: () {
-                // gs_sales_param1 = _datas[0].param1.toString();
+                gs_sales_param1 = null;
                 Navigator.pushNamed(context, '/SalesReturnEntry');
               },
               child: Icon(Icons.add)),
