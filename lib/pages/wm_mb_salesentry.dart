@@ -46,7 +46,6 @@ class _SalesEntryState extends State<SalesEntry> {
   var stk_luom;
   double sales = 0;
   bool prod_update = false;
-  bool hdr = false;
   bool details_list = false;
 
   List saleslog_col = [
@@ -76,7 +75,6 @@ class _SalesEntryState extends State<SalesEntry> {
         setState(() {
           salesHDR.clear();
           salesHDR.addAll(value);
-          hdr = true;
           if (salesHDR[0]['SALE_TYPE'] != null)
             selectedtype = salesHDR[0]['SALE_TYPE'].toString();
           customer.text = salesHDR[0]['PARTY_NAME'].toString();
@@ -145,25 +143,11 @@ class _SalesEntryState extends State<SalesEntry> {
           GestureDetector(
               onTap: () {
                 setState(() {
-                  if (hdr != true)
-                    docno_insert(customer.text, doc_no.text, selectedtype,
-                            ref_no.text)
-                        .then((value) {
-                      middle_view = true;
-                      gs_sales_param1 != null
-                          ? getSerialno_fun()
-                          : serial_no = 1;
-                      hdr = true;
-                    });
-                  else {
-                    // if (net_amt.text != null && qty.text.isNotEmpty)
+                  if (net_amt.text != null && qty.text.isNotEmpty)
                     prod_update == false ? productInsert() : productupdation();
-                    // if (net_amt.text == null && qty.text.isEmpty)
-                    //   alert(context, "Field is Empty", Colors.orange);
 
-                    details_list = true;
-                  }
-                  // clearFields();
+                  details_list = true;
+
                   print('serial_no' + serial_no.toString());
                 });
               },
@@ -560,7 +544,9 @@ class _SalesEntryState extends State<SalesEntry> {
       return alert(this.context, 'Fields are empty', Colors.red);
     } else {
       // ---------------------Login Success--------------------------
-
+      amt.text = numberWithCommas(amt.text);
+      vat.text = numberWithCommas(vat.text);
+      net_amt.text = numberWithCommas(net_amt.text);
       if (luom.text.isEmpty) luom.text = '0';
       var resp = await product_updation(
         serial_no,
@@ -593,6 +579,13 @@ class _SalesEntryState extends State<SalesEntry> {
             setState(() {
               var docno = value.toInt() + 1;
               doc_no.text = docno.toString();
+              docno_insert(
+                      customer.text, doc_no.text, selectedtype, ref_no.text)
+                  .then((value) {
+                middle_view = true;
+                gs_sales_param1 != null ? getSerialno_fun() : serial_no = 1;
+              });
+
               print(doc_no.text);
             });
           });
