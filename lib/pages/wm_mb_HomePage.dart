@@ -1,6 +1,7 @@
-import 'package:aware_van_sales/pages/wm_mb_SaleReturns.dart';
+import 'package:aware_van_sales/pages/wm_mb_salesReturn_entry.dart';
 import 'package:aware_van_sales/pages/wm_mb_customer.dart';
-import 'package:aware_van_sales/pages/wm_mbs_os_summary.dart';
+import 'package:aware_van_sales/pages/wm_mb_saleReturnCust.dart';
+import 'package:aware_van_sales/pages/wm_mb_os_summary.dart';
 import 'package:aware_van_sales/wigdets/card.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:flutter/material.dart';
@@ -35,8 +36,8 @@ class _HomePageState extends State<HomePage> {
                 'sale.png'),
 
             //--------------------------RETURNS-------------------------
-            card("RETURNS", SalesReturns(), Colors.blue[800], this.context,
-                'sale_returns.jpg'),
+            card("RETURNS", SaleRetunCustomerList(), Colors.blue[800],
+                this.context, 'sale_returns.jpg'),
 
             //--------------------------RECEIPT-------------------------
             card(
