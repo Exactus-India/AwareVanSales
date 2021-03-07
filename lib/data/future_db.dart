@@ -16,7 +16,7 @@ import 'package:http/http.dart' as http;
 import 'stock_sum_data.dart';
 
 String gs_dndoc_type = 'DN90';
-String gs_srdoc_type = 'SRT';
+String gs_srdoc_type = 'SR90';
 String gs_company_code = 'BSG';
 var gs_date = DateFormat("dd-MMM-yyyy").format(DateTime.now());
 
@@ -466,4 +466,39 @@ Future<List<Sales>> salesReturnlist(ac_code) async {
     return ab.compareTo(ba);
   });
   return datas;
+}
+
+Future srno_insert(
+  party_name,
+  doc_no,
+  sales_type,
+  ref_no,
+) async {
+  Map data = {
+    "COMPANY_CODE": gs_company_code,
+    "DOC_TYPE": gs_srdoc_type,
+    "DOC_NO": doc_no,
+    "AC_CODE": gs_ac_code,
+    "PARTY_NAME": party_name,
+    "PARTY_ADDRESS": gs_party_address,
+    "SALESMAN_CODE": gs_currentUser_empid,
+    "SALE_TYPE": sales_type,
+    "USER_ID": gs_currentUser,
+    "REF_NO": ref_no,
+    "CURR_CODE": "AED",
+  };
+  var value = json.encode(data);
+  var url =
+      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesSR/doc_no_insert';
+  var response = await http.post(url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+      body: value);
+
+  if (response.statusCode == 200) {
+    return 1;
+  } else {
+    return null;
+  }
 }
