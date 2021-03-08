@@ -57,16 +57,6 @@ Future<int> getDNDocno() async {
   return jsonData[0]['DOC_NO'];
 }
 
-Future<int> getSRDocno() async {
-  var url = 'http://exactusnet.dyndns.org:4005/api/sales/customerList/SR/docno';
-  var response = await http.get(url);
-  var jsonBody = response.body;
-  var jsonData = json.decode(jsonBody.substring(0));
-  print(jsonData[0]['DOC_NO'].toString() + "last dnno");
-
-  return jsonData[0]['DOC_NO'];
-}
-
 Future<List> stock_summary() async {
   var url =
       'http://exactusnet.dyndns.org:4005/api/sales/customerList/stocksummary/$gs_company_code';
@@ -165,10 +155,6 @@ Future product_insertion(
     net_amt,
     doc_no,
     dept_code,
-    // cancelled,
-    // inv_ref_type,
-    // tx_id_no,
-    // tx_cat_code,
     qty,
     unit_rate,
     curr_code) async {
@@ -187,11 +173,7 @@ Future product_insertion(
     "DOC_TYPE": gs_dndoc_type,
     "SALESMAN_CODE": gs_currentUser_empid,
     "DEPT_CODE": dept_code,
-    // "CANCELLED": cancelled,
     "USER_ID": gs_currentUser,
-    // "INV_REF_TYPE": inv_ref_type,
-    // "TX_IDENTITY_NUMBER": gs_doc_type + '' + tx_id_no,
-    // "TX_CAT_CODE": tx_cat_code,
     "QUANTITY": qty,
     "UNIT_PRICE": unit_rate,
     "CURR_CODE": curr_code,
@@ -499,6 +481,16 @@ Future srno_insert(party_name, doc_no, sales_type, ref_no, ref_docno,
   }
 }
 
+Future<int> getSRDocno() async {
+  var url = 'http://exactusnet.dyndns.org:4005/api/sales/customerList/SR/docno';
+  var response = await http.get(url);
+  var jsonBody = response.body;
+  var jsonData = json.decode(jsonBody.substring(0));
+  print(jsonData[0]['DOC_NO'].toString() + "last dnno");
+
+  return jsonData[0]['DOC_NO'];
+}
+
 Future<List> sr_HDR(docno) async {
   var url =
       'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesSR_return/HDR/$gs_srdoc_type/$gs_company_code/$docno';
@@ -506,4 +498,68 @@ Future<List> sr_HDR(docno) async {
   var jsonBody = response.body;
   var jsonData = json.decode(jsonBody.substring(0));
   return jsonData;
+}
+
+Future<int> getSRSerialno(doc_no) async {
+  var url =
+      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesSR/serialno/$doc_no';
+  var response = await http.get(url);
+  var jsonBody = response.body;
+  var jsonData = json.decode(jsonBody.substring(0));
+  print(jsonData[0]['SERIAL_NO'].toString() + "last serial");
+
+  return jsonData[0]['SERIAL_NO'];
+}
+
+Future sr_product_insertion(
+    serial_no,
+    prod_code,
+    prod_name,
+    p_uom,
+    qty_puom,
+    l_uom,
+    qty_luom,
+    amt,
+    vat,
+    net_amt,
+    doc_no,
+    dept_code,
+    qty,
+    unit_rate,
+    curr_code) async {
+  Map data = {
+    "SERIAL_NO": serial_no,
+    "PROD_CODE": prod_code,
+    "PROD_NAME": prod_name,
+    "P_UOM": p_uom,
+    "QTY_PUOM": qty_puom,
+    "L_UOM": l_uom,
+    "QTY_LUOM": qty_luom,
+    "AMOUNT": amt,
+    "TX_COMPNT_AMT_1": vat,
+    "NET_PRICE": net_amt,
+    "DOC_NO": doc_no,
+    "DOC_TYPE": gs_dndoc_type,
+    "SALESMAN_CODE": gs_currentUser_empid,
+    "DEPT_CODE": dept_code,
+    "USER_ID": gs_currentUser,
+    "QUANTITY": qty,
+    "UNIT_PRICE": unit_rate,
+    "CURR_CODE": curr_code,
+    "COMPANY_CODE": gs_company_code
+  };
+  var value = json.encode(data);
+  var url =
+      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/insert';
+  var response = await http.post(url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+      body: value);
+
+  if (response.statusCode == 200) {
+    return 1;
+  } else {
+    return null;
+  }
 }

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:aware_van_sales/data/future_db.dart';
 import 'package:aware_van_sales/pages/wm_mb_saleReturnList.dart';
+import 'package:aware_van_sales/wigdets/alert.dart';
 import 'package:aware_van_sales/wigdets/dataTable_widget.dart';
 import 'package:aware_van_sales/wigdets/listing_Builder.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
@@ -38,7 +39,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
   bool middle_view = false;
   bool sales_delete = false;
   List hDR = List();
-  List details_list = List();
+  List detailslist = List();
   List salesmiddleList = List();
   List productList = List();
   List search_ref_datas = List();
@@ -53,6 +54,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
   double sales = 0;
   bool prod_update = false;
   bool hdr = false;
+  bool details_list = false;
 
   List saleslog_col = [
     "SERIAL NO",
@@ -110,6 +112,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
         });
       });
     }
+    gs_sales_param1 != null ? getSerialno_fun() : serial_no = 1;
     getAllProduct().then((value) {
       setState(() {
         productList.clear();
@@ -127,7 +130,18 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
       appBar: AppBar(
         title: Text("Sales Return"),
         actions: <Widget>[
-          GestureDetector(onTap: () {}, child: Icon(Icons.save)),
+          GestureDetector(
+              onTap: () {
+                setState(() {
+                  // if (net_amt.text != null && qty.text.isNotEmpty)
+                  //   prod_update == false ? productInsert() : productupdation();
+
+                  details_list = true;
+
+                  print('serial_no' + serial_no.toString());
+                });
+              },
+              child: Icon(Icons.save)),
           SizedBox(width: 20.0),
           GestureDetector(
               onTap: () {
@@ -153,11 +167,8 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
                   SizedBox(height: 5),
                   head(),
                   SizedBox(height: 10),
-                  if (middle_view == true)
-                    middle(),
-                  // salesReturnlist(),
-                  // if (details_list != false)
-                  // saleslist(),
+                  if (middle_view == true) middle(),
+                  if (details_list != false) salesReturnlist(),
                 ],
               ),
             )),
@@ -320,7 +331,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
 
   salesReturnlist() {
     return SingleChildScrollView(
-        child: WidgetdataTable(column: null, row: details_list));
+        child: WidgetdataTable(column: null, row: detailslist));
   }
 
   fetch_products(param1) {
@@ -331,6 +342,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
         print("salesdetails");
         print(salesdetails.length);
         if (salesdetails.isNotEmpty) {
+          details_list = true;
           print("in details");
           list_length = 0;
           list_length = salesdetails.length;
@@ -433,7 +445,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
   }
 
   getSerialno_fun() {
-    return getSerialno(gs_sales_param1).then((value) {
+    return getSRSerialno(gs_sales_param1).then((value) {
       print(value);
       if (value == null) serial_no = 1;
       if (value != null) serial_no = value.toInt() + 1;
@@ -505,5 +517,58 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
         });
       });
     });
+  }
+
+  productInsert() async {
+    if (product.text.isEmpty || qty.text.isEmpty || net_amt.text.isEmpty) {
+      String _msg = "Empty";
+      return alert(this.context, 'Fields are ' + _msg, Colors.red);
+    } else {
+      // ---------------------Login Success--------------------------
+      amt.text = numberWithCommas(amt.text);
+      vat.text = numberWithCommas(vat.text);
+      net_amt.text = numberWithCommas(net_amt.text);
+      if (luom.text.isEmpty) luom.text = '0';
+      var resp = await sr_product_insertion(
+        serial_no,
+        product.text,
+        product_name.text,
+        _puom,
+        puom.text,
+        _luom,
+        luom.text,
+        amt.text,
+        vat.text,
+        net_amt.text,
+        doc_no.text,
+        "DC",
+        qty.text,
+        rate.text,
+        "AED",
+      );
+      if (resp == 1) {
+        setState(() {
+          clearFields();
+          fetch_products(ref_doc_no.text);
+          // Navigator.of(context).pop(true);
+          showToast('Created Succesfully');
+        });
+      } else {
+        showToast('error');
+      }
+    }
+  }
+
+  clearFields() {
+    product.clear();
+    product_name.clear();
+    rate.clear();
+    amt.clear();
+    vat.clear();
+    net_amt.clear();
+    qty.clear();
+    puom.clear();
+    luom.clear();
+    bal_stk.clear();
   }
 }
