@@ -48,8 +48,7 @@ Future<int> getSerialno(doc_no) async {
 }
 
 Future<int> getDNDocno() async {
-  var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/docno/$gs_dndoc_type';
+  var url = 'http://exactusnet.dyndns.org:4005/api/sales/customerList/DN/docno';
   var response = await http.get(url);
   var jsonBody = response.body;
   var jsonData = json.decode(jsonBody.substring(0));
@@ -59,8 +58,7 @@ Future<int> getDNDocno() async {
 }
 
 Future<int> getSRDocno() async {
-  var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/docno/$gs_srdoc_type';
+  var url = 'http://exactusnet.dyndns.org:4005/api/sales/customerList/SR/docno';
   var response = await http.get(url);
   var jsonBody = response.body;
   var jsonData = json.decode(jsonBody.substring(0));
@@ -468,24 +466,22 @@ Future<List<Sales>> salesReturnlist(ac_code) async {
   return datas;
 }
 
-Future srno_insert(
-  party_name,
-  doc_no,
-  sales_type,
-  ref_no,
-) async {
+Future srno_insert(party_name, doc_no, sales_type, ref_no, ref_docno,
+    ref_doctype, party_address, ac_code) async {
   Map data = {
     "COMPANY_CODE": gs_company_code,
     "DOC_TYPE": gs_srdoc_type,
     "DOC_NO": doc_no,
-    "AC_CODE": gs_ac_code,
+    "AC_CODE": ac_code,
     "PARTY_NAME": party_name,
-    "PARTY_ADDRESS": gs_party_address,
+    "PARTY_ADDRESS": party_address,
     "SALESMAN_CODE": gs_currentUser_empid,
     "SALE_TYPE": sales_type,
     "USER_ID": gs_currentUser,
     "REF_NO": ref_no,
     "CURR_CODE": "AED",
+    "ref_doc_no": ref_docno,
+    "ref_doc_type": ref_doctype,
   };
   var value = json.encode(data);
   var url =
@@ -501,4 +497,13 @@ Future srno_insert(
   } else {
     return null;
   }
+}
+
+Future<List> sr_HDR(docno) async {
+  var url =
+      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesSR_return/HDR/$gs_srdoc_type/$gs_company_code/$docno';
+  var response = await http.get(url);
+  var jsonBody = response.body;
+  var jsonData = json.decode(jsonBody.substring(0));
+  return jsonData;
 }
