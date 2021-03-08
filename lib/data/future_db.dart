@@ -13,6 +13,7 @@ import './User_data.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+import 'receipt_data.dart';
 import 'stock_sum_data.dart';
 
 String gs_dndoc_type = 'DN90';
@@ -562,4 +563,23 @@ Future sr_product_insertion(
   } else {
     return null;
   }
+}
+
+Future<List<Receipt>> receipt() async {
+  var url =
+      'http://exactusnet.dyndns.org:4005/api/sales/receipt/$gs_currentUser_empid';
+  var response = await http.get(url);
+  var datas = List<Receipt>();
+  if (response.statusCode == 200) {
+    Object datasJson = json.decode(response.body.substring(0));
+    for (var dataJson in datasJson) {
+      datas.add(Receipt.fromJson(dataJson));
+    }
+  }
+  datas.sort((a, b) {
+    var ab = a.val2;
+    var ba = b.val2;
+    return ab.compareTo(ba);
+  });
+  return datas;
 }

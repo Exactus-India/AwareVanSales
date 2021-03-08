@@ -6,6 +6,7 @@ import 'package:aware_van_sales/wigdets/card.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:flutter/material.dart';
 
+import 'wm_mb_receipt.dart';
 import 'wm_mb_sales_summary.dart';
 import 'wm_mb_stock_summary.dart';
 
@@ -40,8 +41,8 @@ class _HomePageState extends State<HomePage> {
                 this.context, 'sale_returns.jpg'),
 
             //--------------------------RECEIPT-------------------------
-            card(
-                "RECEIPT", null, Colors.blue[800], this.context, 'receipt.png'),
+            card("RECEIPT", ReceiptList(), Colors.blue[800], this.context,
+                'receipt.png'),
 
             //--------------------------SALE SUMMARY-------------------------
             card("SALE SUMMARY", SalesSummary(), Colors.blue[800], this.context,
