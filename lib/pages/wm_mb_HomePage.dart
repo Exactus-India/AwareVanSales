@@ -60,8 +60,8 @@ class _HomePageState extends State<HomePage> {
                 this.context, 'stock_summary.png'),
 
             //--------------------------DAILY ACTIVITY-------------------------
-            card("DAILY ACTIVITY", null, Colors.blue[800], this.context,
-                'daily_activity.png')
+            // card("DAILY ACTIVITY", null, Colors.blue[800], this.context,
+            //     'daily_activity.png')
           ],
         ),
       ),
