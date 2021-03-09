@@ -70,11 +70,11 @@ listView_row_5_fields(datasForDisplay, container_height) {
   );
 }
 
-listView_row_6_fields(List datasForDisplay, container_height) {
+listView_row_6_fields(List datasForDisplay) {
   return ListView.builder(
     itemBuilder: (context, index) {
       return Container(
-          height: container_height,
+          color: Colors.blue[300],
           child: Card(
             child: ListTile(
               subtitle: rowData6(
