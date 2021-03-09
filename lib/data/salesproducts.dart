@@ -8,6 +8,7 @@ class Productlist {
   var val7;
   var val8;
   var val9;
+  var val10;
   var search;
   var luom;
   var puom;
@@ -26,6 +27,21 @@ class Productlist {
     search = val1;
     puom = val8;
     stk_puom = val7;
+    luom = json['L_UOM'];
+    stk_luom = json['STK_LUOM'];
+  }
+  Productlist.fromJsonSR(Map<String, dynamic> json) {
+    val1 = json['PROD_NAME'];
+    val2 = json['PROD_CODE'];
+    val3 = json['QTY'];
+    val10 = json['P_UOM'];
+    val7 = json['AMOUNT'];
+    uppp = json['UPPP'];
+    val3 = val3.toString() + " " + val10.toString();
+    val5 = "Price " + val7.toString();
+    search = val1;
+    puom = val10;
+    // stk_puom = val7;
     luom = json['L_UOM'];
     stk_luom = json['STK_LUOM'];
   }
