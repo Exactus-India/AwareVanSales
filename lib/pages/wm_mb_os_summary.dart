@@ -63,7 +63,7 @@ class _OsSummaryState extends State<OsSummary> {
                 style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 10),
-              Flexible(child: textField("Date", userdate, false, true)),
+              textField("Date", userdate, false, true),
               SizedBox(height: 10),
               Container(
                 color: Colors.grey[800],
@@ -82,14 +82,7 @@ class _OsSummaryState extends State<OsSummary> {
                   ),
                 ),
               ),
-              SingleChildScrollView(
-                child: Container(
-                    margin: EdgeInsets.only(top: 5),
-                    height: 500,
-                    width: 400,
-                    color: Colors.lightBlue[100],
-                    child: listView_row_6_fields(os_summary_report, 120.0)),
-              ),
+              Expanded(child: listView_row_6_fields(os_summary_report)),
             ],
           ),
         ),
