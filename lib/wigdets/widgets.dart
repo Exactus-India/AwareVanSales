@@ -78,6 +78,7 @@ align(alignment, _text, size) {
 
 labelWidget(clr, _controller) {
   return TextField(
+    readOnly: true,
     style: TextStyle(color: clr),
     decoration: InputDecoration(
       border: InputBorder.none,

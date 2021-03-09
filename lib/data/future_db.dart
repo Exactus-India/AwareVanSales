@@ -6,6 +6,7 @@ import 'package:aware_van_sales/data/sales_detailList.dart';
 import 'package:aware_van_sales/data/salesproducts.dart';
 import 'package:aware_van_sales/data/sales_customer.dart';
 import 'package:aware_van_sales/data/salessum.dart';
+import 'package:aware_van_sales/data/sr_entrydetails.dart';
 import 'package:aware_van_sales/pages/wm_mb_LoginPage.dart';
 import 'package:aware_van_sales/pages/wm_mb_sales.dart';
 import 'package:intl/intl.dart';
@@ -527,31 +528,35 @@ Future sr_product_insertion(
     dept_code,
     qty,
     unit_rate,
-    curr_code) async {
+    curr_code,
+    ref_doctype,
+    ref_docno) async {
   Map data = {
     "SERIAL_NO": serial_no,
     "PROD_CODE": prod_code,
     "PROD_NAME": prod_name,
-    "P_UOM": p_uom,
+    "P_UOM": "PCS",
     "QTY_PUOM": qty_puom,
-    "L_UOM": l_uom,
+    "L_UOM": "PCS",
     "QTY_LUOM": qty_luom,
     "AMOUNT": amt,
     "TX_COMPNT_AMT_1": vat,
     "NET_PRICE": net_amt,
     "DOC_NO": doc_no,
-    "DOC_TYPE": gs_dndoc_type,
+    "DOC_TYPE": gs_srdoc_type,
     "SALESMAN_CODE": gs_currentUser_empid,
     "DEPT_CODE": dept_code,
     "USER_ID": gs_currentUser,
     "QUANTITY": qty,
     "UNIT_PRICE": unit_rate,
     "CURR_CODE": curr_code,
-    "COMPANY_CODE": gs_company_code
+    "COMPANY_CODE": gs_company_code,
+    "REF_DOC_TYPE": ref_doctype,
+    "REF_DOC_NO": ref_docno
   };
   var value = json.encode(data);
   var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/insert';
+      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesSR/insert';
   var response = await http.post(url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8'
@@ -563,6 +568,59 @@ Future sr_product_insertion(
   } else {
     return null;
   }
+}
+
+Future<bool> sr_salesDelete(serial_no, doc_no) async {
+  var url =
+      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesSR/delete/$serial_no/$doc_no/$gs_company_code/$gs_srdoc_type';
+  var response = await http.delete(url);
+  if (response.statusCode == 200) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+Future<List> getAllSalesSR_EntryDetails(doc_no) async {
+  var url =
+      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesSR_returnDetailList/$gs_srdoc_type/$gs_company_code/$doc_no';
+  var response = await http.get(url);
+  var datas = List<SRSalesDetail>();
+  if (response.statusCode == 200) {
+    Object datasJson = json.decode(response.body.substring(0));
+    for (var dataJson in datasJson) {
+      datas.add(SRSalesDetail.fromJson(dataJson));
+    }
+  }
+  return datas;
+}
+
+Future<List> sr_salesmiddile(docno, serialno) async {
+  var url =
+      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesSR_return/middle/$gs_srdoc_type/$gs_company_code/$docno/$serialno';
+  var response = await http.get(url);
+  var datas = List<SRSalesmiddle>();
+  if (response.statusCode == 200) {
+    Object datasJson = json.decode(response.body.substring(0));
+    for (var dataJson in datasJson) {
+      datas.add(SRSalesmiddle.fromJson(dataJson));
+    }
+  }
+  return datas;
+}
+
+Future<List> getAllSRProduct(ref_doc_type, ref_doc_no) async {
+  var url =
+      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesSR/product_search/$ref_doc_type/$gs_company_code/$ref_doc_no';
+  var response = await http.get(url);
+  var datas = List<Productlist>();
+  if (response.statusCode == 200) {
+    Object datasJson = json.decode(response.body.substring(0));
+    for (var dataJson in datasJson) {
+      datas.add(Productlist.fromJsonSR(dataJson));
+    }
+  }
+  return datas;
 }
 
 Future<List<Receipt>> receipt() async {
