@@ -550,23 +550,25 @@ Future<int> getSRSerialno(doc_no) async {
 }
 
 Future sr_product_insertion(
-    serial_no,
-    prod_code,
-    prod_name,
-    p_uom,
-    qty_puom,
-    l_uom,
-    qty_luom,
-    amt,
-    vat,
-    net_amt,
-    doc_no,
-    dept_code,
-    qty,
-    unit_rate,
-    curr_code,
-    ref_doctype,
-    ref_docno) async {
+  serial_no,
+  prod_code,
+  prod_name,
+  p_uom,
+  qty_puom,
+  l_uom,
+  qty_luom,
+  amt,
+  vat,
+  net_amt,
+  doc_no,
+  dept_code,
+  qty,
+  unit_rate,
+  curr_code,
+  ref_doctype,
+  ref_docno,
+  // lst_dtl_serial_no
+) async {
   Map data = {
     "SERIAL_NO": serial_no,
     "PROD_CODE": prod_code,
@@ -588,11 +590,41 @@ Future sr_product_insertion(
     "CURR_CODE": curr_code,
     "COMPANY_CODE": gs_company_code,
     "REF_DOC_TYPE": ref_doctype,
-    "REF_DOC_NO": ref_docno
+    "REF_DOC_NO": ref_docno,
+    // "LAST_DTL_SERIAL_NO": lst_dtl_serial_no
   };
   var value = json.encode(data);
   var url =
       'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesSR/insert';
+  var response = await http.post(url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+      body: value);
+
+  if (response.statusCode == 200) {
+    return 1;
+  } else {
+    return null;
+  }
+}
+
+Future sr_hdr_update(doc_no, ref_no, salestype, ref_doctype, ref_docno,
+    lst_dtl_serial_no, remarks) async {
+  Map data = {
+    "DOC_NO": doc_no,
+    "DOC_TYPE": gs_srdoc_type,
+    "COMPANY_CODE": gs_company_code,
+    "REF_DOC_TYPE": ref_doctype,
+    "REF_DOC_NO": ref_docno,
+    "LAST_DTL_SERIAL_NO": lst_dtl_serial_no,
+    "REMARKS": remarks,
+    "SALE_TYPE": salestype,
+    "REF_NO": ref_no
+  };
+  var value = json.encode(data);
+  var url =
+      'http://exactusnet.dyndns.org:4005/api/sales_return/customerList/salesSR/sr_hdr_update';
   var response = await http.post(url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8'

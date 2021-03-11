@@ -1,10 +1,9 @@
-import 'package:aware_van_sales/pages/wm_mb_salesentry.dart';
 import 'package:aware_van_sales/pages/wm_mb_LoginPage.dart';
 import 'package:aware_van_sales/pages/wm_mb_sales.dart';
 import 'package:aware_van_sales/pages/wm_mb_saleReturnList.dart';
 import 'package:flutter/material.dart';
 
-import 'pages/wm_mb_saleReturn_entry.dart';
+import 'pages/wm_mb_stock_transfer_entry.dart';
 
 void main() {
   runApp(MyApp());
@@ -20,9 +19,8 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/SalesList': (context) => SalesList(),
-        '/SalesEntry': (context) => SalesEntry(),
         '/SalesReturnList': (context) => SalesReturnList(),
-        '/SalesReturnEntry': (context) => SalesEntryComman(),
+        '/StockTransferEntry': (context) => StocktransferEntry(),
       },
       home: Wm_mb_LoginPage(),
     );
