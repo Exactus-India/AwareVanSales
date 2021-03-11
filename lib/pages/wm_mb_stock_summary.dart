@@ -26,7 +26,7 @@ class _StockSummaryState extends State<StockSummary> {
 
   @override
   void initState() {
-    stock_summary_pro("12-FEB-2021", "12-FEB-2021")
+    stock_summary_pro(gs_date, gs_date)
         .then((value) => stock_summary().then((value) {
               setState(() {
                 stockreport.addAll(value);
