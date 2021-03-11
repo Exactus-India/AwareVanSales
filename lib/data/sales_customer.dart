@@ -68,6 +68,7 @@ class Sales {
   var val9;
   var val10;
   var val11;
+  var val12;
   var search;
   var param1;
   var param2;
@@ -84,6 +85,7 @@ class Sales {
     val9 = json['AC_CODE'];
     val10 = json['SALESMAN_CODE'];
     val11 = json['CONFIRMED'];
+    val12 = json['LAST_DTL_SERIAL_NO'];
     search = json['DOC_NO'];
     param1 = json['DOC_NO'];
     param2 = json['PARTY_NAME'];
