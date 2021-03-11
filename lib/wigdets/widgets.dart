@@ -76,26 +76,35 @@ align(alignment, _text, size) {
   );
 }
 
-labelWidget(clr, _controller) {
-  return TextField(
-    readOnly: true,
-    style: TextStyle(color: clr),
-    decoration: InputDecoration(
-      border: InputBorder.none,
-    ),
-    controller: _controller,
-  );
+labelWidget(clr, _controller, size) {
+  return Container(
+      height: 30.0,
+      child: TextField(
+        readOnly: true,
+        style: TextStyle(color: clr, fontSize: size),
+        decoration: InputDecoration(
+          border: InputBorder.none,
+        ),
+        controller: _controller,
+      ));
 }
 
 showToast(msg) {
   Fluttertoast.showToast(
       msg: msg,
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
+      toastLength: Toast.LENGTH_LONG,
+      gravity: ToastGravity.CENTER,
       timeInSecForIosWeb: 1,
-      backgroundColor: Colors.grey,
-      textColor: Colors.black,
+      backgroundColor: Colors.black,
+      textColor: Colors.white,
       fontSize: 16.0);
+}
+
+textBold(_text) {
+  return Text(
+    _text,
+    style: TextStyle(fontWeight: FontWeight.bold),
+  );
 }
 
 getNumberFormat(number) {
