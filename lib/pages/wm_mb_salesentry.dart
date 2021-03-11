@@ -1,14 +1,22 @@
 import 'dart:async';
 
 import 'package:aware_van_sales/data/future_db.dart';
-import 'package:aware_van_sales/pages/wm_mb_sales.dart';
 import 'package:aware_van_sales/wigdets/alert.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
+import 'package:custom_datatable/custom_datatable.dart';
 import 'package:flutter/material.dart';
 
 import '../wigdets/listing_Builder.dart';
 
 class SalesEntry extends StatefulWidget {
+  final doc_no;
+  final ac_code;
+  final ac_name;
+  final party_address;
+
+  const SalesEntry(
+      {Key key, this.doc_no, this.ac_code, this.ac_name, this.party_address})
+      : super(key: key);
   @override
   _SalesEntryState createState() => _SalesEntryState();
 }
@@ -39,55 +47,44 @@ class _SalesEntryState extends State<SalesEntry> {
   List salesmiddleList = List();
   List productList = List();
   var serial_no;
+  var list_serial_no;
   var uppp;
   var _puom;
   var _luom;
   var stk_puom;
   var stk_luom;
-  double sales = 0;
+  int _pqty = 0;
+  int _lqty = 0;
+  double _amt = 0;
+  double _vat = 0;
+  double _tot = 0;
   bool prod_update = false;
   bool details_list = false;
 
   List saleslog_col = [
-    "SERIAL NO",
-    "PRODUCT CODE",
-    "PRODUCT NAME",
-    "PUOM",
+    "SL NO",
+    "PROD CODE",
+    "PROD NAME",
     "QTY PUOM",
-    "LUOM",
     "QTY LUOM",
     "AMOUNT ",
     "VAT",
-    "NET AMOUNT"
+    "TOTAL"
   ];
 
   @override
   void initState() {
     _puom = "PUOM";
     _luom = "LUOM";
-    print(gs_ac_code + '' + gs_party_address);
-    if (gs_sales_param1 == null) {
-      customer.text = gs_sales_param2;
+    print(widget.ac_code + '' + widget.party_address);
+    if (widget.doc_no == null) {
+      serial_no = 1;
+      customer.text = widget.ac_name;
       selectedtype = salestypes[0];
     }
-    if (gs_sales_param1 != null) {
-      getAllSalesHDR(gs_sales_param1).then((value) {
-        setState(() {
-          salesHDR.clear();
-          salesHDR.addAll(value);
-          if (salesHDR[0]['SALE_TYPE'] != null)
-            selectedtype = salesHDR[0]['SALE_TYPE'].toString();
-          customer.text = salesHDR[0]['PARTY_NAME'].toString();
-          var doc = salesHDR[0]['DOC_NO'].toString();
-          if (doc != 'null') doc_no.text = doc.toString();
-          var ref = salesHDR[0]['REF_NO'];
-
-          ref != null ? ref_no.text = ref.toString() : ref_no.text = '';
-          print(salesHDR[0]['REF_NO'].toString() + ' 666');
-          print(salesHDR[0]['PARTY_NAME'].toString());
-        });
-      });
-      fetch_saleseEntry(gs_sales_param1);
+    if (widget.doc_no != null) {
+      getHDR();
+      fetch_saleseEntry(widget.doc_no);
     }
     getAllProduct().then((value) {
       setState(() {
@@ -96,22 +93,37 @@ class _SalesEntryState extends State<SalesEntry> {
       });
     });
     print(doc_no.text + ' doc no');
-    gs_sales_param1 != null ? getSerialno_fun() : serial_no = 1;
     super.initState();
   }
 
-  getSerialno_fun() {
-    return getSerialno(gs_sales_param1).then((value) {
-      print(value);
-      if (value == null) serial_no = 1;
-      if (value != null) serial_no = value.toInt() + 1;
-      print(serial_no.toString() + '.....');
+  getHDR() {
+    return getAllSalesHDR(widget.doc_no).then((value) {
+      setState(() {
+        salesHDR.clear();
+        salesHDR.addAll(value);
+        if (salesHDR[0]['SALE_TYPE'] != null)
+          selectedtype = salesHDR[0]['SALE_TYPE'].toString();
+        customer.text = salesHDR[0]['PARTY_NAME'].toString();
+        if (salesHDR[0]['REMARKS'] != null)
+          remarks.text = salesHDR[0]['REMARKS'].toString();
+        var doc = salesHDR[0]['DOC_NO'].toString();
+        if (doc != 'null') doc_no.text = doc.toString();
+        var ref = salesHDR[0]['REF_NO'];
+        var sn_no = salesHDR[0]['LAST_DTL_SERIAL_NO'];
+        if (sn_no == null || sn_no == 0) sn_no = 0;
+        serial_no = sn_no + 1;
+
+        ref != null ? ref_no.text = ref.toString() : ref_no.text = '';
+        print(salesHDR[0]['REF_NO'].toString() + ' 666');
+
+        print(salesHDR[0]['PARTY_NAME'].toString());
+      });
     });
   }
 
   dropDown_salestype() {
     return Padding(
-      padding: new EdgeInsets.all(10.0),
+      padding: new EdgeInsets.only(left: 10.0),
       child: new DropdownButton(
         isExpanded: true,
         hint: Text("Sales Type"),
@@ -143,12 +155,17 @@ class _SalesEntryState extends State<SalesEntry> {
           GestureDetector(
               onTap: () {
                 setState(() {
-                  if (net_amt.text != null && qty.text.isNotEmpty)
-                    prod_update == false ? productInsert() : productupdation();
+                  if (doc_no.text.isNotEmpty) {
+                    if (net_amt.text.isEmpty || qty.text.isEmpty) updateHdr();
+                    if (net_amt.text != null && qty.text.isNotEmpty)
+                      prod_update == false
+                          ? productInsert()
+                          : productupdation();
 
-                  details_list = true;
+                    details_list = true;
 
-                  print('serial_no' + serial_no.toString());
+                    print('serial_no' + serial_no.toString());
+                  }
                 });
               },
               child: Icon(Icons.save)),
@@ -159,7 +176,6 @@ class _SalesEntryState extends State<SalesEntry> {
                   prod_update = false;
                   clearFields();
                   middle_view = true;
-                  gs_sales_param1 != null ? getSerialno_fun() : serial_no = 1;
                   print(serial_no.toString() + "in new");
                   gs_list_index = null;
                 });
@@ -169,15 +185,16 @@ class _SalesEntryState extends State<SalesEntry> {
           GestureDetector(
               onTap: () {
                 if (product_name.text != null && details_list == true)
-                  salesDelete(serial_no, doc_no.text).then((value) {
+                  salesDelete(list_serial_no, doc_no.text).then((value) {
                     setState(() {
                       sales_delete = value;
                       if (sales_delete == true) {
                         fetch_saleseEntry(doc_no.text);
-                        getSerialno_fun();
                         showToast('Deleted Succesfully');
-                        print(serial_no + " new after delete");
+                        print(serial_no.toString() + " new after delete");
                         clearFields();
+                      } else {
+                        showToast('Deletion Failed');
                       }
                     });
                   });
@@ -187,7 +204,7 @@ class _SalesEntryState extends State<SalesEntry> {
         ],
       ),
       body: new Padding(
-        padding: new EdgeInsets.all(18.0),
+        padding: new EdgeInsets.all(10.0),
         child: new Form(
             key: _formkey,
             child: new SingleChildScrollView(
@@ -195,8 +212,8 @@ class _SalesEntryState extends State<SalesEntry> {
                 children: [
                   SizedBox(height: 5),
                   head(),
-                  SizedBox(height: 10),
                   if (middle_view == true) middle(),
+                  SizedBox(height: 5),
                   if (details_list != false) saleslist(),
                 ],
               ),
@@ -208,10 +225,11 @@ class _SalesEntryState extends State<SalesEntry> {
   head() {
     return Container(
       child: Column(children: [
-        textField("Customer", customer, false, true),
-        SizedBox(height: 12),
+        textField("Customer", customer, false, true, TextAlign.left),
+        SizedBox(height: 4),
         Row(children: <Widget>[
-          Flexible(child: textField("Doc_no", doc_no, false, true)),
+          Flexible(
+              child: textField("Doc_no", doc_no, false, true, TextAlign.left)),
           if (doc_no.text.isEmpty)
             Flexible(
               child: Padding(
@@ -219,14 +237,12 @@ class _SalesEntryState extends State<SalesEntry> {
                   child: generate_docno()),
             ),
         ]),
-        SizedBox(height: 10),
-        textField("Ref_no", ref_no, false, ref_no.text == null ? true : false),
-        SizedBox(height: 10),
+        SizedBox(height: 4),
+        textField("Ref_no", ref_no, false, ref_no.text == null ? true : false,
+            TextAlign.left),
         Row(children: <Widget>[
           Flexible(child: dropDown_salestype()),
-          SizedBox(
-            width: 20.0,
-          ),
+          SizedBox(width: 20.0),
           Flexible(
               child: IconButton(
             icon: Icon(
@@ -236,9 +252,8 @@ class _SalesEntryState extends State<SalesEntry> {
             onPressed: () {},
           )),
         ]),
-        SizedBox(height: 10),
-        textField(
-            "Remarks", remarks, false, remarks.text == null ? true : false)
+        textField("Remarks", remarks, false,
+            remarks.text == null ? true : false, TextAlign.left)
       ]),
     );
   }
@@ -246,48 +261,47 @@ class _SalesEntryState extends State<SalesEntry> {
   middle() {
     return Column(children: [
       product_row("Product", product),
-      SizedBox(height: 10),
-      textField(
-          "", product_name, false, product_name.text != null ? true : false),
-      SizedBox(height: 10),
+      textField("", product_name, false, true, TextAlign.left),
       Row(children: <Widget>[
-        Flexible(child: textData(_puom.toString(), Colors.purple, 16.0)),
-        SizedBox(width: 18.0),
-        Flexible(child: textField("QTY PUOM", puom, false, false)),
-        SizedBox(width: 25.0),
+        Flexible(child: textData(_puom.toString(), Colors.purple, 13.0)),
+        SizedBox(width: 10.0),
+        Flexible(
+            flex: 1,
+            child: textField("QTY PUOM", puom, false, false, TextAlign.end)),
+        if (_puom.toString() != _luom.toString()) SizedBox(width: 15.0),
+        if (_puom.toString() == _luom.toString()) SizedBox(width: 60.0),
         if (_puom.toString() != _luom.toString())
-          Flexible(child: textData(_luom.toString(), Colors.purple, 16.0)),
-        SizedBox(width: 18.0),
+          Flexible(child: textData(_luom.toString(), Colors.purple, 13.0)),
+        SizedBox(width: 10.0),
         if (_puom.toString() != _luom.toString())
-          Flexible(child: textField("QTY LUOM", luom, false, false)),
+          Flexible(
+              flex: 1,
+              child: textField("QTY LUOM", luom, false, false, TextAlign.end)),
       ]),
-      SizedBox(height: 10),
       Row(children: <Widget>[
         Flexible(
-          child: textField("Quantity", qty, false, true),
+          child: textField("Quantity", qty, false, true, TextAlign.end),
         ),
         SizedBox(width: 10.0),
-        Flexible(child: labelWidget(Colors.red[500], bal_stk)),
+        Flexible(child: labelWidget(Colors.red[500], bal_stk, 13.0)),
       ]),
-      SizedBox(height: 10),
       Row(children: <Widget>[
         Flexible(
-            child: textField(
-                "Unit rate ", rate, false, rate.text != null ? true : false)),
+            child: textField("Unit rate ", rate, false,
+                rate.text != null ? true : false, TextAlign.end)),
         SizedBox(width: 10.0),
         Flexible(
-            child: textField(
-                'Amount', amt, false, amt.text != null ? true : false)),
+            child: textField('Amount', amt, false,
+                amt.text != null ? true : false, TextAlign.end)),
       ]),
-      SizedBox(height: 10),
       Row(children: <Widget>[
         Flexible(
-            child:
-                textField("VAT", vat, false, vat.text != null ? true : false)),
+            child: textField("VAT", vat, false, vat.text != null ? true : false,
+                TextAlign.end)),
         SizedBox(width: 10.0),
         Flexible(
             child: textField("Net Amount", net_amt, false,
-                net_amt.text != null ? true : false)),
+                net_amt.text != null ? true : false, TextAlign.end)),
       ]),
     ]);
   }
@@ -296,24 +310,28 @@ class _SalesEntryState extends State<SalesEntry> {
     print(saleslog_col.length.toString());
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      // child: WidgetdataTable(column: saleslog_col, row: salesdetails)
-      child: dataTable(salesdetails.length, salesdetails, saleslog_col),
+      child: dataTable(salesdetails.length + 1, salesdetails, saleslog_col),
     );
   }
 
   dataTable(numItems, rowList, column) {
-    return DataTable(
-        showCheckboxColumn: false,
-        columns: [
-          for (int i = 0; i <= column.length - 1; i++)
-            DataColumn(
-              label: text(column[i], Colors.black),
-            ),
-        ],
-        rows: List<DataRow>.generate(
-          numItems,
-          (index) => DataRow(
-              // selected: middle_view == false,
+    return CustomDataTable(
+        headerColor: Colors.green[200],
+        rowColor1: Colors.grey.shade300,
+        dataTable: DataTable(
+          headingRowHeight: 35.0,
+          dataRowHeight: 35,
+          columnSpacing: 15,
+          showCheckboxColumn: false,
+          columns: [
+            for (int i = 0; i <= column.length - 1; i++)
+              DataColumn(
+                label: text(column[i], Colors.black),
+              ),
+          ],
+          rows: List<DataRow>.generate(
+            numItems,
+            (index) => DataRow(
               onSelectChanged: (va) {
                 if (va) {
                   setState(() {
@@ -323,51 +341,81 @@ class _SalesEntryState extends State<SalesEntry> {
                     String sno = rowList[index].val1.toString();
                     selectListItem(sno);
                   });
+                  print(index.toString() + "........");
+                  print((numItems).toString() + "........");
                 }
               },
               cells: <DataCell>[
-                DataCell(Text(rowList[index].val1.toString())),
-                DataCell(Text(rowList[index].val2.toString())),
-                DataCell(Text(rowList[index].val3.toString())),
-                DataCell(Text(rowList[index].val4.toString())),
-                DataCell(Text(rowList[index].val5.toString())),
-                DataCell(Text(rowList[index].val6.toString())),
-                DataCell(Text(rowList[index].val7.toString())),
-                DataCell(Text(getNumberFormat(rowList[index].val8).toString())),
-                DataCell(Text(getNumberFormat(rowList[index].val9).toString())),
-                DataCell(
-                    Text(getNumberFormat(rowList[index].val10).toString())),
-              ]),
+                if (index != numItems - 1)
+                  DataCell(Text(rowList[index].val1.toString())),
+                if (index == numItems - 1) DataCell(textBold("TOTAL")),
+                if (index != numItems - 1)
+                  DataCell(Text(rowList[index].val2.toString())),
+                if (index == numItems - 1) DataCell(Text("")),
+                if (index != numItems - 1)
+                  DataCell(Text(rowList[index].val3.toString())),
+                if (index == numItems - 1) DataCell(Text("")),
+                if (index != numItems - 1)
+                  DataCell(Text(rowList[index].val5.toString() +
+                      " " +
+                      rowList[index].val4.toString())),
+                if (index == numItems - 1) DataCell(textBold(_pqty.toString())),
+                if (index != numItems - 1)
+                  DataCell(Text(rowList[index].val7.toString() +
+                      " " +
+                      rowList[index].val6.toString())),
+                if (index == numItems - 1) DataCell(textBold(_lqty.toString())),
+                if (index != numItems - 1)
+                  DataCell(
+                      Text(getNumberFormat(rowList[index].val8).toString())),
+                if (index == numItems - 1)
+                  DataCell(textBold(getNumberFormat(_amt).toString())),
+                if (index != numItems - 1)
+                  DataCell(
+                      Text(getNumberFormat(rowList[index].val9).toString())),
+                if (index == numItems - 1)
+                  DataCell(textBold(getNumberFormat(_vat).toString())),
+                if (index != numItems - 1)
+                  DataCell(
+                      Text(getNumberFormat(rowList[index].val10).toString())),
+                if (index == numItems - 1)
+                  DataCell(textBold(getNumberFormat(_tot).toString())),
+              ],
+            ),
+          ),
         ));
   }
 
   product_row(_text, _controller) {
     return Row(
       children: <Widget>[
-        Flexible(child: textField(_text, _controller, false, false)),
         Flexible(
-            child: Padding(
+            flex: 3,
+            child: textField(_text, _controller, false, false, TextAlign.left)),
+        Flexible(
+            child: Container(
+                height: 30.0,
                 padding: EdgeInsets.only(left: 30.0),
-                child: RaisedButton(
-                    onPressed: () {
-                      showDialog(
-                              context: context,
-                              builder: (BuildContext context) => prodlist())
-                          .then((value) {
-                        setState(() {
-                          if (gs_list_index != null) {
-                            prod_update = false;
-                            gs_sales_param1 != null
-                                ? getSerialno_fun()
-                                : serial_no = 1;
-                            print(serial_no.toString() + "in new");
-                            print(prod_update);
-                            productClick();
-                          }
-                        });
+                child: IconButton(
+                  iconSize: 25.0,
+                  alignment: Alignment.center,
+                  onPressed: () {
+                    showDialog(
+                            context: context,
+                            builder: (BuildContext context) => prodlist())
+                        .then((value) {
+                      setState(() {
+                        if (gs_list_index != null) {
+                          prod_update = false;
+                          print(serial_no.toString() + "in new");
+                          print(prod_update);
+                          productClick();
+                        }
                       });
-                    },
-                    child: Text('Search'))))
+                    });
+                  },
+                  icon: Icon(Icons.search, color: Colors.green),
+                )))
       ],
     );
   }
@@ -383,32 +431,51 @@ class _SalesEntryState extends State<SalesEntry> {
                 datas: productList, head: false, toPage: null, popBack: true)));
   }
 
-  textField(_text, _controller, _validate, read) {
+  textField(_text, _controller, _validate, read, align) {
     bool obs = false;
     if (_text == 'Password') obs = true;
-    return TextField(
-      readOnly: read,
-      obscureText: obs,
-      onTap: () {
-        setState(() {
-          if (_text == 'Quantity') {
-            productCalculate();
-          }
-        });
-      },
-      decoration: InputDecoration(
-          labelText: _text,
-          border: const OutlineInputBorder(),
-          contentPadding: EdgeInsets.all(10),
-          errorText: _validate ? 'Value Can\'t Be Empty' : null,
-          focusColor: Colors.blue,
-          labelStyle: TextStyle(color: Colors.black54)),
-      controller: _controller,
+    return Container(
+      height: 40.0,
+      child: TextField(
+        textAlign: align,
+        readOnly: read,
+        obscureText: obs,
+        onChanged: (value) {
+          setState(() {
+            if (_text == 'QTY PUOM') {
+              productCalculate();
+            }
+          });
+        },
+        style: TextStyle(fontSize: 13),
+        decoration: InputDecoration(
+            labelText: _text,
+            border: const OutlineInputBorder(),
+            contentPadding: EdgeInsets.all(10),
+            errorText: _validate ? 'Value Can\'t Be Empty' : null,
+            focusColor: Colors.blue,
+            labelStyle: TextStyle(color: Colors.black54)),
+        controller: _controller,
+      ),
     );
   }
 
+  updateHdr() async {
+    if (ref_no.text.isNotEmpty) {
+      var resp = await dn_hdrUpdate(
+          doc_no.text, selectedtype, ref_no.text, remarks.text, serial_no);
+      if (resp == 1) {
+        setState(() {
+          showToast('updated Succesfully');
+        });
+      } else {
+        alert(this.context, resp.toString(), Colors.green);
+      }
+    }
+  }
+
   fetch_saleseEntry(param1) {
-    return getAllSalesEntryDetails(gs_sales_param1).then((value) {
+    return getAllSalesEntryDetails(param1).then((value) {
       setState(() {
         salesdetails.clear();
         salesdetails.addAll(value);
@@ -417,11 +484,22 @@ class _SalesEntryState extends State<SalesEntry> {
           details_list = true;
           list_length = 0;
           list_length = salesdetails.length;
-        }
-        // for (int i = 0; i < salesdetails.length; i++)
-        //   sales += salesdetails[i].val10.toDouble();
+          _pqty = 0;
+          _lqty = 0;
+          _amt = 0;
+          _vat = 0;
+          _tot = 0;
 
-        // print(sales.toString()+'total');
+          for (int i = 0; i < salesdetails.length; i++) {
+            _pqty += salesdetails[i].val5.toInt();
+            _lqty += salesdetails[i].val7.toInt();
+            _amt += salesdetails[i].val8.toDouble();
+            _vat += salesdetails[i].val9.toDouble();
+            _tot += salesdetails[i].val10.toDouble();
+          }
+        }
+
+        print(_tot.toString() + 'total');
       });
     });
   }
@@ -440,7 +518,7 @@ class _SalesEntryState extends State<SalesEntry> {
             print(prod_update);
             clearFields();
             print(salesmiddleList.length.toString() + 'list Size');
-            serial_no = serialno;
+            list_serial_no = serialno;
             product.text = salesmiddleList[0].product_code.toString();
             product_name.text = salesmiddleList[0].product_name.toString();
             puom.text = salesmiddleList[0].qty_puom.toString();
@@ -457,7 +535,7 @@ class _SalesEntryState extends State<SalesEntry> {
             // bal_stk.text = salesmiddleList[0].tot_qty.toString() +
             //     ' ' +
             //     salesmiddleList[0].puom.toString();
-            print(serial_no.toString() + "*");
+            print(list_serial_no.toString() + "*");
           });
         });
       });
@@ -509,8 +587,10 @@ class _SalesEntryState extends State<SalesEntry> {
       vat.text = numberWithCommas(vat.text);
       net_amt.text = numberWithCommas(net_amt.text);
       if (luom.text.isEmpty) luom.text = '0';
+      getHDR();
+      updateHdr();
       var resp = await product_insertion(
-        serial_no,
+        serial_no.toString(),
         product.text,
         product_name.text,
         _puom,
@@ -529,12 +609,12 @@ class _SalesEntryState extends State<SalesEntry> {
       if (resp == 1) {
         setState(() {
           clearFields();
+          serial_no = serial_no + 1;
           fetch_saleseEntry(doc_no.text);
-          // Navigator.of(context).pop(true);
           showToast('Created Succesfully');
         });
       } else {
-        showToast('error');
+        alert(this.context, resp.toString(), Colors.red);
       }
     }
   }
@@ -548,8 +628,9 @@ class _SalesEntryState extends State<SalesEntry> {
       vat.text = numberWithCommas(vat.text);
       net_amt.text = numberWithCommas(net_amt.text);
       if (luom.text.isEmpty) luom.text = '0';
+      updateHdr();
       var resp = await product_updation(
-        serial_no,
+        list_serial_no,
         puom.text,
         luom.text,
         amt.text,
@@ -563,11 +644,10 @@ class _SalesEntryState extends State<SalesEntry> {
         setState(() {
           clearFields();
           fetch_saleseEntry(doc_no.text);
-          // Navigator.of(context).pop(true);
           showToast('Updated Succesfully');
         });
       } else {
-        showToast('error');
+        alert(this.context, resp.toString(), Colors.red);
       }
     }
   }
@@ -579,11 +659,20 @@ class _SalesEntryState extends State<SalesEntry> {
             setState(() {
               var docno = value.toInt() + 1;
               doc_no.text = docno.toString();
+              if (ref_no.text.isEmpty) {
+                ref_no.text = doc_no.text;
+              }
               docno_insert(
                       customer.text, doc_no.text, selectedtype, ref_no.text)
                   .then((value) {
-                middle_view = true;
-                gs_sales_param1 != null ? getSerialno_fun() : serial_no = 1;
+                if (value == 1) {
+                  ref_no.text = doc_no.text;
+
+                  middle_view = true;
+                  showToast("Inserted Succesfully");
+                } else {
+                  showToast(value.toString());
+                }
               });
 
               print(doc_no.text);
@@ -594,6 +683,8 @@ class _SalesEntryState extends State<SalesEntry> {
   }
 
   clearFields() {
+    _puom = "PUOM";
+    _luom = "LUOM";
     product.clear();
     product_name.clear();
     rate.clear();
