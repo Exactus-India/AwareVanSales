@@ -16,11 +16,21 @@ import 'package:http/http.dart' as http;
 
 import 'receipt_data.dart';
 import 'stock_sum_data.dart';
+import 'stocktransfer.dart';
 
 String gs_dndoc_type = 'DN90';
 String gs_srdoc_type = 'SR90';
 String gs_company_code = 'BSG';
 var gs_date = DateFormat("dd-MMM-yyyy").format(DateTime.now());
+
+responseerror(response) {
+  String str = response.body;
+  String start = '<pre>';
+  String end = '</pre>';
+  final startIndex = str.indexOf(start);
+  final endIndex = str.indexOf(end, startIndex + start.length);
+  return str.substring(startIndex + start.length, endIndex);
+}
 
 Future<List> getAllUserName() async {
   var url = 'http://exactusnet.dyndns.org:4005/api/user';
@@ -84,7 +94,7 @@ Future stock_summary_pro(datefrom, dateto) async {
 
 Future sales_sum_pro() async {
   var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/prosalessummary/$gs_company_code/12-FEB-2021/$gs_currentUser_empid';
+      'http://exactusnet.dyndns.org:4005/api/sales/customerList/prosalessummary/$gs_company_code/$gs_date/$gs_currentUser_empid';
   var response = await http.get(url);
   var jsonBody = response.body;
   var jsonData = json.decode(jsonBody.substring(0));
@@ -193,7 +203,7 @@ Future product_insertion(
   if (response.statusCode == 200) {
     return 1;
   } else {
-    return null;
+    return responseerror(response);
   }
 }
 
@@ -233,7 +243,7 @@ Future product_updation(
   if (response.statusCode == 200) {
     return 1;
   } else {
-    return null;
+    return responseerror(response);
   }
 }
 
@@ -268,7 +278,33 @@ Future docno_insert(
   if (response.statusCode == 200) {
     return 1;
   } else {
-    return null;
+    return responseerror(response);
+  }
+}
+
+Future dn_hdrUpdate(doc_no, sales_type, ref_no, remarks, serial_no) async {
+  Map data = {
+    "COMPANY_CODE": gs_company_code,
+    "DOC_TYPE": gs_dndoc_type,
+    "DOC_NO": doc_no,
+    "SALE_TYPE": sales_type,
+    "REF_NO": ref_no,
+    "REMARKS": remarks,
+    "LAST_DTL_SERIAL_NO": serial_no
+  };
+  var value = json.encode(data);
+  var url =
+      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/hdr_update';
+  var response = await http.post(url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+      body: value);
+
+  if (response.statusCode == 200) {
+    return 1;
+  } else {
+    return responseerror(response);
   }
 }
 
@@ -639,5 +675,19 @@ Future<List<Receipt>> receipt() async {
     var ba = b.val2;
     return ab.compareTo(ba);
   });
+  return datas;
+}
+
+Future<List<StockTransfer>> stocktransfer() async {
+  var url = 'http://exactusnet.dyndns.org:4005/api/sales/stock_transfer/STR';
+  var response = await http.get(url);
+  var datas = List<StockTransfer>();
+  if (response.statusCode == 200) {
+    Object datasJson = json.decode(response.body.substring(0));
+    for (var dataJson in datasJson) {
+      datas.add(StockTransfer.fromJson(dataJson));
+    }
+  }
+
   return datas;
 }

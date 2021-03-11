@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'wm_mb_receipt.dart';
 import 'wm_mb_sales_summary.dart';
 import 'wm_mb_stock_summary.dart';
+import 'wm_mb_stock_transfer.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -49,8 +50,8 @@ class _HomePageState extends State<HomePage> {
                 'sales_summary.png'),
 
             //--------------------------STOCK TRANSFER-------------------------
-            card("STOCK TRANSFER", null, Colors.blue[800], this.context,
-                'stock_transfer.png'),
+            card("STOCK TRANSFER", Stocktransfer(), Colors.blue[800],
+                this.context, 'stock_transfer.png'),
 
             //--------------------------O/S AGEING-------------------------
             card("O/S AGEING", OsSummary(), Colors.blue[800], this.context,
