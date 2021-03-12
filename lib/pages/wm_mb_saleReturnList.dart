@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:aware_van_sales/data/future_db.dart';
+import 'package:aware_van_sales/pages/wm_mb_LoginPage.dart';
 import 'package:aware_van_sales/pages/wm_mb_saleReturn_entry.dart';
 import 'package:aware_van_sales/wigdets/listing_Builder.dart';
 import 'package:aware_van_sales/wigdets/widget_rowData.dart';
@@ -87,7 +88,13 @@ class _SalesReturnListState extends State<SalesReturnList> {
   head() {
     return Column(
       children: <Widget>[
+        Container(
+            margin: EdgeInsets.only(top: 10.0, left: 10.0),
+            child: align(Alignment.centerLeft, gs_currentUser, 20.0)),
         _searchBar(),
+        Container(
+            margin: EdgeInsets.only(left: 20.0, right: 20.0, bottom: 10.0),
+            child: align(Alignment.centerLeft, gs_sales_param2, 18.0)),
         SizedBox(height: 5.0),
         if (_timer_ == true && length == 0) noValue(),
         if (_timer_ == true)
