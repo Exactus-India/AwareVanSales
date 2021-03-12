@@ -633,7 +633,6 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
           "DC",
           qty.text,
           rate.text,
-          "AED",
           doc_type.text,
           ref_doc_no.text);
       if (resp == 1) {

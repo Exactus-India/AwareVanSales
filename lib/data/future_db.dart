@@ -21,6 +21,7 @@ import 'stocktransfer.dart';
 String gs_dndoc_type = 'DN90';
 String gs_srdoc_type = 'SR90';
 String gs_company_code = 'BSG';
+String gs_curr = 'AED';
 var gs_date = DateFormat("dd-MMM-yyyy").format(DateTime.now());
 
 responseerror(response) {
@@ -155,21 +156,21 @@ Future<List<Ossumm>> os_summary() async {
 }
 
 Future product_insertion(
-    serial_no,
-    prod_code,
-    prod_name,
-    p_uom,
-    qty_puom,
-    l_uom,
-    qty_luom,
-    amt,
-    vat,
-    net_amt,
-    doc_no,
-    dept_code,
-    qty,
-    unit_rate,
-    curr_code) async {
+  serial_no,
+  prod_code,
+  prod_name,
+  p_uom,
+  qty_puom,
+  l_uom,
+  qty_luom,
+  amt,
+  vat,
+  net_amt,
+  doc_no,
+  dept_code,
+  qty,
+  unit_rate,
+) async {
   Map data = {
     "SERIAL_NO": serial_no,
     "PROD_CODE": prod_code,
@@ -188,7 +189,7 @@ Future product_insertion(
     "USER_ID": gs_currentUser,
     "QUANTITY": qty,
     "UNIT_PRICE": unit_rate,
-    "CURR_CODE": curr_code,
+    "CURR_CODE": gs_curr,
     "COMPANY_CODE": gs_company_code
   };
   var value = json.encode(data);
@@ -304,7 +305,7 @@ Future docno_insert(
     "SALE_TYPE": sales_type,
     "USER_ID": gs_currentUser,
     "REF_NO": ref_no,
-    "CURR_CODE": "AED",
+    "CURR_CODE": gs_curr,
   };
   var value = json.encode(data);
   var url =
@@ -539,7 +540,7 @@ Future srno_insert(party_name, doc_no, sales_type, ref_no, ref_docno,
     "SALE_TYPE": sales_type,
     "USER_ID": gs_currentUser,
     "REF_NO": ref_no,
-    "CURR_CODE": "AED",
+    "CURR_CODE": gs_curr,
     "ref_doc_no": ref_docno,
     "ref_doc_type": ref_doctype,
   };
@@ -604,7 +605,6 @@ Future sr_product_insertion(
   dept_code,
   qty,
   unit_rate,
-  curr_code,
   ref_doctype,
   ref_docno,
   // lst_dtl_serial_no
@@ -627,7 +627,7 @@ Future sr_product_insertion(
     "USER_ID": gs_currentUser,
     "QUANTITY": qty,
     "UNIT_PRICE": unit_rate,
-    "CURR_CODE": curr_code,
+    "CURR_CODE": gs_curr,
     "COMPANY_CODE": gs_company_code,
     "REF_DOC_TYPE": ref_doctype,
     "REF_DOC_NO": ref_docno,

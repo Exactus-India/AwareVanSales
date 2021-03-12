@@ -614,7 +614,6 @@ class _SalesEntryState extends State<SalesEntry> {
         "DC",
         qty.text,
         rate.text,
-        "AED",
       );
       if (resp == 1) {
         setState(() {
