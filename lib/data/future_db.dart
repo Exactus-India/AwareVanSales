@@ -22,6 +22,15 @@ String gs_dndoc_type = 'DN90';
 String gs_srdoc_type = 'SR90';
 String gs_company_code = 'BSG';
 String gs_curr = 'AED';
+String gs_dept_code = 'DC';
+String gs_cancelled = 'N';
+int gl_Div_code = 10;
+int gl_EX_rate = 1;
+int gl_disc_perct = 0;
+int gl_tx_cat_code = 31;
+int gl_tx_comcat_amt = 13100;
+int gl_tx_compt_hdisc_amt = 0;
+int gl_tx_compt_hdisc_lcur_amt = 0;
 var gs_date = DateFormat("dd-MMM-yyyy").format(DateTime.now());
 
 responseerror(response) {
@@ -156,22 +165,35 @@ Future<List<Ossumm>> os_summary() async {
 }
 
 Future product_insertion(
-  serial_no,
-  prod_code,
-  prod_name,
-  p_uom,
-  qty_puom,
-  l_uom,
-  qty_luom,
-  amt,
-  vat,
-  net_amt,
-  doc_no,
-  dept_code,
-  qty,
-  unit_rate,
-) async {
+    doc_no,
+    serial_no,
+    prod_code,
+    prod_name,
+    p_uom,
+    qty_puom,
+    l_uom,
+    qty_luom,
+    uppp,
+    qty,
+    net_price,
+    disc_price,
+    unitprice_amt,
+    amt,
+    cost_rate,
+    lcur_amt,
+    sign_ind,
+    tx_id_no,
+    zone_code,
+    lcur_amt_disc,
+    tx_cmpt_perc,
+    tx_cmpnt_amt,
+    tx_cmpnt_lcur_amt) async {
   Map data = {
+    "DOC_NO": doc_no,
+    "DOC_TYPE": gs_dndoc_type,
+    "COMPANY_CODE": gs_company_code,
+    "DIV_CODE": gl_Div_code,
+    "DEPT_CODE": gs_dept_code,
     "SERIAL_NO": serial_no,
     "PROD_CODE": prod_code,
     "PROD_NAME": prod_name,
@@ -179,18 +201,31 @@ Future product_insertion(
     "QTY_PUOM": qty_puom,
     "L_UOM": l_uom,
     "QTY_LUOM": qty_luom,
-    "AMOUNT": amt,
-    "TX_COMPNT_AMT_1": vat,
-    "NET_PRICE": net_amt,
-    "DOC_NO": doc_no,
-    "DOC_TYPE": gs_dndoc_type,
-    "SALESMAN_CODE": gs_currentUser_empid,
-    "DEPT_CODE": dept_code,
-    "USER_ID": gs_currentUser,
+    "UPPP": qty_luom,
     "QUANTITY": qty,
-    "UNIT_PRICE": unit_rate,
+    "NET_PRICE": net_price,
+    "DISC_PERC": gl_disc_perct,
+    "DISC_PRICE": disc_price,
+    "UNIT_PRICE_NET": unitprice_amt,
+    "AMOUNT": amt,
+    "COST_RATE": cost_rate,
     "CURR_CODE": gs_curr,
-    "COMPANY_CODE": gs_company_code
+    "EX_RATE": gl_EX_rate,
+    "LCUR_AMT": lcur_amt,
+    "SIGN_IND": sign_ind,
+    "SALESMAN_CODE": gs_currentUser_empid,
+    "CANCELLED": gs_cancelled,
+    "USER_ID": gs_currentUser,
+    "TX_IDENTITY_NO": tx_id_no,
+    "ZONE_CODE": zone_code,
+    "LCUR_AMT_DISC": lcur_amt_disc,
+    "TAX_CAT_CODE": gl_tx_cat_code,
+    "TAX_CMPCAT_CODE": gl_tx_comcat_amt,
+    "TAX_CMPNT_PERC_1": tx_cmpt_perc,
+    "TX_COMPNT_AMT_1": tx_cmpnt_amt,
+    "TX_COMPNT_LCUR_AMT_1": tx_cmpnt_lcur_amt,
+    "TX_COMPNT_HDISC_AMT_1": gl_tx_compt_hdisc_amt,
+    "TX_COMPNT_HDISC_LCUR_AMT_1": gl_tx_compt_hdisc_lcur_amt,
   };
   var value = json.encode(data);
   var url =
