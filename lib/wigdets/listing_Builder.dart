@@ -53,10 +53,9 @@ class _ListBuilderCommonState extends State<ListBuilderCommon> {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        if (widget.head == true)
-          Container(
-              margin: EdgeInsets.only(top: 10.0, left: 10.0),
-              child: align(Alignment.centerLeft, gs_currentUser, 20.0)),
+        Container(
+            margin: EdgeInsets.only(top: 10.0, left: 10.0),
+            child: align(Alignment.centerLeft, gs_currentUser, 20.0)),
         _searchBar(),
         widget.head == true && gs_sales_param1 != null
             ? sales_head()
