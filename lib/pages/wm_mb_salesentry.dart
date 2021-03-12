@@ -391,7 +391,7 @@ class _SalesEntryState extends State<SalesEntry> {
       children: <Widget>[
         Flexible(
             flex: 3,
-            child: textField(_text, _controller, false, false, TextAlign.left)),
+            child: textField(_text, _controller, false, true, TextAlign.left)),
         Flexible(
             child: SizedBox(
                 height: 30,
