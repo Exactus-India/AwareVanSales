@@ -51,6 +51,7 @@ class _SalesEntryState extends State<SalesEntry> {
   var uppp;
   var _puom;
   var _luom;
+  var avl_qty;
   var stk_puom;
   var stk_luom;
   int _pqty = 0;
@@ -442,7 +443,15 @@ class _SalesEntryState extends State<SalesEntry> {
         onChanged: (value) {
           setState(() {
             if (_text == 'QTY PUOM') {
-              productCalculate();
+              if (int.parse(avl_qty) >= int.parse(puom.text))
+                productCalculate();
+              if (int.parse(avl_qty) < int.parse(puom.text)) {
+                alert(context, "Available Quantity " + avl_qty, Colors.orange);
+                amt.clear();
+                puom.clear();
+                vat.clear();
+                net_amt.clear();
+              }
             }
           });
         },
@@ -544,13 +553,15 @@ class _SalesEntryState extends State<SalesEntry> {
   productClick() {
     _puom = productList[gs_list_index].puom.toString();
     _luom = productList[gs_list_index].luom.toString();
-    stk_puom = productList[gs_list_index].stk_puom.toString();
-    stk_luom = productList[gs_list_index].stk_luom.toString();
+    stk_puom = productList[gs_list_index].stk_puom;
+    stk_luom = productList[gs_list_index].stk_luom;
     product.text = productList[gs_list_index].val2.toString();
     product_name.text = productList[gs_list_index].val1.toString();
     uppp = productList[gs_list_index].uppp;
     rate.text = productList[gs_list_index].val9.toString();
-    bal_stk.text = 'Bal: ' + stk_puom + ' ' + _puom;
+    if (stk_luom == null) stk_luom = 0;
+    avl_qty = (stk_puom + stk_luom).toString();
+    bal_stk.text = 'Bal: ' + stk_puom.toString() + ' ' + _puom;
     amt.clear();
     vat.clear();
     net_amt.clear();
