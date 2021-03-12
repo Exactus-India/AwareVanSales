@@ -624,7 +624,7 @@ Future sr_hdr_update(doc_no, ref_no, salestype, ref_doctype, ref_docno,
   };
   var value = json.encode(data);
   var url =
-      'http://exactusnet.dyndns.org:4005/api/sales_return/customerList/salesSR/sr_hdr_update';
+      'http://exactusnet.dyndns.org:4005/api/sales_return/customerList/salesSR/sr_hdr/update';
   var response = await http.post(url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8'
@@ -634,7 +634,7 @@ Future sr_hdr_update(doc_no, ref_no, salestype, ref_doctype, ref_docno,
   if (response.statusCode == 200) {
     return 1;
   } else {
-    return null;
+    return responseerror(response);
   }
 }
 
