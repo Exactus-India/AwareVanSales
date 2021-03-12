@@ -4,6 +4,7 @@ import 'package:aware_van_sales/data/future_db.dart';
 import 'package:aware_van_sales/wigdets/alert.dart';
 import 'package:aware_van_sales/wigdets/listing_Builder.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
+import 'package:custom_datatable/custom_datatable.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -45,7 +46,6 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
   bool middle_view = false;
   bool sales_delete = false;
   List hDR = List();
-  List detailslist = List();
   List salesmiddleList = List();
   List search_ref_datas = List();
   List salesproduct = List();
@@ -54,11 +54,9 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
   var list_serial_no;
   var serial_no;
   var uppp;
+  var avl_qty;
   var _puom;
   var _luom;
-  var stk_puom;
-  var stk_luom;
-  double sales = 0;
   bool prod_update = false;
   bool hdr = false;
   bool details_list = false;
@@ -138,11 +136,16 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
           GestureDetector(
               onTap: () {
                 setState(() {
-                  if (product_name.text.isNotEmpty && qty.text.isNotEmpty)
-                    productInsert();
-                  details_list = true;
+                  if (doc_no.text.isNotEmpty) {
+                    if (net_amt.text.isEmpty || qty.text.isEmpty) updateHdr();
+                    if (net_amt.text.isNotEmpty && qty.text.isNotEmpty)
+                      prod_update == false
+                          ? productInsert()
+                          : productupdation();
+                    details_list = true;
 
-                  print('serial_no' + serial_no.toString());
+                    print('serial_no' + serial_no.toString());
+                  }
                 });
               },
               child: Icon(Icons.save)),
@@ -151,6 +154,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
               onTap: () {
                 setState(() {
                   if (middle_view == false) middle_view = true;
+                  clearFields();
                 });
               },
               child: Icon(Icons.add)),
@@ -183,7 +187,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
                 children: [
                   SizedBox(height: 5),
                   head(),
-                  SizedBox(height: 10),
+                  SizedBox(height: 4),
                   if (middle_view == true) middle(),
                   if (details_list != false) salesReturnDetailedlist(),
                 ],
@@ -195,7 +199,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
 
   dropDown_salestype() {
     return Padding(
-      padding: new EdgeInsets.all(10.0),
+      padding: new EdgeInsets.only(left: 10.0),
       child: new DropdownButton(
         isExpanded: true,
         value: selectedtype,
@@ -218,24 +222,29 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
   head() {
     return Container(
       child: Column(children: [
-        textField("Customer", customer, false, true),
-        SizedBox(height: 12),
+        textField("Customer", customer, false, true, TextAlign.left),
+        SizedBox(height: 4),
         Row(children: <Widget>[
-          Flexible(flex: 3, child: textField("Doc_no", doc_no, false, true)),
+          Flexible(
+              flex: 3,
+              child: textField("Doc_no", doc_no, false, true, TextAlign.left)),
           SizedBox(width: 10.0),
           Flexible(
-              flex: 1, child: textField("Doc type", doc_type, false, true)),
+              flex: 1,
+              child:
+                  textField("Doc type", doc_type, false, true, TextAlign.left)),
           SizedBox(width: 5.0),
           Flexible(
-              flex: 2, child: textField("Doc_no", ref_doc_no, false, true)),
+              flex: 2,
+              child:
+                  textField("Doc_no", ref_doc_no, false, true, TextAlign.left)),
         ]),
-        SizedBox(height: 10),
+        SizedBox(height: 4),
         Row(children: <Widget>[
           Flexible(
-              flex: 2,
-              child: textField(
-                  "Ref_no", ref_no, false, ref_no.text == null ? true : false)),
-          SizedBox(width: 20.0),
+              fit: FlexFit.tight,
+              child: textField("Ref_no", ref_no, false, true, TextAlign.left)),
+          if (ref_doc_no.text.isEmpty) SizedBox(width: 4.0),
           if (ref_doc_no.text.isEmpty)
             Flexible(
                 child: IconButton(
@@ -259,14 +268,14 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
                         });
                       });
                     })),
-          SizedBox(width: 20.0),
+          if (doc_no.text.isEmpty && ref_doc_no.text.isNotEmpty)
+            SizedBox(width: 4.0),
           if (doc_no.text.isEmpty && ref_doc_no.text.isNotEmpty)
             Flexible(
                 child: Padding(
                     padding: EdgeInsets.only(left: 20.0),
                     child: generate_docno())),
         ]),
-        SizedBox(height: 10),
         Row(children: <Widget>[
           Flexible(flex: 1, child: dropDown_salestype()),
           SizedBox(width: 20.0),
@@ -279,9 +288,8 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
                 onPressed: () {}),
           )
         ]),
-        SizedBox(height: 10),
-        textField(
-            "Remarks", remarks, false, remarks.text == null ? true : false),
+        textField("Remarks", remarks, false,
+            remarks.text == null ? true : false, TextAlign.left),
       ]),
     );
   }
@@ -289,46 +297,47 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
   middle() {
     return Column(children: [
       product_row("Product", product),
-      SizedBox(height: 10),
-      textField(
-          "", product_name, false, product_name.text != null ? true : false),
-      SizedBox(height: 10),
+      textField("", product_name, false, true, TextAlign.left),
       Row(children: <Widget>[
-        Flexible(child: textData(_puom.toString(), Colors.purple, 16.0)),
-        SizedBox(width: 18.0),
-        Flexible(child: textField("QTY PUOM", puom, false, false)),
+        Flexible(child: textData(_puom.toString(), Colors.purple, 13.0)),
         SizedBox(width: 10.0),
-        Flexible(child: textData(_luom.toString(), Colors.purple, 16.0)),
-        SizedBox(width: 18.0),
-        Flexible(child: textField("QTY LUOM", luom, false, false)),
+        Flexible(
+            flex: 1,
+            child: textField("QTY PUOM", puom, false, false, TextAlign.end)),
+        if (_puom.toString() != _luom.toString()) SizedBox(width: 15.0),
+        if (_puom.toString() == _luom.toString()) SizedBox(width: 60.0),
+        if (_puom.toString() != _luom.toString())
+          Flexible(child: textData(_luom.toString(), Colors.purple, 13.0)),
+        SizedBox(width: 10.0),
+        if (_puom.toString() != _luom.toString())
+          Flexible(
+              flex: 1,
+              child: textField("QTY LUOM", luom, false, false, TextAlign.end)),
       ]),
-      SizedBox(height: 10),
       Row(children: <Widget>[
         Flexible(
-          child: textField("Quantity", qty, false, true),
+          child: textField("Quantity", qty, false, true, TextAlign.right),
         ),
         SizedBox(width: 10.0),
         Flexible(child: labelWidget(Colors.red[500], bal_stk, 13.0)),
       ]),
-      SizedBox(height: 10),
       Row(children: <Widget>[
         Flexible(
-            child: textField(
-                "Unit rate ", rate, false, rate.text != null ? true : false)),
+            child: textField("Unit rate ", rate, false,
+                rate.text != null ? true : false, TextAlign.right)),
         SizedBox(width: 10.0),
         Flexible(
-            child: textField(
-                'Amount', amt, false, amt.text != null ? true : false)),
+            child: textField('Amount', amt, false,
+                amt.text != null ? true : false, TextAlign.right)),
       ]),
-      SizedBox(height: 10),
       Row(children: <Widget>[
         Flexible(
-            child:
-                textField("VAT", vat, false, vat.text != null ? true : false)),
+            child: textField("VAT", vat, false, vat.text != null ? true : false,
+                TextAlign.right)),
         SizedBox(width: 10.0),
         Flexible(
             child: textField("Net Amount", net_amt, false,
-                net_amt.text != null ? true : false)),
+                net_amt.text != null ? true : false, TextAlign.right)),
       ]),
     ]);
   }
@@ -397,89 +406,103 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
   dataTable(numItems, rowList, column) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      child: DataTable(
-          showCheckboxColumn: false,
-          columns: [
-            for (int i = 0; i <= column.length - 1; i++)
-              DataColumn(
-                label: text(column[i], Colors.black),
-              ),
-          ],
-          rows: List<DataRow>.generate(
-            numItems,
-            (index) => DataRow(
-                onSelectChanged: (va) {
-                  if (va) {
-                    setState(() {
-                      if (middle_view == false) middle_view = true;
-                      String sno = rowList[index].val1.toString();
-                      prod_update = true;
-                      print(prod_update);
-                      selectDetailListItem(sno);
-                    });
-                  }
-                },
-                cells: <DataCell>[
-                  DataCell(Text(rowList[index].val1.toString())),
-                  DataCell(Text(rowList[index].val2.toString())),
-                  DataCell(Text(rowList[index].val3.toString())),
-                  DataCell(Text(rowList[index].val4.toString())),
-                  DataCell(Text(rowList[index].val5.toString())),
-                  DataCell(Text(rowList[index].val6.toString())),
-                  DataCell(Text(rowList[index].val7.toString())),
-                  DataCell(Text(rowList[index].val8.toString())),
-                  DataCell(Text(rowList[index].val9.toString())),
-                  DataCell(Text(rowList[index].val10.toString())),
-                ]),
-          )),
+      child: CustomDataTable(
+          headerColor: Colors.green[200],
+          rowColor1: Colors.grey.shade300,
+          dataTable: DataTable(
+              headingRowHeight: 35.0,
+              dataRowHeight: 35,
+              columnSpacing: 15,
+              showCheckboxColumn: false,
+              columns: [
+                for (int i = 0; i <= column.length - 1; i++)
+                  DataColumn(
+                    label: text(column[i], Colors.black),
+                  ),
+              ],
+              rows: List<DataRow>.generate(
+                numItems,
+                (index) => DataRow(
+                    onSelectChanged: (va) {
+                      if (va) {
+                        setState(() {
+                          if (middle_view == false) middle_view = true;
+                          String sno = rowList[index].val1.toString();
+                          prod_update = true;
+                          print("update");
+                          print(prod_update);
+                          selectDetailListItem(sno);
+                        });
+                      }
+                    },
+                    cells: <DataCell>[
+                      DataCell(Text(rowList[index].val1.toString())),
+                      DataCell(Text(rowList[index].val2.toString())),
+                      DataCell(Text(rowList[index].val3.toString())),
+                      DataCell(Text(rowList[index].val4.toString())),
+                      DataCell(Text(rowList[index].val5.toString())),
+                      DataCell(Text(rowList[index].val6.toString())),
+                      DataCell(Text(rowList[index].val7.toString())),
+                      DataCell(Text(rowList[index].val8.toString())),
+                      DataCell(Text(rowList[index].val9.toString())),
+                      DataCell(Text(rowList[index].val10.toString())),
+                    ]),
+              ))),
     );
   }
 
   product_row(_text, _controller) {
     return Row(
       children: <Widget>[
-        Flexible(child: textField(_text, _controller, false, false)),
         Flexible(
-            child: Padding(
-                padding: EdgeInsets.only(left: 30.0),
-                child: RaisedButton(
-                    onPressed: () {
-                      showDialog(
-                              context: context,
-                              builder: (BuildContext context) => prodlist())
-                          .then((value) {
-                        setState(() {
-                          if (gs_list_index != null) {
-                            prod_update = false;
-                            print(serial_no.toString() + "in new");
-                            print(prod_update);
-                            productClick();
-                          }
-                        });
-                      });
-                      ;
-                    },
-                    child: Text('Search'))))
+            flex: 3,
+            child: textField(_text, _controller, false, true, TextAlign.left)),
+        Flexible(
+            child: SizedBox(
+          height: 30,
+          child: IconButton(
+              padding: EdgeInsets.only(left: 30.0),
+              iconSize: 25.0,
+              alignment: Alignment.center,
+              onPressed: () {
+                showDialog(
+                        context: context,
+                        builder: (BuildContext context) => prodlist())
+                    .then((value) {
+                  setState(() {
+                    if (gs_list_index != null) {
+                      prod_update = false;
+                      print(serial_no.toString() + "in new");
+                      print("update");
+                      print(prod_update);
+                      productClick();
+                    }
+                  });
+                });
+              },
+              icon: Icon(Icons.search, color: Colors.green)),
+        ))
       ],
     );
   }
 
   productClick() {
+    amt.clear();
+    vat.clear();
+    net_amt.clear();
     _puom = salesproduct[gs_list_index].puom.toString();
     _luom = salesproduct[gs_list_index].luom.toString();
     // stk_puom = salesproduct[gs_list_index].stk_puom.toString();
     // stk_luom = salesproduct[gs_list_index].stk_luom.toString();
     product.text = salesproduct[gs_list_index].val2.toString();
     product_name.text = salesproduct[gs_list_index].val1.toString();
-    rate.text = salesproduct[gs_list_index].val7.toString();
-    qty.text = salesproduct[gs_list_index].val3.toString();
-    // bal_stk.text = 'Bal: ' + stk_puom + ' ' + _puom;
-    amt.clear();
-    vat.clear();
-    net_amt.clear();
-    // qty.clear();
-    puom.clear();
-    luom.clear();
+    uppp = salesproduct[gs_list_index].uppp;
+    rate.text = "455";
+
+    avl_qty = salesproduct[gs_list_index].val7.toString();
+    bal_stk.text = "Available Qty " + avl_qty;
+    // puom.text = salesproduct[gs_list_index].qty_puom.toString();
+    luom.text = salesproduct[gs_list_index].qty_luom.toString();
   }
 
   productCalculate() {
@@ -500,7 +523,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
   }
 
   updateHdr() async {
-    if (ref_no.text.isNotEmpty) {
+    if (remarks.text.isNotEmpty || selectedtype != null) {
       var resp = await sr_hdr_update(doc_no.text, ref_no.text, selectedtype,
           doc_type.text, ref_doc_no.text, serial_no, remarks.text);
       if (resp == 1) {
@@ -512,15 +535,6 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
       }
     }
   }
-
-  // getSerialno_fun() {
-  //   return getSRSerialno(widget.doc_no).then((value) {
-  //     print(value);
-  //     if (value == null) serial_no = 1;
-  //     if (value != null) serial_no = value.toInt() + 1;
-  //     print(serial_no.toString() + '.....sno');
-  //   });
-  // }
 
   generate_docno() {
     var ls_date = DateFormat("dd/MM/yyyy").format(DateTime.now()).toString();
@@ -550,6 +564,8 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
                   .then((value) {
                 middle_view = true;
               });
+              fetch_products();
+
               print(doc_no.text);
             });
           });
@@ -600,7 +616,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
       vat.text = numberWithCommas(vat.text);
       net_amt.text = numberWithCommas(net_amt.text);
       if (luom.text.isEmpty) luom.text = '0';
-      sr_HDR(widget.doc_no);
+      getHDR();
       updateHdr();
       var resp = await sr_product_insertion(
           serial_no,
@@ -624,7 +640,6 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
         setState(() {
           clearFields();
           fetch_EntryDetails(doc_no.text);
-          // Navigator.of(context).pop(true);
           showToast('Created Succesfully');
         });
       } else {
@@ -633,7 +648,76 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
     }
   }
 
+  productupdation() async {
+    if (product.text.isEmpty || qty.text.isEmpty) {
+      return alert(this.context, 'Fields are empty', Colors.red);
+    } else {
+      // ---------------------Login Success--------------------------
+      amt.text = numberWithCommas(amt.text);
+      vat.text = numberWithCommas(vat.text);
+      net_amt.text = numberWithCommas(net_amt.text);
+      if (luom.text.isEmpty) luom.text = '0';
+      updateHdr();
+      var resp = await product_updation(
+        list_serial_no,
+        puom.text,
+        luom.text,
+        amt.text,
+        vat.text,
+        net_amt.text,
+        doc_no.text,
+        qty.text,
+        rate.text,
+      );
+      if (resp == 1) {
+        setState(() {
+          clearFields();
+          fetch_EntryDetails(doc_no.text);
+          showToast('Updated Succesfully');
+        });
+      } else {
+        alert(this.context, resp.toString(), Colors.red);
+      }
+    }
+  }
+
+  textField(_text, _controller, _validate, read, align) {
+    return Container(
+      height: 40.0,
+      child: TextField(
+        textAlign: align,
+        readOnly: read,
+        onChanged: (value) {
+          setState(() {
+            if (_text == 'QTY PUOM') {
+              if (int.parse(avl_qty) >= int.parse(puom.text))
+                productCalculate();
+              if (int.parse(avl_qty) < int.parse(puom.text)) {
+                alert(context, "Available Quantity " + avl_qty, Colors.orange);
+                amt.clear();
+                puom.clear();
+                vat.clear();
+                net_amt.clear();
+              }
+            }
+          });
+        },
+        style: TextStyle(fontSize: 13),
+        decoration: InputDecoration(
+            labelText: _text,
+            border: const OutlineInputBorder(),
+            contentPadding: EdgeInsets.all(10),
+            errorText: _validate ? 'Value Can\'t Be Empty' : null,
+            focusColor: Colors.blue,
+            labelStyle: TextStyle(color: Colors.black54)),
+        controller: _controller,
+      ),
+    );
+  }
+
   clearFields() {
+    _puom = "PUOM";
+    _luom = "LUOM";
     product.clear();
     product_name.clear();
     rate.clear();
