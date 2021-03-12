@@ -247,6 +247,46 @@ Future product_updation(
   }
 }
 
+Future sr_product_updation(
+  serial_no,
+  qty_puom,
+  qty_luom,
+  amt,
+  vat,
+  net_amt,
+  doc_no,
+  qty,
+  unit_rate,
+) async {
+  Map data = {
+    "SERIAL_NO": serial_no,
+    "QTY_PUOM": qty_puom,
+    "QTY_LUOM": qty_luom,
+    "AMOUNT": amt,
+    "TX_COMPNT_AMT_1": vat,
+    "NET_PRICE": net_amt,
+    "DOC_NO": doc_no,
+    "DOC_TYPE": gs_dndoc_type,
+    "QUANTITY": qty,
+    "UNIT_PRICE": unit_rate,
+    "COMPANY_CODE": gs_company_code
+  };
+  var value = json.encode(data);
+  var url =
+      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesSR/prod_update';
+  var response = await http.put(url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+      body: value);
+
+  if (response.statusCode == 200) {
+    return 1;
+  } else {
+    return responseerror(response);
+  }
+}
+
 Future docno_insert(
   party_name,
   doc_no,
@@ -681,11 +721,11 @@ Future<List> getAllSRProduct(ref_doc_type, ref_doc_no) async {
   var url =
       'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesSR/product_search/$ref_doc_type/$gs_company_code/$ref_doc_no';
   var response = await http.get(url);
-  var datas = List<Productlist>();
+  var datas = List<SR_Productlist>();
   if (response.statusCode == 200) {
     Object datasJson = json.decode(response.body.substring(0));
     for (var dataJson in datasJson) {
-      datas.add(Productlist.fromJsonSR(dataJson));
+      datas.add(SR_Productlist.fromJsonSR(dataJson));
     }
   }
   return datas;
