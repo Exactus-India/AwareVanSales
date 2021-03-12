@@ -393,9 +393,8 @@ class _SalesEntryState extends State<SalesEntry> {
             flex: 3,
             child: textField(_text, _controller, false, false, TextAlign.left)),
         Flexible(
-            child: Container(
-                height: 30.0,
-                padding: EdgeInsets.only(left: 30.0),
+            child: SizedBox(
+                height: 30,
                 child: IconButton(
                   iconSize: 25.0,
                   alignment: Alignment.center,
