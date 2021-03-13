@@ -54,6 +54,19 @@ class _SalesEntryState extends State<SalesEntry> {
   var avl_qty;
   var stk_puom;
   var stk_luom;
+  var amount;
+  var net_price;
+  var disc_price;
+  var unit_price_amt;
+  var cost_rate;
+  var lcur_amt;
+  var sign_ind = -1;
+  var tx_id_no;
+  var zone_code;
+  var lcur_amt_disc;
+  var tx_cmpt_perc = 5;
+  var tx_cmpt_amt;
+  var tx_cmpt_lcur_amt;
   int _pqty = 0;
   int _lqty = 0;
   double _amt = 0;
@@ -443,14 +456,18 @@ class _SalesEntryState extends State<SalesEntry> {
         onChanged: (value) {
           setState(() {
             if (_text == 'QTY PUOM') {
-              if (int.parse(avl_qty) >= int.parse(puom.text))
-                productCalculate();
-              if (int.parse(avl_qty) < int.parse(puom.text)) {
-                alert(context, "Available Quantity " + avl_qty, Colors.orange);
-                amt.clear();
-                puom.clear();
-                vat.clear();
-                net_amt.clear();
+              if (prod_update == true) productCalculate();
+              if (prod_update == false) {
+                if (int.parse(avl_qty) >= int.parse(puom.text))
+                  productCalculate();
+                if (int.parse(avl_qty) < int.parse(puom.text)) {
+                  alert(
+                      context, "Available Quantity " + avl_qty, Colors.orange);
+                  amt.clear();
+                  puom.clear();
+                  vat.clear();
+                  net_amt.clear();
+                }
               }
             }
           });
@@ -521,8 +538,6 @@ class _SalesEntryState extends State<SalesEntry> {
           setState(() {
             salesmiddleList.clear();
             salesmiddleList.addAll(value);
-            middle_view = true;
-            prod_update = true;
             print(prod_update);
             clearFields();
             print(salesmiddleList.length.toString() + 'list Size');
@@ -537,8 +552,9 @@ class _SalesEntryState extends State<SalesEntry> {
             _puom = salesmiddleList[0].puom.toString();
             _luom = salesmiddleList[0].luom.toString();
             uppp = salesmiddleList[0].uppp;
-            net_amt.text =
-                getNumberFormat(salesmiddleList[0].net_amount).toString();
+            net_amt.text = getNumberFormat(
+                    salesmiddleList[0].amount + salesmiddleList[0].vat)
+                .toString();
             qty.text = salesmiddleList[0].tot_qty.toString();
             // bal_stk.text = salesmiddleList[0].tot_qty.toString() +
             //     ' ' +
@@ -559,6 +575,7 @@ class _SalesEntryState extends State<SalesEntry> {
     product_name.text = productList[gs_list_index].val1.toString();
     uppp = productList[gs_list_index].uppp;
     rate.text = productList[gs_list_index].val9.toString();
+    cost_rate = productList[gs_list_index].cost_rate.toString();
     if (stk_luom == null) stk_luom = 0;
     avl_qty = (stk_puom + stk_luom).toString();
     bal_stk.text = 'Bal: ' + stk_puom.toString() + ' ' + _puom;
@@ -578,13 +595,38 @@ class _SalesEntryState extends State<SalesEntry> {
     var _qty = (puoms * uppp) + luoms;
     qty.text = _qty.toString();
     if (qty.text.isNotEmpty) {
-      double _rate = double.parse(rate.text);
-      var _amt = _qty * _rate;
-      amt.text = getNumberFormat(_qty * _rate).toString();
-      var _vat = (_rate * 0.05) * _qty;
-      if (amt.text.isNotEmpty) vat.text = getNumberFormat(_vat).toString();
-      net_amt.text = getNumberFormat(_amt + _vat).toString();
+      setState(() {
+        double _rate = double.parse(rate.text);
+        var _amt = _qty * _rate;
+        amount = _qty * _rate;
+        amt.text = getNumberFormat(_qty * _rate).toString();
+        var _vat = (_rate * 0.05) * _qty;
+        if (amt.text.isNotEmpty) vat.text = getNumberFormat(_vat).toString();
+        net_amt.text = getNumberFormat(_amt + _vat).toString();
+      });
     }
+  }
+
+  fields_calculate() {
+    String serial_no_zero;
+    serial_no.toString().length == 1
+        ? serial_no_zero = '0000'
+        : serial_no_zero = '000';
+    unit_price_amt = int.parse(rate.text);
+    net_price = unit_price_amt - 0;
+    disc_price = ((unit_price_amt * gl_disc_perct) / 100);
+    lcur_amt = amount.toDouble() * gl_EX_rate;
+    lcur_amt_disc = lcur_amt;
+    tx_id_no = gs_srdoc_type +
+        "" +
+        doc_no.text +
+        "" +
+        serial_no_zero +
+        "" +
+        serial_no.toString();
+    tx_cmpt_amt = ((amount.toDouble() * tx_cmpt_perc) / 100);
+    tx_cmpt_lcur_amt = tx_cmpt_amt;
+    print("tx_id_no " + tx_id_no.toString());
   }
 
   productInsert() async {
@@ -593,28 +635,37 @@ class _SalesEntryState extends State<SalesEntry> {
       return alert(this.context, 'Fields are ' + _msg, Colors.red);
     } else {
       // ---------------------Login Success--------------------------
-      amt.text = numberWithCommas(amt.text);
-      vat.text = numberWithCommas(vat.text);
-      net_amt.text = numberWithCommas(net_amt.text);
-      if (luom.text.isEmpty) luom.text = '0';
       getHDR();
       updateHdr();
+      fields_calculate();
+      amt.text = numberWithCommas(amt.text);
+      net_amt.text = numberWithCommas(net_amt.text);
+      if (luom.text.isEmpty) luom.text = '0';
+
       var resp = await product_insertion(
-        serial_no.toString(),
-        product.text,
-        product_name.text,
-        _puom,
-        puom.text,
-        _luom,
-        luom.text,
-        amt.text,
-        vat.text,
-        net_amt.text,
-        doc_no.text,
-        "DC",
-        qty.text,
-        rate.text,
-      );
+          doc_no.text,
+          serial_no.toString(),
+          product.text,
+          product_name.text,
+          _puom,
+          puom.text,
+          _luom,
+          luom.text,
+          uppp,
+          qty.text,
+          net_price,
+          disc_price,
+          unit_price_amt,
+          amount,
+          cost_rate,
+          lcur_amt,
+          sign_ind,
+          tx_id_no,
+          lcur_amt_disc,
+          tx_cmpt_perc,
+          tx_cmpt_amt,
+          tx_cmpt_lcur_amt,
+          rate.text);
       if (resp == 1) {
         setState(() {
           clearFields();
@@ -632,7 +683,16 @@ class _SalesEntryState extends State<SalesEntry> {
     if (product.text.isEmpty || qty.text.isEmpty) {
       return alert(this.context, 'Fields are empty', Colors.red);
     } else {
-      // ---------------------Login Success--------------------------
+      print("amount " + amount.toString());
+      // --------- "amount " + amount.toString()------------Login Success--------------------------
+      unit_price_amt = int.parse(rate.text);
+      net_price = unit_price_amt - 0;
+      disc_price = ((unit_price_amt * gl_disc_perct) / 100);
+      lcur_amt = amount * gl_EX_rate;
+      lcur_amt_disc = lcur_amt;
+      tx_cmpt_amt = ((amount * tx_cmpt_perc) / 100);
+      tx_cmpt_lcur_amt = tx_cmpt_amt;
+
       amt.text = numberWithCommas(amt.text);
       vat.text = numberWithCommas(vat.text);
       net_amt.text = numberWithCommas(net_amt.text);
@@ -640,14 +700,19 @@ class _SalesEntryState extends State<SalesEntry> {
       updateHdr();
       var resp = await product_updation(
         list_serial_no,
+        doc_no.text,
         puom.text,
         luom.text,
-        amt.text,
-        vat.text,
-        net_amt.text,
-        doc_no.text,
         qty.text,
-        rate.text,
+        net_price,
+        disc_price,
+        unit_price_amt,
+        amount,
+        lcur_amt,
+        lcur_amt_disc,
+        tx_cmpt_perc,
+        tx_cmpt_amt,
+        tx_cmpt_lcur_amt,
       );
       if (resp == 1) {
         setState(() {

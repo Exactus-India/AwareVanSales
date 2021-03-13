@@ -24,6 +24,7 @@ String gs_company_code = 'BSG';
 String gs_curr = 'AED';
 String gs_dept_code = 'DC';
 String gs_cancelled = 'N';
+String gs_zonecode;
 int gl_Div_code = 10;
 int gl_EX_rate = 1;
 int gl_disc_perct = 0;
@@ -44,6 +45,15 @@ responseerror(response) {
 
 Future<List> getAllUserName() async {
   var url = 'http://exactusnet.dyndns.org:4005/api/user';
+  var response = await http.get(url);
+  var jsonBody = response.body;
+  var jsonData = json.decode(jsonBody.substring(0));
+  return jsonData;
+}
+
+Future<List> get_user_zonecode() async {
+  var url =
+      'http://exactusnet.dyndns.org:4005/api/user/zone_code/$gs_company_code/$gs_currentUser_empid';
   var response = await http.get(url);
   var jsonBody = response.body;
   var jsonData = json.decode(jsonBody.substring(0));
@@ -183,11 +193,12 @@ Future product_insertion(
     lcur_amt,
     sign_ind,
     tx_id_no,
-    zone_code,
     lcur_amt_disc,
     tx_cmpt_perc,
     tx_cmpnt_amt,
-    tx_cmpnt_lcur_amt) async {
+    tx_cmpnt_lcur_amt,
+    unit_price) async {
+  print(unit_price);
   Map data = {
     "DOC_NO": doc_no,
     "DOC_TYPE": gs_dndoc_type,
@@ -201,7 +212,7 @@ Future product_insertion(
     "QTY_PUOM": qty_puom,
     "L_UOM": l_uom,
     "QTY_LUOM": qty_luom,
-    "UPPP": qty_luom,
+    "UPPP": uppp,
     "QUANTITY": qty,
     "NET_PRICE": net_price,
     "DISC_PERC": gl_disc_perct,
@@ -217,7 +228,7 @@ Future product_insertion(
     "CANCELLED": gs_cancelled,
     "USER_ID": gs_currentUser,
     "TX_IDENTITY_NO": tx_id_no,
-    "ZONE_CODE": zone_code,
+    "ZONE_CODE": gs_zonecode,
     "LCUR_AMT_DISC": lcur_amt_disc,
     "TAX_CAT_CODE": gl_tx_cat_code,
     "TAX_CMPCAT_CODE": gl_tx_comcat_amt,
@@ -226,6 +237,7 @@ Future product_insertion(
     "TX_COMPNT_LCUR_AMT_1": tx_cmpnt_lcur_amt,
     "TX_COMPNT_HDISC_AMT_1": gl_tx_compt_hdisc_amt,
     "TX_COMPNT_HDISC_LCUR_AMT_1": gl_tx_compt_hdisc_lcur_amt,
+    "UNIT_PRICE": unit_price
   };
   var value = json.encode(data);
   var url =
@@ -244,28 +256,38 @@ Future product_insertion(
 }
 
 Future product_updation(
-  serial_no,
+  list_serial_no,
+  doc_no,
   qty_puom,
   qty_luom,
-  amt,
-  vat,
-  net_amt,
-  doc_no,
   qty,
-  unit_rate,
+  net_price,
+  disc_price,
+  unit_price_amt,
+  amount,
+  lcur_amt,
+  lcur_amt_disc,
+  tx_cmpt_perc,
+  tx_cmpt_amt,
+  tx_cmpt_lcur_amt,
 ) async {
   Map data = {
-    "SERIAL_NO": serial_no,
+    "COMPANY_CODE": gs_company_code,
+    "DOC_TYPE": gs_dndoc_type,
+    "LST_SERIAL_NO": list_serial_no,
+    "DOC_NO": doc_no,
     "QTY_PUOM": qty_puom,
     "QTY_LUOM": qty_luom,
-    "AMOUNT": amt,
-    "TX_COMPNT_AMT_1": vat,
-    "NET_PRICE": net_amt,
-    "DOC_NO": doc_no,
-    "DOC_TYPE": gs_dndoc_type,
     "QUANTITY": qty,
-    "UNIT_PRICE": unit_rate,
-    "COMPANY_CODE": gs_company_code
+    "NET_PRICE": net_price,
+    "DISC_PRICE": disc_price,
+    "UNIT_PRICE_AMT": unit_price_amt,
+    "AMOUNT": amount,
+    "LCUR_AMT": lcur_amt,
+    "LCUR_AMT_DISC": lcur_amt_disc,
+    "TAX_CMPNT_PERC_1": tx_cmpt_perc,
+    "TX_COMPNT_AMT_1": tx_cmpt_amt,
+    "TX_COMPNT_LCUR_AMT_1": tx_cmpt_lcur_amt
   };
   var value = json.encode(data);
   var url =
@@ -279,7 +301,7 @@ Future product_updation(
   if (response.statusCode == 200) {
     return 1;
   } else {
-    return responseerror(response);
+    return "Error";
   }
 }
 
@@ -645,27 +667,44 @@ Future sr_product_insertion(
   // lst_dtl_serial_no
 ) async {
   Map data = {
+    "COMPANY_CODE": gs_company_code,
+    "DOC_TYPE": gs_dndoc_type,
+    "DOC_NO": doc_no,
+    "DOC_DATE": "",
+    "DIV_CODE": "",
+    "DEPT_CODE": dept_code,
     "SERIAL_NO": serial_no,
     "PROD_CODE": prod_code,
     "PROD_NAME": prod_name,
-    "P_UOM": "PCS",
+    "P_UOM": p_uom,
     "QTY_PUOM": qty_puom,
-    "L_UOM": "PCS",
+    "L_UOM": l_uom,
     "QTY_LUOM": qty_luom,
-    "AMOUNT": amt,
-    "TX_COMPNT_AMT_1": vat,
-    "NET_PRICE": net_amt,
-    "DOC_NO": doc_no,
-    "DOC_TYPE": gs_srdoc_type,
-    "SALESMAN_CODE": gs_currentUser_empid,
-    "DEPT_CODE": dept_code,
-    "USER_ID": gs_currentUser,
+    "UPPP": "DSF",
     "QUANTITY": qty,
     "UNIT_PRICE": unit_rate,
+    "UNIT_PRICE_NET": "",
+    "NET_PRICE": net_amt,
+    "AMOUNT": amt,
+    "COST_RATE": "",
     "CURR_CODE": gs_curr,
-    "COMPANY_CODE": gs_company_code,
-    "REF_DOC_TYPE": ref_doctype,
-    "REF_DOC_NO": ref_docno,
+    "EX_RATE": "",
+    "LUR_AMOUNT": "",
+    "SIGN_IND": "",
+    "SALESMAN_CODE": gs_currentUser_empid,
+    "USER_ID": gs_currentUser,
+    "USER_DT": "",
+    "TX_IDENTITY_NUMBER": "",
+    "ZONE_CODE": "",
+    "LCUR_AMOUNT_DISCOUNTED": "",
+    "TX_CAT_CODE": "",
+    "TX_COMPNTCAT_CODE_1": "",
+    "TX_COMPNT_PERC_1": "",
+    "TX_COMPNT_AMT_1": vat,
+    "TX_COMPNT_LCURAMT_1": vat,
+    "TX_COMPNT_1_EXPMT": vat,
+    "CANCELLED": vat,
+    "STOCK_STATUS": vat,
     // "LAST_DTL_SERIAL_NO": lst_dtl_serial_no
   };
   var value = json.encode(data);

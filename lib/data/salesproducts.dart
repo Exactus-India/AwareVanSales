@@ -15,6 +15,7 @@ class Productlist {
   var stk_luom;
   var stk_puom;
   var uppp;
+  var cost_rate;
 
   Productlist.fromJson(Map<String, dynamic> json) {
     val1 = json['PROD_NAME'];
@@ -29,6 +30,7 @@ class Productlist {
     stk_puom = val7;
     luom = json['L_UOM'];
     stk_luom = json['STK_LUOM'];
+    cost_rate = json['COST_RATE'];
   }
 }
 
