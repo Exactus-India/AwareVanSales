@@ -1,4 +1,4 @@
-import 'package:aware_van_sales/pages/wm_mb_saleReturn_entry.dart';
+import 'package:aware_van_sales/data/future_db.dart';
 import 'package:aware_van_sales/pages/wm_mb_customer.dart';
 import 'package:aware_van_sales/pages/wm_mb_saleReturnCust.dart';
 import 'package:aware_van_sales/pages/wm_mb_os_summary.dart';
@@ -17,6 +17,15 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    get_user_zonecode().then((value) {
+      gs_zonecode = value[0]['DEFAULT_ZONE_CODE'];
+      print("Zonecode " + gs_zonecode);
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
