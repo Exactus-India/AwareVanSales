@@ -613,11 +613,11 @@ class _SalesEntryState extends State<SalesEntry> {
         ? serial_no_zero = '0000'
         : serial_no_zero = '000';
     unit_price_amt = int.parse(rate.text);
-    net_price = unit_price_amt - 0;
+    net_price = unit_price_amt - 0; // disc_hdr_price=0
     disc_price = ((unit_price_amt * gl_disc_perct) / 100);
     lcur_amt = amount.toDouble() * gl_EX_rate;
     lcur_amt_disc = lcur_amt;
-    tx_id_no = gs_srdoc_type +
+    tx_id_no = gs_dndoc_type +
         "" +
         doc_no.text +
         "" +
