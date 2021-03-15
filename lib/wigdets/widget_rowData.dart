@@ -73,7 +73,7 @@ rowData4(first, second, third, last, size) {
               MainAxisAlignment.center, size, TextAlign.center)),
       Flexible(
           flex: 2,
-          // fit: FlexFit.tight,
+          fit: FlexFit.tight,
           child: columnRow(last.toString(), CrossAxisAlignment.end,
               MainAxisAlignment.spaceEvenly, size, TextAlign.center)),
     ],
