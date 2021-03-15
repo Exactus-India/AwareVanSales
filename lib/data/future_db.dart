@@ -112,9 +112,9 @@ Future stock_summary_pro(datefrom, dateto) async {
   return jsonData;
 }
 
-Future sales_sum_pro() async {
+Future sales_sum_pro(date, empid) async {
   var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/prosalessummary/$gs_company_code/$gs_date/$gs_currentUser_empid';
+      'http://exactusnet.dyndns.org:4005/api/sales/customerList/prosalessummary/$gs_company_code/$date/$empid';
   var response = await http.get(url);
   var jsonBody = response.body;
   var jsonData = json.decode(jsonBody.substring(0));
@@ -664,15 +664,14 @@ Future sr_product_insertion(
   unit_rate,
   ref_doctype,
   ref_docno,
-  // lst_dtl_serial_no
 ) async {
   Map data = {
     "COMPANY_CODE": gs_company_code,
-    "DOC_TYPE": gs_dndoc_type,
+    "DOC_TYPE": gs_srdoc_type,
     "DOC_NO": doc_no,
-    "DOC_DATE": "",
-    "DIV_CODE": "",
-    "DEPT_CODE": dept_code,
+
+    "DIV_CODE": gl_Div_code,
+    "DEPT_CODE": gs_dept_code,
     "SERIAL_NO": serial_no,
     "PROD_CODE": prod_code,
     "PROD_NAME": prod_name,
@@ -680,32 +679,33 @@ Future sr_product_insertion(
     "QTY_PUOM": qty_puom,
     "L_UOM": l_uom,
     "QTY_LUOM": qty_luom,
-    "UPPP": "DSF",
+    // "UPPP": "",
     "QUANTITY": qty,
     "UNIT_PRICE": unit_rate,
-    "UNIT_PRICE_NET": "",
+    // "UNIT_PRICE_NET": "",
     "NET_PRICE": net_amt,
     "AMOUNT": amt,
-    "COST_RATE": "",
+    // "COST_RATE": "",
     "CURR_CODE": gs_curr,
-    "EX_RATE": "",
-    "LUR_AMOUNT": "",
-    "SIGN_IND": "",
+    "EX_RATE": gl_EX_rate,
+    // "LUR_AMOUNT": "",
+    "SIGN_IND": 1,
     "SALESMAN_CODE": gs_currentUser_empid,
     "USER_ID": gs_currentUser,
-    "USER_DT": "",
-    "TX_IDENTITY_NUMBER": "",
-    "ZONE_CODE": "",
-    "LCUR_AMOUNT_DISCOUNTED": "",
-    "TX_CAT_CODE": "",
-    "TX_COMPNTCAT_CODE_1": "",
-    "TX_COMPNT_PERC_1": "",
+    "USER_DT": gs_date,
+    // "TX_IDENTITY_NUMBER": "",
+    // "ZONE_CODE": "",
+    "LCUR_AMOUNT_DISCOUNTED": 0,
+    "TX_CAT_CODE": gl_tx_cat_code,
+    "TX_COMPNTCAT_CODE_1": gl_tx_comcat_amt,
+    "TX_COMPNT_PERC_1": 0,
     "TX_COMPNT_AMT_1": vat,
-    "TX_COMPNT_LCURAMT_1": vat,
-    "TX_COMPNT_1_EXPMT": vat,
-    "CANCELLED": vat,
-    "STOCK_STATUS": vat,
-    // "LAST_DTL_SERIAL_NO": lst_dtl_serial_no
+    "ref_doc_type": ref_doctype,
+    "ref_doc_no": ref_docno,
+    // "TX_COMPNT_LCURAMT_1": vat,
+    // "TX_COMPNT_1_EXPMT": vat,
+    // "CANCELLED": vat,
+    // "STOCK_STATUS": vat,
   };
   var value = json.encode(data);
   var url =
