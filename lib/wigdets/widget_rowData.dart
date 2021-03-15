@@ -56,23 +56,24 @@ rowData4(first, second, third, last, size) {
     mainAxisAlignment: MainAxisAlignment.spaceAround,
     crossAxisAlignment: CrossAxisAlignment.end,
     children: <Widget>[
-      Container(
-          width: 50,
-          padding: EdgeInsets.only(left: 5.0),
+      Flexible(
+          // flex: 1,
+          fit: FlexFit.loose,
           child: columnRow(first.toString(), CrossAxisAlignment.start,
               MainAxisAlignment.spaceEvenly, size, TextAlign.left)),
-      Container(
-          width: 140,
+      Flexible(
+          flex: 2,
+          // fit: FlexFit.tight,
           child: columnRow(second.toString(), CrossAxisAlignment.center,
               MainAxisAlignment.spaceEvenly, size, TextAlign.left)),
       Flexible(
-          fit: FlexFit.tight,
+          flex: 1,
+          // fit: FlexFit.tight,
           child: columnRow(third.toString(), CrossAxisAlignment.center,
               MainAxisAlignment.center, size, TextAlign.center)),
       Flexible(
-          fit: FlexFit.tight,
-          // width: 50,
-          // padding: EdgeInsets.only(right: 8.0),
+          flex: 2,
+          // fit: FlexFit.tight,
           child: columnRow(last.toString(), CrossAxisAlignment.end,
               MainAxisAlignment.spaceEvenly, size, TextAlign.center)),
     ],
