@@ -5,8 +5,10 @@ import 'package:aware_van_sales/wigdets/alert.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:custom_datatable/custom_datatable.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../wigdets/listing_Builder.dart';
+import '../wigdets/widgets.dart';
 
 class SalesEntry extends StatefulWidget {
   final doc_no;
@@ -76,14 +78,15 @@ class _SalesEntryState extends State<SalesEntry> {
   bool details_list = false;
 
   List saleslog_col = [
-    "SL NO",
-    "PROD CODE",
+    "Sno",
+    "PRODUCT",
+    "QTY",
+    "TOTAL",
     "PROD NAME",
     "QTY PUOM",
     "QTY LUOM",
     "AMOUNT ",
-    "VAT",
-    "TOTAL"
+    "VAT"
   ];
 
   @override
@@ -360,40 +363,64 @@ class _SalesEntryState extends State<SalesEntry> {
                 }
               },
               cells: <DataCell>[
+                //sno
                 if (index != numItems - 1)
                   DataCell(Text(rowList[index].val1.toString())),
-                if (index == numItems - 1) DataCell(textBold("TOTAL")),
+                if (index == numItems - 1)
+                  DataCell(textBold("TOTAL")),
+                //product code
                 if (index != numItems - 1)
                   DataCell(Text(rowList[index].val2.toString())),
-                if (index == numItems - 1) DataCell(Text("")),
+                if (index == numItems - 1)
+                  DataCell(Text("")),
+                //qty
+                if (index != numItems - 1)
+                  DataCell(Text(rowList[index].val5.toString())),
+                if (index == numItems - 1)
+                  DataCell(textBold(_pqty.toString())),
+                //total
+                if (index != numItems - 1)
+                  DataCell(Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(rowList[index].val10.toString()))),
+                if (index == numItems - 1)
+                  DataCell(textBold(getNumberFormat(_tot).toString())),
+                //prod name
                 if (index != numItems - 1)
                   DataCell(Text(rowList[index].val3.toString())),
-                if (index == numItems - 1) DataCell(Text("")),
+                if (index == numItems - 1)
+                  DataCell(Text("")),
+                //qtypuom
+
                 if (index != numItems - 1)
                   DataCell(Text(rowList[index].val5.toString() +
                       " " +
                       rowList[index].val4.toString())),
-                if (index == numItems - 1) DataCell(textBold(_pqty.toString())),
+                if (index == numItems - 1)
+                  DataCell(textBold(_pqty.toString())),
+                //qty_luom
                 if (index != numItems - 1)
                   DataCell(Text(rowList[index].val7.toString() +
                       " " +
                       rowList[index].val6.toString())),
-                if (index == numItems - 1) DataCell(textBold(_lqty.toString())),
+                if (index == numItems - 1)
+                  DataCell(textBold(_lqty.toString())),
+                //amt
                 if (index != numItems - 1)
-                  DataCell(
-                      Text(getNumberFormat(rowList[index].val8).toString())),
+                  DataCell(Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                          getNumberFormat(rowList[index].val8).toString()))),
                 if (index == numItems - 1)
                   DataCell(textBold(getNumberFormat(_amt).toString())),
+                //vat
                 if (index != numItems - 1)
-                  DataCell(
-                      Text(getNumberFormat(rowList[index].val9).toString())),
+                  DataCell(Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                          getNumberFormat(rowList[index].val9).toString()))),
                 if (index == numItems - 1)
                   DataCell(textBold(getNumberFormat(_vat).toString())),
-                if (index != numItems - 1)
-                  DataCell(
-                      Text(getNumberFormat(rowList[index].val10).toString())),
-                if (index == numItems - 1)
-                  DataCell(textBold(getNumberFormat(_tot).toString())),
               ],
             ),
           ),
@@ -727,12 +754,18 @@ class _SalesEntryState extends State<SalesEntry> {
   }
 
   generate_docno() {
+    var ls_date = DateFormat("dd/MM/yyyy").format(DateTime.now()).toString();
+    var ls_mth_code = ls_date[6] + ls_date[8] + ls_date[9];
+    ls_mth_code = ls_mth_code + "101";
     return GestureDetector(
         onTap: () {
           getDNDocno().then((value) {
             setState(() {
-              var docno = value.toInt() + 1;
-              doc_no.text = docno.toString();
+              if (value == null) doc_no.text = ls_mth_code.toString() + "00001";
+              if (value != null) {
+                var docno = value.toInt() + 1;
+                doc_no.text = docno.toString();
+              }
               if (ref_no.text.isEmpty) {
                 ref_no.text = doc_no.text;
               }
@@ -740,8 +773,6 @@ class _SalesEntryState extends State<SalesEntry> {
                       customer.text, doc_no.text, selectedtype, ref_no.text)
                   .then((value) {
                 if (value == 1) {
-                  ref_no.text = doc_no.text;
-
                   middle_view = true;
                   showToast("Inserted Succesfully");
                 } else {

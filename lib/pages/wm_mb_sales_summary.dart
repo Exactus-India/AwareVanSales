@@ -15,19 +15,38 @@ class SalesSummary extends StatefulWidget {
 
 var now = new DateTime.now();
 String formatter = DateFormat('yMd').format(now);
+String datelabelformatter = gs_date;
 
 class _SalesSummaryState extends State<SalesSummary> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextEditingController date = TextEditingController();
   int totalCash = 0;
   List salesumm_1 = List();
   List salesumm_2 = List();
 
   String finalDate = '';
+  var _selectedDate;
+
+  TextEditingController _datecontroller = new TextEditingController();
+  TextEditingController userid = new TextEditingController();
+
+// Future<void> _selectDate(BuildContext context) async {
+//     final DateTime picked = await showDatePicker(
+//         context: context,
+//         initialDate:DateTime(2015, 8) ,
+//         firstDate: DateTime(2015, 8),
+//         lastDate: DateTime(2101));
+//     setState(() {
+//       date = picked ?? date;
+//     });
+//   }
 
   @override
   void initState() {
-    sales_sum_pro().then((value) {
+    _selectedDate = gs_date;
+    userid.text = gs_currentUser_empid.toString();
+
+    sales_sum_pro(_selectedDate, userid.text).then((value) {
+      print("init" + _selectedDate);
       sales_sum1().then((value) {
         setState(() {
           salesumm_1.addAll(value);
@@ -47,19 +66,81 @@ class _SalesSummaryState extends State<SalesSummary> {
     super.initState();
   }
 
+  retrive() {
+    salesumm_1.clear();
+    salesumm_2.clear();
+    return sales_sum_pro(_selectedDate, userid.text).then((value) {
+      print("init" + _selectedDate);
+      sales_sum1().then((value) {
+        setState(() {
+          salesumm_1.addAll(value);
+          list_length = salesumm_1.length;
+          print("summary1 list length " + salesumm_1.length.toString());
+        });
+      });
+      sales_sum2().then((value) {
+        setState(() {
+          salesumm_2.addAll(value);
+          print(salesumm_2);
+          print("summary2 list length " + salesumm_2.length.toString());
+        });
+      });
+    });
+  }
+
+  void _presentDatePicker() {
+    showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+    ).then((datePicker) {
+      setState(() {
+        print(datePicker);
+        _selectedDate = DateFormat("dd-MMM-yyyy").format(datePicker);
+        print(_selectedDate);
+      });
+    });
+  }
+
+  textFieldDate(_text, _controller, _validate, read) {
+    return TextField(
+      // onTap: () => _presentDatePicker(),
+      readOnly: read,
+      decoration: InputDecoration(
+        labelText: _text,
+        border: const OutlineInputBorder(),
+        contentPadding: EdgeInsets.all(10),
+        errorText: _validate ? 'Value Can\'t Be Empty' : null,
+        focusColor: Colors.blue,
+        labelStyle: TextStyle(color: Colors.black54),
+      ),
+      controller: _controller,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Sales Summary'),
+        backgroundColor: Color.fromRGBO(59, 87, 110, 1.0),
         actions: <Widget>[
           Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: GestureDetector(
-              onTap: () {},
-              child: Text('Prev.Day'),
+            padding: const EdgeInsets.all(12.0),
+            child: RaisedButton(
+              color: Colors.green[400],
+              onPressed: () {
+                retrive();
+              },
+              child: Text('Retrive'),
             ),
-          )
+          ),
+          // GestureDetector(
+          //   onTap: () {},
+          //   child: Icon(Icons.print))
+
+          // )
         ],
       ),
       body: SingleChildScrollView(
@@ -72,15 +153,29 @@ class _SalesSummaryState extends State<SalesSummary> {
               child: align(Alignment.topLeft, gs_currentUser, 18.0),
             ),
             Form(
-              key: _formKey,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
+                children: <Widget>[
                   Flexible(
-                      flex: 2, child: textField(formatter, date, false, true)),
+                      flex: 3,
+                      child: Row(
+                        children: <Widget>[
+                          Text(_selectedDate == null ? gs_date : _selectedDate),
+                          IconButton(
+                              icon: Icon(
+                                Icons.calendar_today,
+                                size: 30.0,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _presentDatePicker();
+                                });
+                              })
+                        ],
+                      )),
                   Flexible(
-                      child:
-                          textField(gs_currentUser_empid, date, false, true)),
+                      flex: 1,
+                      child: textFieldDate("salesmanid", userid, false, false)),
                 ],
               ),
             ),
@@ -97,13 +192,14 @@ class _SalesSummaryState extends State<SalesSummary> {
               SizedBox(
                 height: 30,
               ),
-            rowData4("Sl.No", "Description   ", " Items", "Amount      ", 15.0),
+            rowData4("Sl.No", "Description   ", " Items", "Amount      ", 14.0),
             SizedBox(height: 10),
             Container(
-                height: 110,
-                width: 500,
-                color: Colors.lightBlue[100],
-                child: listView_row_4_fields(salesumm_2, 110.0)),
+              height: 1000,
+              width: 500,
+              color: Colors.lightBlue[100],
+              child: listView_row_4_fields(salesumm_2),
+            ),
           ],
         ),
       )),

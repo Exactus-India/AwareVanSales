@@ -345,14 +345,13 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
   refNolist() {
     list_length = search_ref_datas.length;
     return AlertDialog(
-        content: Container(
-            height: 400.0,
-            width: 300.0,
-            child: ListBuilderCommon(
-                datas: search_ref_datas,
-                toPage: null,
-                head: false,
-                popBack: true)));
+      content: Container(
+        height: 400.0,
+        width: 300.0,
+        child: ListBuilderCommon(
+            datas: search_ref_datas, toPage: null, head: false, popBack: true),
+      ),
+    );
   }
 
   salesReturnDetailedlist() {
@@ -658,16 +657,20 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
       if (luom.text.isEmpty) luom.text = '0';
       updateHdr();
       var resp = await product_updation(
-        list_serial_no,
-        puom.text,
-        luom.text,
-        amt.text,
-        vat.text,
-        net_amt.text,
-        doc_no.text,
-        qty.text,
-        rate.text,
-      );
+          list_serial_no,
+          doc_no.text,
+          puom.text,
+          luom.text,
+          qty.text,
+          "net_price",
+          "disc_price",
+          "unit_price_amt",
+          "amount",
+          "lcur_amt",
+          "lcur_amt_disc",
+          "tx_cmpt_perc",
+          "tx_cmpt_amt",
+          "tx_cmpt_lcur_amt");
       if (resp == 1) {
         setState(() {
           clearFields();
