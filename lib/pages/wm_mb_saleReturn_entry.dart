@@ -454,7 +454,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
                 numItems,
                 (index) => DataRow(
                     onSelectChanged: (va) {
-                      if (va) {
+                      if (va && index != numItems) {
                         setState(() {
                           if (middle_view == false) middle_view = true;
                           String sno = rowList[index].val1.toString();
