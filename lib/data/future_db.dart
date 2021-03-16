@@ -256,21 +256,20 @@ Future product_insertion(
 }
 
 Future product_updation(
-  list_serial_no,
-  doc_no,
-  qty_puom,
-  qty_luom,
-  qty,
-  net_price,
-  disc_price,
-  unit_price_amt,
-  amount,
-  lcur_amt,
-  lcur_amt_disc,
-  tx_cmpt_perc,
-  tx_cmpt_amt,
-  tx_cmpt_lcur_amt,
-) async {
+    list_serial_no,
+    doc_no,
+    qty_puom,
+    qty_luom,
+    qty,
+    net_price,
+    disc_price,
+    unit_price_amt,
+    amount,
+    lcur_amt,
+    lcur_amt_disc,
+    tx_cmpt_perc,
+    tx_cmpt_amt,
+    tx_cmpt_lcur_amt) async {
   Map data = {
     "COMPANY_CODE": gs_company_code,
     "DOC_TYPE": gs_dndoc_type,
@@ -302,46 +301,6 @@ Future product_updation(
     return 1;
   } else {
     return "Error";
-  }
-}
-
-Future sr_product_updation(
-  serial_no,
-  qty_puom,
-  qty_luom,
-  amt,
-  vat,
-  net_amt,
-  doc_no,
-  qty,
-  unit_rate,
-) async {
-  Map data = {
-    "SERIAL_NO": serial_no,
-    "QTY_PUOM": qty_puom,
-    "QTY_LUOM": qty_luom,
-    "AMOUNT": amt,
-    "TX_COMPNT_AMT_1": vat,
-    "NET_PRICE": net_amt,
-    "DOC_NO": doc_no,
-    "DOC_TYPE": gs_dndoc_type,
-    "QUANTITY": qty,
-    "UNIT_PRICE": unit_rate,
-    "COMPANY_CODE": gs_company_code
-  };
-  var value = json.encode(data);
-  var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesSR/prod_update';
-  var response = await http.put(url,
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8'
-      },
-      body: value);
-
-  if (response.statusCode == 200) {
-    return 1;
-  } else {
-    return responseerror(response);
   }
 }
 
@@ -393,7 +352,7 @@ Future dn_hdrUpdate(doc_no, sales_type, ref_no, remarks, serial_no) async {
   var value = json.encode(data);
   var url =
       'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/hdr_update';
-  var response = await http.post(url,
+  var response = await http.put(url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8'
       },
@@ -510,7 +469,7 @@ Future<List<Sales>> saleslist(ac_code) async {
   datas.sort((a, b) {
     var ab = a.val2;
     var ba = b.val2;
-    return ab.compareTo(ba);
+    return ba.compareTo(ab);
   });
   return datas;
 }
@@ -579,7 +538,7 @@ Future<List<Sales>> salesReturnlist(ac_code) async {
   datas.sort((a, b) {
     var ab = a.val2;
     var ba = b.val2;
-    return ab.compareTo(ba);
+    return ba.compareTo(ab);
   });
   return datas;
 }
@@ -648,6 +607,7 @@ Future<int> getSRSerialno(doc_no) async {
 }
 
 Future sr_product_insertion(
+  doc_no,
   serial_no,
   prod_code,
   prod_name,
@@ -655,13 +615,20 @@ Future sr_product_insertion(
   qty_puom,
   l_uom,
   qty_luom,
-  amt,
-  vat,
-  net_amt,
-  doc_no,
-  dept_code,
+  uppp,
   qty,
   unit_rate,
+  disc_price,
+  unit_rate_net,
+  net_amt,
+  amt,
+  cost_rate,
+  lcur_amt,
+  tx_id_no,
+  lcur_amt_disc,
+  tx_cmpnt_perc,
+  tx_cmpnt_amt_1,
+  tx_cmpnt_lcur_amt,
   ref_doctype,
   ref_docno,
 ) async {
@@ -669,7 +636,6 @@ Future sr_product_insertion(
     "COMPANY_CODE": gs_company_code,
     "DOC_TYPE": gs_srdoc_type,
     "DOC_NO": doc_no,
-
     "DIV_CODE": gl_Div_code,
     "DEPT_CODE": gs_dept_code,
     "SERIAL_NO": serial_no,
@@ -679,33 +645,32 @@ Future sr_product_insertion(
     "QTY_PUOM": qty_puom,
     "L_UOM": l_uom,
     "QTY_LUOM": qty_luom,
-    // "UPPP": "",
+    "UPPP": uppp,
     "QUANTITY": qty,
     "UNIT_PRICE": unit_rate,
-    // "UNIT_PRICE_NET": "",
+    "DISC_PERC": gl_disc_perct,
+    "DISC_PRICE": disc_price,
+    "UNIT_PRICE_NET": unit_rate_net,
     "NET_PRICE": net_amt,
     "AMOUNT": amt,
-    // "COST_RATE": "",
+    "COST_RATE": cost_rate,
     "CURR_CODE": gs_curr,
     "EX_RATE": gl_EX_rate,
-    // "LUR_AMOUNT": "",
+    "LCUR_AMOUNT": lcur_amt,
     "SIGN_IND": 1,
     "SALESMAN_CODE": gs_currentUser_empid,
     "USER_ID": gs_currentUser,
-    "USER_DT": gs_date,
-    // "TX_IDENTITY_NUMBER": "",
-    // "ZONE_CODE": "",
-    "LCUR_AMOUNT_DISCOUNTED": 0,
+    "TX_IDENTITY_NUMBER": tx_id_no,
+    "ZONE_CODE": gs_zonecode,
+    "LCUR_AMOUNT_DISCOUNTED": lcur_amt_disc,
     "TX_CAT_CODE": gl_tx_cat_code,
     "TX_COMPNTCAT_CODE_1": gl_tx_comcat_amt,
-    "TX_COMPNT_PERC_1": 0,
-    "TX_COMPNT_AMT_1": vat,
+    "TX_COMPNT_PERC_1": tx_cmpnt_perc,
+    "TX_COMPNT_AMT_1": tx_cmpnt_amt_1,
+    "CANCELLED": gs_cancelled,
+    "TX_COMPNT_LCUR_AMT_1": tx_cmpnt_lcur_amt,
     "ref_doc_type": ref_doctype,
     "ref_doc_no": ref_docno,
-    // "TX_COMPNT_LCURAMT_1": vat,
-    // "TX_COMPNT_1_EXPMT": vat,
-    // "CANCELLED": vat,
-    // "STOCK_STATUS": vat,
   };
   var value = json.encode(data);
   var url =
@@ -720,6 +685,55 @@ Future sr_product_insertion(
     return 1;
   } else {
     return null;
+  }
+}
+
+Future sr_product_updation(
+    list_serial_no,
+    doc_no,
+    qty_puom,
+    qty_luom,
+    qty,
+    net_price,
+    disc_price,
+    unit_price_amt,
+    amount,
+    lcur_amt,
+    lcur_amt_disc,
+    tx_cmpt_perc,
+    tx_cmpt_amt,
+    tx_cmpt_lcur_amt) async {
+  Map data = {
+    "COMPANY_CODE": gs_company_code,
+    "DOC_TYPE": gs_srdoc_type,
+    "LST_SERIAL_NO": list_serial_no,
+    "DOC_NO": doc_no,
+    "QTY_PUOM": qty_puom,
+    "QTY_LUOM": qty_luom,
+    "QUANTITY": qty,
+    "NET_PRICE": net_price,
+    "DISC_PRICE": disc_price,
+    "UNIT_PRICE_AMT": unit_price_amt,
+    "AMOUNT": amount,
+    "LCUR_AMT": lcur_amt,
+    "LCUR_AMT_DISC": lcur_amt_disc,
+    "TAX_CMPNT_PERC_1": tx_cmpt_perc,
+    "TX_COMPNT_AMT_1": tx_cmpt_amt,
+    "TX_COMPNT_LCUR_AMT_1": tx_cmpt_lcur_amt
+  };
+  var value = json.encode(data);
+  var url =
+      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesSR/prod_update';
+  var response = await http.put(url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+      body: value);
+
+  if (response.statusCode == 200) {
+    return 1;
+  } else {
+    return responseerror(response);
   }
 }
 
@@ -739,7 +753,7 @@ Future sr_hdr_update(doc_no, ref_no, salestype, ref_doctype, ref_docno,
   var value = json.encode(data);
   var url =
       'http://exactusnet.dyndns.org:4005/api/sales_return/customerList/salesSR/sr_hdr/update';
-  var response = await http.post(url,
+  var response = await http.put(url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8'
       },

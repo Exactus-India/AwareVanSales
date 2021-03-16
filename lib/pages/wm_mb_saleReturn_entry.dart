@@ -22,12 +22,10 @@ class SalesEntryComman extends StatefulWidget {
 }
 
 class _SalesEntryCommanState extends State<SalesEntryComman> {
-  final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
   TextEditingController customer = new TextEditingController();
   TextEditingController doc_no = new TextEditingController();
   TextEditingController ref_doc_no = new TextEditingController();
   TextEditingController doc_type = new TextEditingController();
-
   TextEditingController ref_no = new TextEditingController();
   TextEditingController remarks = new TextEditingController();
   TextEditingController product = new TextEditingController();
@@ -57,21 +55,36 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
   var avl_qty;
   var _puom;
   var _luom;
+  var amount;
+  var net_price;
+  var disc_price;
+  var unit_price_amt;
+  var cost_rate;
+  var lcur_amt;
+  var tx_id_no;
+  var lcur_amt_disc;
+  var tx_cmpt_perc = 5;
+  var tx_cmpt_amt;
+  var tx_cmpt_lcur_amt;
   bool prod_update = false;
   bool hdr = false;
   bool details_list = false;
+  int ll_pqty = 0;
+  int ll_lqty = 0;
+  double ll_amt = 0;
+  double ll_vat = 0;
+  double ll_tot = 0;
 
   List saleslog_col = [
-    "SERIAL NO",
-    "PRODUCT CODE",
-    "PRODUCT NAME",
-    "PUOM",
+    "Sno",
+    "PRODUCT",
+    "QTY",
+    "TOTAL",
+    "PROD NAME",
     "QTY PUOM",
-    "LUOM",
     "QTY LUOM",
-    "AMOUNT",
-    "VAT",
-    "NET AMOUNT"
+    "AMOUNT ",
+    "VAT"
   ];
 
   @override
@@ -93,7 +106,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
       });
     }
     if (widget.doc_no != null) {
-      getHDR();
+      getHDR(widget.doc_no);
     }
 
     print(widget.party_address + "..> ");
@@ -101,8 +114,8 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
     super.initState();
   }
 
-  getHDR() {
-    return sr_HDR(widget.doc_no).then((value) {
+  getHDR(docno) {
+    return sr_HDR(docno).then((value) {
       setState(() {
         srHDR.clear();
         srHDR.addAll(value);
@@ -111,8 +124,10 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
         customer.text = srHDR[0]['PARTY_NAME'].toString();
         ref_doc_no.text = srHDR[0]['REF_DOC_NO'].toString();
         doc_type.text = srHDR[0]['REF_DOC_TYPE'].toString();
+        if (srHDR[0]['REMARKS'] != null)
+          remarks.text = srHDR[0]['REMARKS'].toString();
         var doc = srHDR[0]['DOC_NO'].toString();
-        if (doc != 'null') doc_no.text = doc.toString();
+        if (doc != null) doc_no.text = doc.toString();
         var ref = srHDR[0]['REF_NO'];
         var sn_no = srHDR[0]['LAST_DTL_SERIAL_NO'];
         if (sn_no == null || sn_no == 0) sn_no = 0;
@@ -132,6 +147,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Sales Return"),
+        backgroundColor: Color.fromRGBO(59, 87, 110, 1.0),
         actions: <Widget>[
           GestureDetector(
               onTap: () {
@@ -181,18 +197,17 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
       body: new Padding(
         padding: new EdgeInsets.all(18.0),
         child: new Form(
-            key: _formkey,
             child: new SingleChildScrollView(
-              child: Column(
-                children: [
-                  SizedBox(height: 5),
-                  head(),
-                  SizedBox(height: 4),
-                  if (middle_view == true) middle(),
-                  if (details_list != false) salesReturnDetailedlist(),
-                ],
-              ),
-            )),
+          child: Column(
+            children: [
+              SizedBox(height: 5),
+              head(),
+              SizedBox(height: 4),
+              if (middle_view == true) middle(),
+              if (details_list != false) salesReturnDetailedlist(),
+            ],
+          ),
+        )),
       ),
     );
   }
@@ -358,7 +373,8 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
     return SingleChildScrollView(
         child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            child: dataTable(salesdetails.length, salesdetails, saleslog_col)));
+            child: dataTable(
+                salesdetails.length + 1, salesdetails, saleslog_col)));
   }
 
   fetch_products() {
@@ -383,6 +399,21 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
           print("in details");
           list_length = 0;
           list_length = salesdetails.length;
+          print("length....." + list_length.toString());
+
+          ll_pqty = 0;
+          ll_lqty = 0;
+          ll_amt = 0;
+          ll_vat = 0;
+          ll_tot = 0;
+
+          for (int i = 0; i < salesdetails.length; i++) {
+            ll_pqty += salesdetails[i].val5.toInt();
+            ll_lqty += salesdetails[i].val7.toInt();
+            ll_amt += salesdetails[i].val8.toDouble();
+            ll_vat += salesdetails[i].val9.toDouble();
+            ll_tot += salesdetails[i].val10.toDouble();
+          }
         }
       });
     });
@@ -435,16 +466,65 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
                       }
                     },
                     cells: <DataCell>[
-                      DataCell(Text(rowList[index].val1.toString())),
-                      DataCell(Text(rowList[index].val2.toString())),
-                      DataCell(Text(rowList[index].val3.toString())),
-                      DataCell(Text(rowList[index].val4.toString())),
-                      DataCell(Text(rowList[index].val5.toString())),
-                      DataCell(Text(rowList[index].val6.toString())),
-                      DataCell(Text(rowList[index].val7.toString())),
-                      DataCell(Text(rowList[index].val8.toString())),
-                      DataCell(Text(rowList[index].val9.toString())),
-                      DataCell(Text(rowList[index].val10.toString())),
+                      //sno
+                      if (index != numItems - 1)
+                        DataCell(Text(rowList[index].val1.toString())),
+                      if (index == numItems - 1)
+                        DataCell(textBold("TOTAL")),
+                      //product code
+                      if (index != numItems - 1)
+                        DataCell(Text(rowList[index].val2.toString())),
+                      if (index == numItems - 1)
+                        DataCell(Text("")),
+                      //qty
+                      if (index != numItems - 1)
+                        DataCell(Text(rowList[index].val5.toString())),
+                      if (index == numItems - 1)
+                        DataCell(textBold(ll_pqty.toString())),
+                      //total
+                      if (index != numItems - 1)
+                        DataCell(Align(
+                            alignment: Alignment.centerRight,
+                            child: Text(getNumberFormat(rowList[index].val10)
+                                .toString()))),
+                      if (index == numItems - 1)
+                        DataCell(textBold(getNumberFormat(ll_tot).toString())),
+                      //prod name
+                      if (index != numItems - 1)
+                        DataCell(Text(rowList[index].val3.toString())),
+                      if (index == numItems - 1)
+                        DataCell(Text("")),
+                      //qtypuom
+
+                      if (index != numItems - 1)
+                        DataCell(Text(rowList[index].val5.toString() +
+                            " " +
+                            rowList[index].val4.toString())),
+                      if (index == numItems - 1)
+                        DataCell(textBold(ll_pqty.toString())),
+                      //qty_luom
+                      if (index != numItems - 1)
+                        DataCell(Text(rowList[index].val7.toString() +
+                            " " +
+                            rowList[index].val6.toString())),
+                      if (index == numItems - 1)
+                        DataCell(textBold(ll_lqty.toString())),
+                      //amt
+                      if (index != numItems - 1)
+                        DataCell(Align(
+                            alignment: Alignment.centerRight,
+                            child: Text(getNumberFormat(rowList[index].val8)
+                                .toString()))),
+                      if (index == numItems - 1)
+                        DataCell(textBold(getNumberFormat(ll_amt).toString())),
+                      //vat
+                      if (index != numItems - 1)
+                        DataCell(Align(
+                            alignment: Alignment.centerRight,
+                            child: Text(getNumberFormat(rowList[index].val9)
+                                .toString()))),
+                      if (index == numItems - 1)
+                        DataCell(textBold(getNumberFormat(ll_vat).toString())),
                     ]),
               ))),
     );
@@ -496,8 +576,8 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
     product.text = salesproduct[gs_list_index].val2.toString();
     product_name.text = salesproduct[gs_list_index].val1.toString();
     uppp = salesproduct[gs_list_index].uppp;
-    rate.text = "455";
-
+    rate.text = salesproduct[gs_list_index].val9.toString();
+    cost_rate = salesproduct[gs_list_index].cost_rate.toString();
     avl_qty = salesproduct[gs_list_index].val7.toString();
     bal_stk.text = "Available Qty " + avl_qty;
     // puom.text = salesproduct[gs_list_index].qty_puom.toString();
@@ -514,6 +594,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
     if (qty.text.isNotEmpty) {
       double _rate = double.parse(rate.text);
       var _amt = _qty * _rate;
+      amount = _qty * _rate;
       amt.text = getNumberFormat(_qty * _rate).toString();
       var _vat = (_rate * 0.05) * _qty;
       if (amt.text.isNotEmpty) vat.text = getNumberFormat(_vat).toString();
@@ -583,8 +664,12 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
           prod_update = true;
           print(prod_update);
           // clearFields();
+
+          _puom = salesmiddleList[0].puom.toString();
+          _luom = salesmiddleList[0].luom.toString();
           print(salesmiddleList.length.toString() + 'list Size');
           list_serial_no = serialno;
+          uppp = salesmiddleList[0].uppp;
           product.text = salesmiddleList[0].product_code.toString();
           product_name.text = salesmiddleList[0].product_name.toString();
           puom.text = salesmiddleList[0].qty_puom.toString();
@@ -605,6 +690,28 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
     });
   }
 
+  fields_calculate() {
+    String serial_no_zero;
+    serial_no.toString().length == 1
+        ? serial_no_zero = '0000'
+        : serial_no_zero = '000';
+    unit_price_amt = int.parse(rate.text);
+    net_price = unit_price_amt - 0; // disc_hdr_price=0
+    disc_price = ((unit_price_amt * gl_disc_perct) / 100);
+    lcur_amt = amount.toDouble() * gl_EX_rate;
+    lcur_amt_disc = lcur_amt;
+    tx_id_no = gs_srdoc_type +
+        "" +
+        doc_no.text +
+        "" +
+        serial_no_zero +
+        "" +
+        serial_no.toString();
+    tx_cmpt_amt = ((amount.toDouble() * tx_cmpt_perc) / 100);
+    tx_cmpt_lcur_amt = tx_cmpt_amt;
+    print("tx_id_no " + tx_id_no.toString());
+  }
+
   productInsert() async {
     if (product.text.isEmpty || qty.text.isEmpty || net_amt.text.isEmpty) {
       String _msg = "Empty";
@@ -615,9 +722,11 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
       vat.text = numberWithCommas(vat.text);
       net_amt.text = numberWithCommas(net_amt.text);
       if (luom.text.isEmpty) luom.text = '0';
-      getHDR();
+      getHDR(doc_no.text);
       updateHdr();
+      fields_calculate();
       var resp = await sr_product_insertion(
+          doc_no.text,
           serial_no,
           product.text,
           product_name.text,
@@ -625,13 +734,20 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
           puom.text,
           _luom,
           luom.text,
-          amt.text,
-          vat.text,
-          net_amt.text,
-          doc_no.text,
-          "DC",
+          uppp,
           qty.text,
-          rate.text,
+          unit_price_amt,
+          disc_price,
+          net_price,
+          net_amt.text,
+          amt.text,
+          cost_rate,
+          lcur_amt,
+          tx_id_no,
+          lcur_amt_disc,
+          tx_cmpt_perc,
+          tx_cmpt_amt,
+          tx_cmpt_lcur_amt,
           doc_type.text,
           ref_doc_no.text);
       if (resp == 1) {
@@ -655,22 +771,22 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
       vat.text = numberWithCommas(vat.text);
       net_amt.text = numberWithCommas(net_amt.text);
       if (luom.text.isEmpty) luom.text = '0';
-      updateHdr();
-      var resp = await product_updation(
+      fields_calculate();
+      var resp = await sr_product_updation(
           list_serial_no,
           doc_no.text,
           puom.text,
           luom.text,
           qty.text,
-          "net_price",
-          "disc_price",
-          "unit_price_amt",
-          "amount",
-          "lcur_amt",
-          "lcur_amt_disc",
-          "tx_cmpt_perc",
-          "tx_cmpt_amt",
-          "tx_cmpt_lcur_amt");
+          net_price,
+          disc_price,
+          unit_price_amt,
+          amount,
+          lcur_amt,
+          lcur_amt_disc,
+          tx_cmpt_perc,
+          tx_cmpt_amt,
+          tx_cmpt_lcur_amt);
       if (resp == 1) {
         setState(() {
           clearFields();
@@ -692,14 +808,18 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
         onChanged: (value) {
           setState(() {
             if (_text == 'QTY PUOM') {
-              if (int.parse(avl_qty) >= int.parse(puom.text))
-                productCalculate();
-              if (int.parse(avl_qty) < int.parse(puom.text)) {
-                alert(context, "Available Quantity " + avl_qty, Colors.orange);
-                amt.clear();
-                puom.clear();
-                vat.clear();
-                net_amt.clear();
+              if (prod_update == true) productCalculate();
+              if (prod_update == false) {
+                if (int.parse(avl_qty) >= int.parse(puom.text))
+                  productCalculate();
+                if (int.parse(avl_qty) < int.parse(puom.text)) {
+                  alert(
+                      context, "Available Quantity " + avl_qty, Colors.orange);
+                  amt.clear();
+                  puom.clear();
+                  vat.clear();
+                  net_amt.clear();
+                }
               }
             }
           });

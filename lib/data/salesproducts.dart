@@ -50,6 +50,7 @@ class SR_Productlist {
   var puom;
   var qty_luom;
   var qty_puom;
+  var cost_rate;
   var uppp;
   SR_Productlist.fromJsonSR(Map<String, dynamic> json) {
     val1 = json['PROD_NAME'];
@@ -60,6 +61,7 @@ class SR_Productlist {
     val3 = val7.toString() + " " + val8.toString();
     uppp = json['UPPP'];
     amt = json['AMOUNT'];
+    cost_rate = json['COST_RATE'];
     val4 = "Amount " + amt.toString();
     search = val1;
     puom = val8;
