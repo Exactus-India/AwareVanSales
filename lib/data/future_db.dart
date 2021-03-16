@@ -18,6 +18,7 @@ import 'receipt_data.dart';
 import 'stock_sum_data.dart';
 import 'stocktransfer.dart';
 
+String ip_port = "http://exactusnet.dyndns.org:4005/api";
 String gs_dndoc_type = 'DN90';
 String gs_srdoc_type = 'SR90';
 String gs_company_code = 'BSG';
@@ -44,7 +45,7 @@ responseerror(response) {
 }
 
 Future<List> getAllUserName() async {
-  var url = 'http://exactusnet.dyndns.org:4005/api/user';
+  var url = '${ip_port}/user';
   var response = await http.get(url);
   var jsonBody = response.body;
   var jsonData = json.decode(jsonBody.substring(0));
@@ -52,8 +53,7 @@ Future<List> getAllUserName() async {
 }
 
 Future<List> get_user_zonecode() async {
-  var url =
-      'http://exactusnet.dyndns.org:4005/api/user/zone_code/$gs_company_code/$gs_currentUser_empid';
+  var url = '${ip_port}/user/zone_code/$gs_company_code/$gs_currentUser_empid';
   var response = await http.get(url);
   var jsonBody = response.body;
   var jsonData = json.decode(jsonBody.substring(0));
@@ -61,7 +61,7 @@ Future<List> get_user_zonecode() async {
 }
 
 Future<List> getAllRouteName() async {
-  var url = 'http://exactusnet.dyndns.org:4005/api/routes';
+  var url = '${ip_port}/routes';
   var response = await http.get(url);
   var jsonBody = response.body;
   var jsonData = json.decode(jsonBody.substring(0));
@@ -69,8 +69,7 @@ Future<List> getAllRouteName() async {
 }
 
 Future<int> getSerialno(doc_no) async {
-  var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/serialno/$doc_no';
+  var url = '${ip_port}/sales/customerList/salesDN/serialno/$doc_no';
   var response = await http.get(url);
   var jsonBody = response.body;
   var jsonData = json.decode(jsonBody.substring(0));
@@ -80,7 +79,7 @@ Future<int> getSerialno(doc_no) async {
 }
 
 Future<int> getDNDocno() async {
-  var url = 'http://exactusnet.dyndns.org:4005/api/sales/customerList/DN/docno';
+  var url = '${ip_port}/sales/customerList/DN/docno';
   var response = await http.get(url);
   var jsonBody = response.body;
   var jsonData = json.decode(jsonBody.substring(0));
@@ -90,8 +89,7 @@ Future<int> getDNDocno() async {
 }
 
 Future<List> stock_summary() async {
-  var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/stocksummary/$gs_company_code';
+  var url = '${ip_port}/sales/customerList/stocksummary/$gs_company_code';
   var response = await http.get(url);
   var datas = List<StockSum>();
   if (response.statusCode == 200) {
@@ -105,7 +103,7 @@ Future<List> stock_summary() async {
 
 Future stock_summary_pro(datefrom, dateto) async {
   var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/stksum/$gs_company_code/$datefrom/$dateto/Z01';
+      '${ip_port}/sales/customerList/stksum/$gs_company_code/$datefrom/$dateto/Z01';
   var response = await http.get(url);
   var jsonBody = response.body;
   var jsonData = json.decode(jsonBody.substring(0));
@@ -114,7 +112,7 @@ Future stock_summary_pro(datefrom, dateto) async {
 
 Future sales_sum_pro(date, empid) async {
   var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/prosalessummary/$gs_company_code/$date/$empid';
+      '${ip_port}/sales/customerList/prosalessummary/$gs_company_code/$date/$empid';
   var response = await http.get(url);
   var jsonBody = response.body;
   var jsonData = json.decode(jsonBody.substring(0));
@@ -122,8 +120,7 @@ Future sales_sum_pro(date, empid) async {
 }
 
 Future<List<Salessum1>> sales_sum1() async {
-  var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salestype/summary01';
+  var url = '${ip_port}/sales/customerList/salestype/summary01';
   var response = await http.get(url);
   var datas = List<Salessum1>();
   if (response.statusCode == 200) {
@@ -136,8 +133,7 @@ Future<List<Salessum1>> sales_sum1() async {
 }
 
 Future<List<Salessum2>> sales_sum2() async {
-  var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salestype/summary02';
+  var url = '${ip_port}/sales/customerList/salestype/summary02';
   var response = await http.get(url);
   var datas = List<Salessum2>();
   if (response.statusCode == 200) {
@@ -153,7 +149,7 @@ Future<List<Salessum2>> sales_sum2() async {
 Future os_summary_pro() async {
   print(gs_date.toString());
   var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/proOS/Summary/$gs_company_code/25-JAN-2021';
+      '${ip_port}/sales/customerList/proOS/Summary/$gs_company_code/25-JAN-2021';
   var response = await http.get(url);
   var jsonBody = response.body;
   var jsonData = json.decode(jsonBody.substring(0));
@@ -161,8 +157,7 @@ Future os_summary_pro() async {
 }
 
 Future<List<Ossumm>> os_summary() async {
-  var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/OS/Summary/01';
+  var url = '${ip_port}/sales/customerList/OS/Summary/01';
   var response = await http.get(url);
   var datas = List<Ossumm>();
   if (response.statusCode == 200) {
@@ -240,8 +235,7 @@ Future product_insertion(
     "UNIT_PRICE": unit_price
   };
   var value = json.encode(data);
-  var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/insert';
+  var url = '${ip_port}/sales/customerList/salesDN/insert';
   var response = await http.post(url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8'
@@ -289,8 +283,7 @@ Future product_updation(
     "TX_COMPNT_LCUR_AMT_1": tx_cmpt_lcur_amt
   };
   var value = json.encode(data);
-  var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/update';
+  var url = '${ip_port}/sales/customerList/salesDN/update';
   var response = await http.put(url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8'
@@ -324,8 +317,7 @@ Future docno_insert(
     "CURR_CODE": gs_curr,
   };
   var value = json.encode(data);
-  var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/doc_no_insert';
+  var url = '${ip_port}/sales/customerList/salesDN/doc_no_insert';
   var response = await http.post(url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8'
@@ -350,8 +342,7 @@ Future dn_hdrUpdate(doc_no, sales_type, ref_no, remarks, serial_no) async {
     "LAST_DTL_SERIAL_NO": serial_no
   };
   var value = json.encode(data);
-  var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/hdr_update';
+  var url = '${ip_port}/sales/customerList/salesDN/hdr_update';
   var response = await http.put(url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8'
@@ -367,7 +358,7 @@ Future dn_hdrUpdate(doc_no, sales_type, ref_no, remarks, serial_no) async {
 
 Future<bool> salesDelete(serial_no, doc_no) async {
   var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/delete/$serial_no/$doc_no/$gs_company_code/$gs_dndoc_type';
+      '${ip_port}/sales/customerList/salesDN/delete/$serial_no/$doc_no/$gs_company_code/$gs_dndoc_type';
   var response = await http.delete(url);
   if (response.statusCode == 200) {
     return true;
@@ -378,7 +369,7 @@ Future<bool> salesDelete(serial_no, doc_no) async {
 
 Future<List> getAllSalesEntryDetails(doc_no) async {
   var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/DetailList/$gs_dndoc_type/$gs_company_code/$doc_no';
+      '${ip_port}/sales/customerList/salesDN/DetailList/$gs_dndoc_type/$gs_company_code/$doc_no';
   var response = await http.get(url);
   var datas = List<SalesDetail>();
   if (response.statusCode == 200) {
@@ -392,7 +383,7 @@ Future<List> getAllSalesEntryDetails(doc_no) async {
 
 Future<List> getAllSalesEntryDetails_1(doc_no) async {
   var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/DetailList/$gs_dndoc_type/$gs_company_code/$doc_no';
+      '${ip_port}/sales/customerList/salesDN/DetailList/$gs_dndoc_type/$gs_company_code/$doc_no';
   var response = await http.get(url);
   var jsonBody = response.body;
   var jsonData = json.decode(jsonBody.substring(0));
@@ -401,7 +392,7 @@ Future<List> getAllSalesEntryDetails_1(doc_no) async {
 
 Future<List> getAllSalesHDR(doc_no) async {
   var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/HDR/$gs_dndoc_type/$gs_company_code/$doc_no';
+      '${ip_port}/sales/customerList/salesDN/HDR/$gs_dndoc_type/$gs_company_code/$doc_no';
   var response = await http.get(url);
   var jsonBody = response.body;
   var jsonData = json.decode(jsonBody.substring(0));
@@ -410,7 +401,7 @@ Future<List> getAllSalesHDR(doc_no) async {
 
 Future<List> salesmiddile(docno, serialno) async {
   var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/Detail/$gs_dndoc_type/$gs_company_code/$docno/$serialno';
+      '${ip_port}/sales/customerList/salesDN/Detail/$gs_dndoc_type/$gs_company_code/$docno/$serialno';
   var response = await http.get(url);
   var datas = List<Salesmiddle>();
   if (response.statusCode == 200) {
@@ -423,8 +414,7 @@ Future<List> salesmiddile(docno, serialno) async {
 }
 
 Future<List> getAllProduct() async {
-  var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesDN/search';
+  var url = '${ip_port}/sales/customerList/salesDN/search';
   var response = await http.get(url);
   var datas = List<Productlist>();
   if (response.statusCode == 200) {
@@ -437,8 +427,7 @@ Future<List> getAllProduct() async {
 }
 
 Future<List<Customer>> customersaleslist() async {
-  var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/$gs_Route';
+  var url = '${ip_port}/sales/customerList/$gs_Route';
   var response = await http.get(url);
   var datas = List<Customer>();
   if (response.statusCode == 200) {
@@ -457,7 +446,7 @@ Future<List<Customer>> customersaleslist() async {
 
 Future<List<Sales>> saleslist(ac_code) async {
   var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesList/$gs_dndoc_type/$ac_code/$gs_currentUser_empid';
+      '${ip_port}/sales/customerList/salesList/$gs_dndoc_type/$ac_code/$gs_currentUser_empid';
   var response = await http.get(url);
   var datas = List<Sales>();
   if (response.statusCode == 200) {
@@ -475,7 +464,7 @@ Future<List<Sales>> saleslist(ac_code) async {
 }
 
 Future loginCheck(String uname, String pass) async {
-  var url = 'http://exactusnet.dyndns.org:4005/api/user/$uname/$pass';
+  var url = '${ip_port}/user/$uname/$pass';
   try {
     var response = await http.get(
       url,
@@ -506,8 +495,7 @@ Future loginCheck(String uname, String pass) async {
 }
 
 Future<List<Customer>> customersalesReturnlist() async {
-  var url =
-      'http://exactusnet.dyndns.org:4005/api/sales_return/customerList/$gs_Route';
+  var url = '${ip_port}/sales_return/customerList/$gs_Route';
   var response = await http.get(url);
   var datas = List<Customer>();
   if (response.statusCode == 200) {
@@ -526,7 +514,7 @@ Future<List<Customer>> customersalesReturnlist() async {
 
 Future<List<Sales>> salesReturnlist(ac_code) async {
   var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesListReturn/$gs_srdoc_type/$ac_code/$gs_currentUser_empid';
+      '${ip_port}/sales/customerList/salesListReturn/$gs_srdoc_type/$ac_code/$gs_currentUser_empid';
   var response = await http.get(url);
   var datas = List<Sales>();
   if (response.statusCode == 200) {
@@ -561,8 +549,7 @@ Future srno_insert(party_name, doc_no, sales_type, ref_no, ref_docno,
     "ref_doc_type": ref_doctype,
   };
   var value = json.encode(data);
-  var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesSR/doc_no_insert';
+  var url = '${ip_port}/sales/customerList/salesSR/doc_no_insert';
   var response = await http.post(url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8'
@@ -577,7 +564,7 @@ Future srno_insert(party_name, doc_no, sales_type, ref_no, ref_docno,
 }
 
 Future<int> getSRDocno() async {
-  var url = 'http://exactusnet.dyndns.org:4005/api/sales/customerList/SR/docno';
+  var url = '${ip_port}/sales/customerList/SR/docno';
   var response = await http.get(url);
   var jsonBody = response.body;
   var jsonData = json.decode(jsonBody.substring(0));
@@ -588,7 +575,7 @@ Future<int> getSRDocno() async {
 
 Future<List> sr_HDR(docno) async {
   var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesSR_return/HDR/$gs_srdoc_type/$gs_company_code/$docno';
+      '${ip_port}/sales/customerList/salesSR_return/HDR/$gs_srdoc_type/$gs_company_code/$docno';
   var response = await http.get(url);
   var jsonBody = response.body;
   var jsonData = json.decode(jsonBody.substring(0));
@@ -596,8 +583,7 @@ Future<List> sr_HDR(docno) async {
 }
 
 Future<int> getSRSerialno(doc_no) async {
-  var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesSR/serialno/$doc_no';
+  var url = '${ip_port}/sales/customerList/salesSR/serialno/$doc_no';
   var response = await http.get(url);
   var jsonBody = response.body;
   var jsonData = json.decode(jsonBody.substring(0));
@@ -673,8 +659,7 @@ Future sr_product_insertion(
     "ref_doc_no": ref_docno,
   };
   var value = json.encode(data);
-  var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesSR/insert';
+  var url = '${ip_port}/sales/customerList/salesSR/insert';
   var response = await http.post(url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8'
@@ -722,8 +707,7 @@ Future sr_product_updation(
     "TX_COMPNT_LCUR_AMT_1": tx_cmpt_lcur_amt
   };
   var value = json.encode(data);
-  var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesSR/prod_update';
+  var url = '${ip_port}/sales/customerList/salesSR/prod_update';
   var response = await http.put(url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8'
@@ -751,8 +735,7 @@ Future sr_hdr_update(doc_no, ref_no, salestype, ref_doctype, ref_docno,
     "REF_NO": ref_no
   };
   var value = json.encode(data);
-  var url =
-      'http://exactusnet.dyndns.org:4005/api/sales_return/customerList/salesSR/sr_hdr/update';
+  var url = '${ip_port}/sales_return/customerList/salesSR/sr_hdr/update';
   var response = await http.put(url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8'
@@ -768,7 +751,7 @@ Future sr_hdr_update(doc_no, ref_no, salestype, ref_doctype, ref_docno,
 
 Future<bool> sr_salesDelete(serial_no, doc_no) async {
   var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesSR/delete/$serial_no/$doc_no/$gs_company_code/$gs_srdoc_type';
+      '${ip_port}/sales/customerList/salesSR/delete/$serial_no/$doc_no/$gs_company_code/$gs_srdoc_type';
   var response = await http.delete(url);
   if (response.statusCode == 200) {
     return true;
@@ -779,7 +762,7 @@ Future<bool> sr_salesDelete(serial_no, doc_no) async {
 
 Future<List> getAllSalesSR_EntryDetails(doc_no) async {
   var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesSR_returnDetailList/$gs_srdoc_type/$gs_company_code/$doc_no';
+      '${ip_port}/sales/customerList/salesSR_returnDetailList/$gs_srdoc_type/$gs_company_code/$doc_no';
   var response = await http.get(url);
   var datas = List<SRSalesDetail>();
   if (response.statusCode == 200) {
@@ -793,7 +776,7 @@ Future<List> getAllSalesSR_EntryDetails(doc_no) async {
 
 Future<List> sr_salesmiddile(docno, serialno) async {
   var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesSR_return/middle/$gs_srdoc_type/$gs_company_code/$docno/$serialno';
+      '${ip_port}/sales/customerList/salesSR_return/middle/$gs_srdoc_type/$gs_company_code/$docno/$serialno';
   var response = await http.get(url);
   var datas = List<SRSalesmiddle>();
   if (response.statusCode == 200) {
@@ -807,7 +790,7 @@ Future<List> sr_salesmiddile(docno, serialno) async {
 
 Future<List> getAllSRProduct(ref_doc_type, ref_doc_no) async {
   var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/customerList/salesSR/product_search/$ref_doc_type/$gs_company_code/$ref_doc_no';
+      '${ip_port}/sales/customerList/salesSR/product_search/$ref_doc_type/$gs_company_code/$ref_doc_no';
   var response = await http.get(url);
   var datas = List<SR_Productlist>();
   if (response.statusCode == 200) {
@@ -820,8 +803,7 @@ Future<List> getAllSRProduct(ref_doc_type, ref_doc_no) async {
 }
 
 Future<List<Receipt>> receipt() async {
-  var url =
-      'http://exactusnet.dyndns.org:4005/api/sales/receipt/$gs_currentUser_empid';
+  var url = '${ip_port}/sales/receipt/$gs_currentUser_empid';
   var response = await http.get(url);
   var datas = List<Receipt>();
   if (response.statusCode == 200) {
@@ -839,7 +821,7 @@ Future<List<Receipt>> receipt() async {
 }
 
 Future<List<StockTransfer>> stocktransfer() async {
-  var url = 'http://exactusnet.dyndns.org:4005/api/sales/stock_transfer/STR';
+  var url = '${ip_port}/sales/stock_transfer/STR';
   var response = await http.get(url);
   var datas = List<StockTransfer>();
   if (response.statusCode == 200) {
