@@ -64,7 +64,6 @@ class _SalesEntryState extends State<SalesEntry> {
   var lcur_amt;
   var sign_ind = -1;
   var tx_id_no;
-  var zone_code;
   var lcur_amt_disc;
   var tx_cmpt_perc = 5;
   var tx_cmpt_amt;
@@ -382,7 +381,8 @@ class _SalesEntryState extends State<SalesEntry> {
                 if (index != numItems - 1)
                   DataCell(Align(
                       alignment: Alignment.centerRight,
-                      child: Text(rowList[index].val10.toString()))),
+                      child: Text(
+                          getNumberFormat(rowList[index].val10).toString()))),
                 if (index == numItems - 1)
                   DataCell(textBold(getNumberFormat(_tot).toString())),
                 //prod name
