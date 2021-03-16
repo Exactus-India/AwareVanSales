@@ -414,7 +414,7 @@ Future<List> salesmiddile(docno, serialno) async {
 }
 
 Future<List> getAllProduct() async {
-  var url = '${ip_port}/sales/customerList/salesDN/search';
+  var url = '${ip_port}/sales/customerList/salesDN/search_prod/$gs_zonecode';
   var response = await http.get(url);
   var datas = List<Productlist>();
   if (response.statusCode == 200) {
