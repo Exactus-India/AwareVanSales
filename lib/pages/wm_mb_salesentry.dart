@@ -265,7 +265,29 @@ class _SalesEntryState extends State<SalesEntry> {
   head() {
     return Container(
       child: Column(children: [
-        textField("Customer", customer, false, true, TextAlign.left),
+        Row(children: <Widget>[
+          Flexible(
+            flex: 3,
+            child: textField("Customer", customer, false, true, TextAlign.left),
+          ),
+          Flexible(
+            child: Padding(
+              padding: EdgeInsets.only(left: 10.0),
+              child: RaisedButton(
+                  onPressed: () {
+                    dnConfirmDirect(doc_no.text).then((value) {
+                      if (value == true) showToast('Confirmed Succesfully');
+                      if (value != true) showToast('Failed');
+                    });
+                  },
+                  color: Colors.green,
+                  child: Text(
+                    "CONFIRM",
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  )),
+            ),
+          ),
+        ]),
         SizedBox(height: 4),
         Row(children: <Widget>[
           Flexible(

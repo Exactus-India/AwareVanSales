@@ -865,3 +865,25 @@ Future<List> stocktransferDetailList(doc_no) async {
   }
   return datas;
 }
+
+Future dn_inv_pro(docno) async {
+  print(gs_date.toString());
+  var url =
+      '${ip_port}/sales/customerList/proOS/Summary/$gs_company_code/$gs_dndoc_type/$docno/$gl_Div_code';
+  var response = await http.get(url);
+  var jsonBody = response.body;
+  var jsonData = json.decode(jsonBody.substring(0));
+  return jsonData;
+}
+
+Future<bool> dnConfirmDirect(docno) async {
+  print(gs_date.toString());
+  var url =
+      '${ip_port}/sales/customerList/salesDN/pro_insert/$gs_company_code/$gs_dndoc_type/$docno/$gl_Div_code';
+  var response = await http.get(url);
+  if (response.statusCode == 200) {
+    return true;
+  } else {
+    return false;
+  }
+}
