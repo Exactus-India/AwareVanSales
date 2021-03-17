@@ -23,7 +23,7 @@ class _StocktransferState extends State<Stocktransfer> {
   void initState() {
     list();
     super.initState();
-    new Timer(const Duration(milliseconds: 300), () {
+    new Timer(const Duration(milliseconds: 200), () {
       setState(() {
         _timer_ = true;
       });
@@ -34,17 +34,16 @@ class _StocktransferState extends State<Stocktransfer> {
 
   list() {
     stocktransfer().then((value) {
+      print("STock Transfer Report");
       setState(() {
-        print("STock Transfer Report");
         _datas.clear();
         _datas.addAll(value);
-        if (_datas.isNotEmpty) {
-          _datasForDisplay = _datas;
-        }
+        _datasForDisplay = _datas;
         length = 0;
         length = _datas.length;
-        print(gs_ac_code + '....' + gs_party_address);
+        print(length);
       });
+      print(gs_ac_code + '....' + gs_party_address);
     });
   }
 
