@@ -1,10 +1,10 @@
-import 'package:aware_van_sales/wigdets/dataTable_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
+import '../wigdets/dataTable_widget.dart';
 import '../data/future_db.dart';
 import '../wigdets/widgets.dart';
 import 'wm_mb_LoginPage.dart';
-import 'package:intl/intl.dart';
 
 class StockSummary extends StatefulWidget {
   @override
@@ -17,16 +17,16 @@ String formatter = DateFormat('yMd').format(now);
 class _StockSummaryState extends State<StockSummary> {
   List stockreport = List();
   List column = [
-    "PRODUCT CODE",
-    "OPENING STOCK",
-    "QTY IN",
-    "QTY OUT",
-    "CLOSING STOCK"
+    "PRODUCT",
+    "OPENING\nSTOCK",
+    "QTY\nIN",
+    "QTY\nOUT",
+    "CLOSING\nSTOCK"
   ];
 
   @override
   void initState() {
-    stock_summary_pro(gs_date, gs_date)
+    stock_summary_pro(gs_date, gs_date_to)
         .then((value) => stock_summary().then((value) {
               setState(() {
                 stockreport.addAll(value);
@@ -60,7 +60,7 @@ class _StockSummaryState extends State<StockSummary> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Stock Report (All)",
+                  "Stock Report (${gs_zonecode})",
                   style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(
@@ -69,7 +69,12 @@ class _StockSummaryState extends State<StockSummary> {
                 text("User: " + gs_currentUser, Colors.black),
                 text("Date: " + formatter, Colors.black),
                 if (stockreport.isNotEmpty)
-                  WidgetdataTable(column: column, row: stockreport),
+                  WidgetdataTable(
+                      column: column,
+                      row: stockreport,
+                      col_space: 15.0,
+                      data_r_height: 50.0,
+                      head_r_height: 35.0),
               ],
             ),
           ),
