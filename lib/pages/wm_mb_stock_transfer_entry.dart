@@ -37,10 +37,8 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
     "SNO",
     "PROD CODE",
     "PROD NAME",
-    "PUOM",
-    "QTY\nPUOM",
-    "LUOM",
-    "QTY\nLUOM",
+    "QTY PUOM",
+    "QTY LUOM",
   ];
 
   @override
@@ -116,7 +114,7 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
 
   head() {
     return Padding(
-      padding: EdgeInsets.only(left: 14, right: 14),
+      padding: EdgeInsets.only(left: 10, right: 10),
       child: Column(
         children: [
           Row(
@@ -147,19 +145,10 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
 
   middle() {
     return Padding(
-      padding: EdgeInsets.only(left: 14, right: 14),
+      padding: EdgeInsets.only(left: 10, right: 10),
       child: Column(
         children: [
           product_row("ProductCode", prod_code),
-          // Row(children: [
-          //   Flexible(
-          //     child: textField("ProductCode", prod_code,
-          //         prod_code == null ? true : false, false, TextAlign.left),
-          //   ),
-          //   SizedBox(width: 10),
-          //   Flexible(
-          //       child: IconButton(icon: Icon(Icons.search), onPressed: () {})),
-          // ]),
           textField("ProductName", prod_name, prod_code == null ? true : false,
               false, TextAlign.left),
           Row(children: <Widget>[
@@ -180,7 +169,6 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
                   child: textField(
                       "QTY LUOM", qty_luom, false, false, TextAlign.end)),
           ]),
-
           Row(
             children: [
               Flexible(
@@ -224,7 +212,7 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
           dataTable: DataTable(
               headingRowHeight: 35.0,
               dataRowHeight: 35,
-              columnSpacing: 10.0,
+              columnSpacing: 15.0,
               showCheckboxColumn: false,
               columns: [
                 for (int i = 0; i <= column.length - 1; i++)
@@ -246,13 +234,15 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
                               style: TextStyle(fontSize: 11))),
                           DataCell(Text(rowList[index].val3.toString(),
                               style: TextStyle(fontSize: 11))),
-                          DataCell(Text(rowList[index].val4.toString(),
+                          DataCell(Text(
+                              rowList[index].val5.toString() +
+                                  " " +
+                                  rowList[index].val4.toString(),
                               style: TextStyle(fontSize: 11))),
-                          DataCell(Text(rowList[index].val5.toString(),
-                              style: TextStyle(fontSize: 11))),
-                          DataCell(Text(rowList[index].val6.toString(),
-                              style: TextStyle(fontSize: 11))),
-                          DataCell(Text(rowList[index].val7.toString(),
+                          DataCell(Text(
+                              rowList[index].val7.toString() +
+                                  " " +
+                                  rowList[index].val6.toString(),
                               style: TextStyle(fontSize: 11))),
                         ],
                       )))),
