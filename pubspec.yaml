@@ -31,7 +31,7 @@ dependencies:
   pdf: ^1.11.2  
   ext_storage: any
   printing: ^3.7.1
-  flutter_filereader: ^1.0.0
+  flutter_filereader: ^2.2.0
   open_file: ^2.1.1
   permission_handler: ^4.4.0
   # The following adds the Cupertino Icons font to your application.
