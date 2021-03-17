@@ -110,7 +110,18 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
                       ),
                     ),
                     SizedBox(height: 30.0),
-                    loginButton()
+                    loginButton(),
+                    textTitle(
+                        '\u00a9 1998-2020 Exactus Inc',
+                        'ver 21.03.17.01',
+                        Colors.black,
+                        Colors.black,
+                        11.0,
+                        11.0,
+                        TextAlign.center,
+                        200.0,
+                        50.0,
+                        0.0)
                   ],
                 ),
               ),

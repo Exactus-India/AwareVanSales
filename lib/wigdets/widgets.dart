@@ -114,3 +114,34 @@ getNumberFormat(number) {
 numberWithCommas(x) {
   return x.toString().replaceAll(',', '');
 }
+
+textTitle(
+    _text1, _text2, clr1, clr2, tsize1, tsize2, talign, cwidth, cheight, pval) {
+  return Container(
+    padding: EdgeInsets.only(top: pval),
+    child: Center(
+      child: Container(
+        height: cheight,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            text_1(_text1, clr1, tsize1, talign),
+            text_1(_text2, clr2, tsize2, talign)
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+text_1(_text, clr, size, talign) {
+  return Text(
+    _text,
+    textAlign: talign,
+    style: TextStyle(
+        fontFamily: 'Montserrat',
+        fontSize: size,
+        fontWeight: FontWeight.bold,
+        color: clr),
+  );
+}
