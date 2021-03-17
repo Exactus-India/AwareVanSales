@@ -1,14 +1,22 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:aware_van_sales/data/constants.dart';
 import 'package:aware_van_sales/data/future_db.dart';
 import 'package:aware_van_sales/wigdets/alert.dart';
-import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:custom_datatable/custom_datatable.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:open_file/open_file.dart';
+import 'package:pdf/pdf.dart';
+
+import 'package:printing/printing.dart';
+import 'package:pdf/widgets.dart' as pdfLib;
+import 'package:ext_storage/ext_storage.dart';
 
 import '../wigdets/listing_Builder.dart';
 import '../wigdets/widgets.dart';
+import 'wm_mb_LoginPage.dart';
 
 class SalesEntry extends StatefulWidget {
   final doc_no;
@@ -68,11 +76,13 @@ class _SalesEntryState extends State<SalesEntry> {
   var tx_cmpt_perc = 5;
   var tx_cmpt_amt;
   var tx_cmpt_lcur_amt;
+  var doc_date;
   int _pqty = 0;
   int _lqty = 0;
   double _amt = 0;
   double _vat = 0;
   double _tot = 0;
+  double _netvatamt = 0;
   bool prod_update = false;
   bool details_list = false;
 
@@ -124,6 +134,9 @@ class _SalesEntryState extends State<SalesEntry> {
           remarks.text = salesHDR[0]['REMARKS'].toString();
         var doc = salesHDR[0]['DOC_NO'].toString();
         if (doc != 'null') doc_no.text = doc.toString();
+        var date = salesHDR[0]['DOC_DATE'];
+        doc_date = date.toString().split('T')[0];
+        print(doc_date + " doc_date");
         var ref = salesHDR[0]['REF_NO'];
         var sn_no = salesHDR[0]['LAST_DTL_SERIAL_NO'];
         if (sn_no == null || sn_no == 0) sn_no = 0;
@@ -217,6 +230,17 @@ class _SalesEntryState extends State<SalesEntry> {
               },
               child: Icon(Icons.delete)),
           SizedBox(width: 20.0),
+          PopupMenuButton<String>(
+            onSelected: choiceAction,
+            itemBuilder: (BuildContext context) {
+              return Constants.choices.map((String choice) {
+                return PopupMenuItem<String>(
+                  value: choice,
+                  child: Text(choice),
+                );
+              }).toList();
+            },
+          ),
         ],
       ),
       body: new Padding(
@@ -800,5 +824,156 @@ class _SalesEntryState extends State<SalesEntry> {
     puom.clear();
     luom.clear();
     bal_stk.clear();
+  }
+
+  _generatePdfAndView(String choice) async {
+    final pdf = pdfLib.Document();
+    String now = DateFormat("dd-MM-yyyy hh:mm:ss").format(DateTime.now());
+    // ignore: deprecated_member_use
+    final PdfImage assetImage = await pdfImageFromImageProvider(
+      pdf: pdf.document,
+      image: const AssetImage('assets/exactus_logo.png'),
+    );
+    // final image = pdfLib.MemoryImage(
+    //   File('assets/exactus_logo.png').readAsBytesSync(),
+    // );
+
+    // PdfImage logoImage = await pdfImageFromImageProvider(
+    //     pdf: pdf.document, image: AssetImage('assets/exactus_logo.png'));
+    // pdfLib.Image.provider(image)
+    pdf.addPage(
+      pdfLib.MultiPage(
+        header: (context) {
+          pdfLib.Text(now);
+          return pdfLib.Row(children: [
+            pdfLib.ClipRRect(
+                child: pdfLib.Container(
+                    // ignore: deprecated_member_use
+                    child: pdfLib.Image(assetImage),
+                    width: 150)),
+            pdfLib.SizedBox(width: 15.0),
+            pdfLib.Column(
+                crossAxisAlignment: pdfLib.CrossAxisAlignment.start,
+                children: [
+                  pdfLib.Text(
+                    "BMK",
+                    style: pdfLib.TextStyle(
+                        fontSize: 18.0, fontWeight: pdfLib.FontWeight.bold),
+                  ),
+                  pdfLib.Text("Address :" + widget.party_address),
+                  pdfLib.Text("Phn"),
+                  pdfLib.Text("tr_no"),
+                ])
+          ]);
+        },
+        build: (context) => [
+          pdfLib.SizedBox(height: 15.0),
+          pdfLib.Center(
+            child: pdfLib.Column(
+                crossAxisAlignment: pdfLib.CrossAxisAlignment.center,
+                // mainAxisAlignment: pdfLib.MainAxisAlignment.center,
+                children: [
+                  // pdfLib.Align(alignment:  ),
+                  pdfLib.Text("TAX INVOICE "),
+                ]),
+          ),
+          pdfLib.SizedBox(height: 10.0),
+          pdfLib.Column(
+              crossAxisAlignment: pdfLib.CrossAxisAlignment.start,
+              children: [
+                pdfLib.Text("Doc No: " + widget.doc_no),
+                pdfLib.Row(
+                    mainAxisAlignment: pdfLib.MainAxisAlignment.spaceBetween,
+                    children: [
+                      pdfLib.Text("Doc Date: " + doc_date),
+                      pdfLib.Text("Ref No " + ref_no.text),
+                    ]),
+                pdfLib.Row(
+                    mainAxisAlignment: pdfLib.MainAxisAlignment.spaceBetween,
+                    children: [
+                      pdfLib.Text("Customer: " + widget.ac_name),
+                      pdfLib.Text("Sale Tyoe: " + selectedtype),
+                    ]),
+                pdfLib.Text("Salesman Name: " + gs_currentUser),
+              ]),
+          pdfLib.SizedBox(height: 20.0),
+          pdfLib.Table.fromTextArray(context: context, data: <List<dynamic>>[
+            <String>['SNo', 'Product', 'Quantity', 'Rate', 'Amount'],
+            ...salesdetails.map((item) => [
+                  item.val1.toString(),
+                  item.val2.toString() + "\n" + item.val3.toString(),
+                  item.val5.toString() +
+                      " " +
+                      item.val4.toString() +
+                      " " +
+                      item.val7.toString() +
+                      " " +
+                      item.val6.toString(),
+                  getNumberFormat(item.val11).toString(),
+                  getNumberFormat(item.val10).toString(),
+                ])
+          ]),
+          pdfLib.SizedBox(height: 10.0),
+          pdfLib.Container(
+            width: double.infinity,
+            child:
+                pdfLib.Column(crossAxisAlignment: pdfLib.CrossAxisAlignment.end,
+                    // mainAxisAlignment: pdfLib.MainAxisAlignment.end,
+                    children: [
+                  pdfLib.Text(
+                    "Amount(VAT Exclusive) :" +
+                        getNumberFormat(_amt).toString(),
+                    style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
+                  ),
+                  pdfLib.Text(
+                    "VAT:   " + getNumberFormat(_vat).toString(),
+                    style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
+                  ),
+                  pdfLib.Text(
+                    "Amount(VAT Inclusive) :" +
+                        getNumberFormat(_tot).toString(),
+                    style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
+                  ),
+                ]),
+          ),
+          // pdfLib.SizedBox(height: 320.0),
+
+          // pdfLib.Footer()
+        ],
+        footer: (context) {
+          return pdfLib.Column(
+              crossAxisAlignment: pdfLib.CrossAxisAlignment.start,
+              children: [
+                pdfLib.Row(
+                    mainAxisAlignment: pdfLib.MainAxisAlignment.spaceBetween,
+                    children: [
+                      pdfLib.Text("Issued by: " + "BMK"),
+                      pdfLib.Text("Received By: " + widget.ac_name),
+                    ]),
+                pdfLib.Text("Salesman name: " + gs_currentUser),
+                pdfLib.Text("Today: " + gs_date),
+              ]);
+        },
+      ),
+    );
+    var path = await ExtStorage.getExternalStoragePublicDirectory(
+        ExtStorage.DIRECTORY_DOWNLOADS);
+    print(path);
+    String fileName = "/SALES-" + widget.doc_no + ".pdf";
+    final File file = File(path + fileName);
+    // if (choice == Constants.DownloadPdf) await file.writeAsBytes(pdf.save());
+    // if (choice == Constants.DownloadPdf) showToast("Downloaded to $path");
+    if (choice == Constants.ViewPdf)
+      Printing.layoutPdf(onLayout: (PdfPageFormat format) async => pdf.save());
+    if (choice == Constants.SharePdf)
+      await Printing.sharePdf(bytes: pdf.save(), filename: fileName);
+  }
+
+  void choiceAction(String choice) {
+    if (choice == Constants.ViewPdf) {
+      _generatePdfAndView(choice);
+    } else {
+      _generatePdfAndView(choice);
+    }
   }
 }

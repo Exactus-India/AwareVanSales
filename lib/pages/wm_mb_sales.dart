@@ -130,15 +130,18 @@ class _SalesListState extends State<SalesList> {
               var doc_no = _datasForDisplay[index].param1.toString();
               var partyaddress = _datasForDisplay[index].param2.toString();
               var ac_name = _datasForDisplay[index].val8.toString();
+              var salestype = _datasForDisplay[index].val3.toString();
+              var doc_date = _datasForDisplay[index].val1.toString();
               // var last_dn_serialno=_datasForDisplay[index].val12.toString();
               Navigator.push(
                   context,
                   MaterialPageRoute(
                       builder: (context) => SalesEntry(
-                          doc_no: doc_no,
-                          party_address: partyaddress,
-                          ac_code: gs_ac_code,
-                          ac_name: ac_name))).then((value) {
+                            doc_no: doc_no,
+                            party_address: partyaddress,
+                            ac_code: gs_ac_code,
+                            ac_name: ac_name,
+                          ))).then((value) {
                 setState(() {
                   _searchBar();
                   list();
