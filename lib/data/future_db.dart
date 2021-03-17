@@ -14,6 +14,7 @@ import './User_data.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+import 'ST_DetailList.dart';
 import 'receipt_data.dart';
 import 'stock_sum_data.dart';
 import 'stocktransfer.dart';
@@ -21,6 +22,7 @@ import 'stocktransfer.dart';
 String ip_port = "http://exactusnet.dyndns.org:4005/api";
 String gs_dndoc_type = 'DN90';
 String gs_srdoc_type = 'SR90';
+String gs_strdoc_type = 'STR';
 String gs_company_code = 'BSG';
 String gs_curr = 'AED';
 String gs_dept_code = 'DC';
@@ -381,14 +383,14 @@ Future<List> getAllSalesEntryDetails(doc_no) async {
   return datas;
 }
 
-Future<List> getAllSalesEntryDetails_1(doc_no) async {
-  var url =
-      '${ip_port}/sales/customerList/salesDN/DetailList/$gs_dndoc_type/$gs_company_code/$doc_no';
-  var response = await http.get(url);
-  var jsonBody = response.body;
-  var jsonData = json.decode(jsonBody.substring(0));
-  return jsonData;
-}
+// Future<List> getAllSalesEntryDetails_1(doc_no) async {
+//   var url =
+//       '${ip_port}/sales/customerList/salesDN/DetailList/$gs_dndoc_type/$gs_company_code/$doc_no';
+//   var response = await http.get(url);
+//   var jsonBody = response.body;
+//   var jsonData = json.decode(jsonBody.substring(0));
+//   return jsonData;
+// }
 
 Future<List> getAllSalesHDR(doc_no) async {
   var url =
@@ -821,7 +823,7 @@ Future<List<Receipt>> receipt() async {
 }
 
 Future<List<StockTransfer>> stocktransfer() async {
-  var url = '${ip_port}/sales/stock_transfer/STR';
+  var url = '${ip_port}/sales/stock_transfer/$gs_strdoc_type';
   var response = await http.get(url);
   var datas = List<StockTransfer>();
   if (response.statusCode == 200) {
@@ -830,6 +832,34 @@ Future<List<StockTransfer>> stocktransfer() async {
       datas.add(StockTransfer.fromJson(dataJson));
     }
   }
+  datas.sort((a, b) {
+    var ab = a.val4;
+    var ba = b.val4;
+    return ab.compareTo(ba);
+  });
 
+  return datas;
+}
+
+Future<List> str_HDR(docno) async {
+  var url =
+      '${ip_port}/sales/stock_transfer/header/$gs_company_code/$gs_strdoc_type/$docno';
+  var response = await http.get(url);
+  var jsonBody = response.body;
+  var jsonData = json.decode(jsonBody.substring(0));
+  return jsonData;
+}
+
+Future<List> stocktransferDetailList(doc_no) async {
+  print(doc_no + "future");
+  var url = '${ip_port}/sales/stock_transfer/last/$gs_company_code/STR/$doc_no';
+  var response = await http.get(url);
+  var datas = List<ST_detail_list>();
+  if (response.statusCode == 200) {
+    Object datasJson = json.decode(response.body.substring(0));
+    for (var dataJson in datasJson) {
+      datas.add(ST_detail_list.fromJson(dataJson));
+    }
+  }
   return datas;
 }
