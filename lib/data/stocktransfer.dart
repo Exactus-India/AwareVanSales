@@ -9,6 +9,7 @@ class StockTransfer {
   var param2;
   var param3;
   var param4;
+  var search;
 
   StockTransfer.fromJson(Map<String, dynamic> json) {
     val1 = json['DOC_DATE'].toString().split('T')[0];
@@ -16,7 +17,8 @@ class StockTransfer {
     val5 = json['FROM_ZONE_NAME'];
     val6 = json['TO_ZONE_NAME'];
     param1 = json['DOC_NO'];
-    param3 = json['FROM_ZONE_NAME'];
-    param4 = json['TO_ZONE_NAME'];
+    param2 = json['FROM_ZONE_NAME'];
+    param3 = json['TO_ZONE_NAME'];
+    search = val4;
   }
 }
