@@ -852,38 +852,3 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
     bal_stk.clear();
   }
 }
-
-// selectListItem(serialno) {
-//   return salesmiddile(ref_doc_no.text, serialno).then((value) {
-//     new Timer(const Duration(milliseconds: 300), () {
-//       setState(() {
-//         salesproduct.clear();
-//         salesproduct.addAll(value);
-//         print("object");
-//         if (gs_list_index != null) {
-//           prod_update = false;
-//           gs_sales_param1 != null ? getSerialno_fun() : serial_no = 1;
-//           print(serial_no.toString() + "in new");
-//           print(prod_update);
-//         }
-//         middle_view = true;
-//         print(salesproduct.length.toString() + 'list Size');
-//         serial_no = serialno;
-//         product.text = salesproduct[0].product_code.toString();
-//         product_name.text = salesproduct[0].product_name.toString();
-//         puom.text = salesproduct[0].qty_puom.toString();
-//         luom.text = salesproduct[0].qty_luom.toString();
-//         rate.text = salesproduct[0].unit_price.toString();
-//         amt.text = salesproduct[0].amount.toString();
-//         vat.text = salesproduct[0].vat.toString();
-//         var n_amt = double.parse(amt.text) + double.parse(vat.text);
-//         net_amt.text = n_amt.toString();
-//         // net_amt.text =
-//         //     (double.parse(amt.text) + double.parse(vat.text)).toString();
-//         qty.text = salesproduct[0].tot_qty.toString();
-
-//         print(serial_no.toString() + "*");
-//       });
-//     });
-//   });
-// }

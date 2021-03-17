@@ -461,6 +461,7 @@ class _SalesEntryState extends State<SalesEntry> {
             child: SizedBox(
                 height: 30,
                 child: IconButton(
+                  padding: EdgeInsets.only(left: 30.0),
                   iconSize: 25.0,
                   alignment: Alignment.center,
                   onPressed: () {
