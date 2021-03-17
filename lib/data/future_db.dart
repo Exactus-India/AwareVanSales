@@ -36,6 +36,8 @@ int gl_tx_comcat_amt = 13100;
 int gl_tx_compt_hdisc_amt = 0;
 int gl_tx_compt_hdisc_lcur_amt = 0;
 var gs_date = DateFormat("dd-MMM-yyyy").format(DateTime.now());
+var gs_date_to =
+    DateFormat("dd-MMM-yyyy").format(DateTime.now().add(Duration(days: 1)));
 
 responseerror(response) {
   String str = response.body;
@@ -105,7 +107,7 @@ Future<List> stock_summary() async {
 
 Future stock_summary_pro(datefrom, dateto) async {
   var url =
-      '${ip_port}/sales/customerList/stksum/$gs_company_code/$datefrom/$dateto/Z01';
+      '${ip_port}/sales/customerList/stksum/$gs_company_code/$datefrom/$dateto/$gs_zonecode';
   var response = await http.get(url);
   var jsonBody = response.body;
   var jsonData = json.decode(jsonBody.substring(0));
