@@ -626,7 +626,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
             setState(() {
               print(value.toString() + '.....');
               if (value == null)
-                doc_no.text = ls_mth_code.toString() + "00001";
+                doc_no.text = ls_mth_code.toString() + "0001";
               else {
                 var docno = value.toInt() + 1;
                 doc_no.text = docno.toString();
