@@ -145,3 +145,12 @@ text_1(_text, clr, size, talign) {
         color: clr),
   );
 }
+
+String newDocNo() {
+  var doc_no;
+  var ls_date = DateFormat("dd/MM/yyyy").format(DateTime.now()).toString();
+  var ls_mth_code = ls_date[6] + ls_date[8] + ls_date[9];
+  ls_mth_code = ls_mth_code + "10";
+  doc_no = ls_mth_code.toString() + "0001";
+  return doc_no;
+}

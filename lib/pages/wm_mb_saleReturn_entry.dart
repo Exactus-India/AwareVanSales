@@ -617,16 +617,12 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
   }
 
   generate_docno() {
-    var ls_date = DateFormat("dd/MM/yyyy").format(DateTime.now()).toString();
-    var ls_mth_code = ls_date[6] + ls_date[8] + ls_date[9];
-    ls_mth_code = ls_mth_code + "10";
     return GestureDetector(
         onTap: () {
-          getSRDocno().then((value) {
+          getDNDocno().then((value) {
             setState(() {
-              print(value.toString() + '.....');
               if (value == null)
-                doc_no.text = ls_mth_code.toString() + "0001";
+                doc_no.text = newDocNo();
               else {
                 var docno = value.toInt() + 1;
                 doc_no.text = docno.toString();
