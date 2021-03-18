@@ -809,7 +809,7 @@ class _SalesEntryState extends State<SalesEntry> {
         onTap: () {
           getDNDocno().then((value) {
             setState(() {
-              if (value == null) doc_no.text = ls_mth_code.toString() + "1001";
+              if (value == null) doc_no.text = ls_mth_code.toString() + "0001";
               if (value != null) {
                 var docno = value.toInt() + 1;
                 doc_no.text = docno.toString();
