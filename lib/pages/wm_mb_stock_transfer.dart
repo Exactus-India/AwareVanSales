@@ -43,7 +43,6 @@ class _StocktransferState extends State<Stocktransfer> {
         length = _datas.length;
         print(length);
       });
-      print(gs_ac_code + '....' + gs_party_address);
     });
   }
 

@@ -1,19 +1,19 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:aware_van_sales/data/os_summ.dart';
-import 'package:aware_van_sales/data/sales_Middle.dart';
-import 'package:aware_van_sales/data/sales_detailList.dart';
-import 'package:aware_van_sales/data/salesproducts.dart';
-import 'package:aware_van_sales/data/sales_customer.dart';
-import 'package:aware_van_sales/data/salessum.dart';
-import 'package:aware_van_sales/data/sr_entrydetails.dart';
-import 'package:aware_van_sales/pages/wm_mb_LoginPage.dart';
-import 'package:aware_van_sales/pages/wm_mb_sales.dart';
-import 'package:intl/intl.dart';
-import './User_data.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+import 'os_summ.dart';
+import 'sales_Middle.dart';
+import 'sales_detailList.dart';
+import 'salesproducts.dart';
+import 'sales_customer.dart';
+import 'salessum.dart';
+import 'sr_entrydetails.dart';
+import '../pages/wm_mb_LoginPage.dart';
+import '../pages/wm_mb_sales.dart';
+import 'package:intl/intl.dart';
+import './User_data.dart';
 import 'ST_DetailList.dart';
 import 'receipt_data.dart';
 import 'stock_sum_data.dart';
@@ -36,6 +36,7 @@ int gl_tx_comcat_amt = 13100;
 int gl_tx_compt_hdisc_amt = 0;
 int gl_tx_compt_hdisc_lcur_amt = 0;
 var gs_date = DateFormat("dd-MMM-yyyy").format(DateTime.now());
+var gs_date_login = DateFormat("yy.MM.dd").format(DateTime.now());
 var gs_date_to =
     DateFormat("dd-MMM-yyyy").format(DateTime.now().add(Duration(days: 1)));
 
@@ -58,6 +59,14 @@ Future<List> getAllUserName() async {
 
 Future<List> get_user_zonecode() async {
   var url = '${ip_port}/user/zone_code/$gs_company_code/$gs_currentUser_empid';
+  var response = await http.get(url);
+  var jsonBody = response.body;
+  var jsonData = json.decode(jsonBody.substring(0));
+  return jsonData;
+}
+
+Future<List> get_ST_zone() async {
+  var url = '${ip_port}/zoneto';
   var response = await http.get(url);
   var jsonBody = response.body;
   var jsonData = json.decode(jsonBody.substring(0));
@@ -866,18 +875,7 @@ Future<List> stocktransferDetailList(doc_no) async {
   return datas;
 }
 
-Future dn_inv_pro(docno) async {
-  print(gs_date.toString());
-  var url =
-      '${ip_port}/sales/customerList/proOS/Summary/$gs_company_code/$gs_dndoc_type/$docno/$gl_Div_code';
-  var response = await http.get(url);
-  var jsonBody = response.body;
-  var jsonData = json.decode(jsonBody.substring(0));
-  return jsonData;
-}
-
 Future<bool> dnConfirmDirect(docno) async {
-  print(gs_date.toString());
   var url =
       '${ip_port}/sales/customerList/salesDN/pro_insert/$gs_company_code/$gs_dndoc_type/$docno/$gl_Div_code';
   var response = await http.get(url);
