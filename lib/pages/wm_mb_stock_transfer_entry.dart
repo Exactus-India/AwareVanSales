@@ -1,5 +1,4 @@
 import 'package:aware_van_sales/data/future_db.dart';
-import 'package:aware_van_sales/wigdets/alert.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:custom_datatable/custom_datatable.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +30,10 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
   final TextEditingController bal_stock = TextEditingController();
   List strHDR = List();
   List st_detailList = List();
+  List zone_list = List();
+  List zonefrom_list = List();
+  String selectedZonefrom;
+  String selectedZoneto;
   bool doc_generate = false;
   var serial_no;
   List column = [
@@ -48,6 +51,11 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
     if (widget.doc_no == null) {
       serial_no = 1;
     }
+    get_ST_zone().then((value) {
+      setState(() {
+        zone_list.addAll(value);
+      });
+    });
     if (widget.doc_no != null) getHDR(widget.doc_no);
     super.initState();
   }
@@ -79,6 +87,42 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
         print(st_detailList.length);
       });
     });
+  }
+
+  dropDown_zone_to() {
+    return DropdownButton(
+        isExpanded: true,
+        value: selectedZoneto,
+        hint: Text('zone to'),
+        items: zone_list.map((list) {
+          return DropdownMenuItem(
+              child: Text(list['ZONE_NAME']),
+              value: list['ZONE_CODE'].toString());
+        }).toList(),
+        onChanged: (value) {
+          setState(() {
+            selectedZoneto = value;
+          });
+          print(selectedZoneto);
+        });
+  }
+
+  dropDown_zone_from() {
+    return DropdownButton(
+        isExpanded: true,
+        value: selectedZonefrom,
+        hint: Text('zone from '),
+        items: zone_list.map((list) {
+          return DropdownMenuItem(
+              child: Text(list['ZONE_NAME']),
+              value: list['ZONE_CODE'].toString());
+        }).toList(),
+        onChanged: (value) {
+          setState(() {
+            selectedZonefrom = value;
+          });
+          print(selectedZonefrom);
+        });
   }
 
   @override
@@ -131,11 +175,17 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
             ],
           ),
           SizedBox(height: 4),
-          textField("Zone From", zone_from, zone_to == null ? true : false,
-              false, TextAlign.left),
+          // widget.doc_no == null
+          //     ?
+          dropDown_zone_from(),
+          // : textField("Zone From", zone_from,
+          //     zone_to == null ? true : false, false, TextAlign.left),
           SizedBox(height: 4),
-          textField("Zone To", zone_to, zone_to == null ? true : false, false,
-              TextAlign.left),
+          // widget.doc_no == null
+          //     ?
+          dropDown_zone_to(),
+          // : textField("Zone To", zone_to, zone_to == null ? true : false,
+          //     false, TextAlign.left),
           SizedBox(height: 4),
           textField("REMARKS", remarks, false, false, TextAlign.left),
         ],
