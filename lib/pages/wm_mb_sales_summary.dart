@@ -1,9 +1,9 @@
-import 'package:aware_van_sales/wigdets/listing_Builder.dart';
-import 'package:aware_van_sales/wigdets/widget_litView_row.dart';
-import 'package:aware_van_sales/wigdets/widget_rowData.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../wigdets/listing_Builder.dart';
+import '../wigdets/widget_litView_row.dart';
+import '../wigdets/widget_rowData.dart';
 import '../wigdets/widgets.dart';
 import 'wm_mb_LoginPage.dart';
 import '../data/future_db.dart';
@@ -29,40 +29,10 @@ class _SalesSummaryState extends State<SalesSummary> {
   TextEditingController _datecontroller = new TextEditingController();
   TextEditingController userid = new TextEditingController();
 
-// Future<void> _selectDate(BuildContext context) async {
-//     final DateTime picked = await showDatePicker(
-//         context: context,
-//         initialDate:DateTime(2015, 8) ,
-//         firstDate: DateTime(2015, 8),
-//         lastDate: DateTime(2101));
-//     setState(() {
-//       date = picked ?? date;
-//     });
-//   }
-
   @override
   void initState() {
     _selectedDate = gs_date;
     userid.text = gs_currentUser_empid.toString();
-
-    sales_sum_pro(_selectedDate, userid.text).then((value) {
-      print("init" + _selectedDate);
-      sales_sum1().then((value) {
-        setState(() {
-          salesumm_1.addAll(value);
-          list_length = salesumm_1.length;
-          print("summary1 list length " + salesumm_1.length.toString());
-        });
-      });
-      sales_sum2().then((value) {
-        setState(() {
-          salesumm_2.addAll(value);
-          print(salesumm_2);
-          print("summary2 list length " + salesumm_2.length.toString());
-        });
-      });
-    });
-
     super.initState();
   }
 
@@ -136,11 +106,6 @@ class _SalesSummaryState extends State<SalesSummary> {
               child: Text('Retrive'),
             ),
           ),
-          // GestureDetector(
-          //   onTap: () {},
-          //   child: Icon(Icons.print))
-
-          // )
         ],
       ),
       body: SingleChildScrollView(
