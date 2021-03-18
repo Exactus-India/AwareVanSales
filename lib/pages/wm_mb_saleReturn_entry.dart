@@ -619,7 +619,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
   generate_docno() {
     return GestureDetector(
         onTap: () {
-          getDNDocno().then((value) {
+          getSRDocno().then((value) {
             setState(() {
               if (value == null)
                 doc_no.text = newDocNo();
