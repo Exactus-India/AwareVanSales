@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../wigdets/listing_Builder.dart';
 import '../wigdets/widget_litView_row.dart';
 import '../wigdets/widget_rowData.dart';
 import '../wigdets/widgets.dart';
@@ -44,7 +43,6 @@ class _SalesSummaryState extends State<SalesSummary> {
       sales_sum1().then((value) {
         setState(() {
           salesumm_1.addAll(value);
-          list_length = salesumm_1.length;
           print("summary1 list length " + salesumm_1.length.toString());
         });
       });
@@ -65,11 +63,11 @@ class _SalesSummaryState extends State<SalesSummary> {
       firstDate: DateTime(2020),
       lastDate: DateTime.now(),
     ).then((datePicker) {
+      print(datePicker);
       setState(() {
-        print(datePicker);
         _selectedDate = DateFormat("dd-MMM-yyyy").format(datePicker);
-        print(_selectedDate);
       });
+      print(_selectedDate);
     });
   }
 
