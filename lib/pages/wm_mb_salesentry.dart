@@ -87,7 +87,7 @@ class _SalesEntryState extends State<SalesEntry> {
   bool details_list = false;
 
   List saleslog_col = [
-    "Sno",
+    "SNO",
     "PRODUCT",
     "QTY",
     "TOTAL",
@@ -271,6 +271,7 @@ class _SalesEntryState extends State<SalesEntry> {
             child: textField("Customer", customer, false, true, TextAlign.left),
           ),
           Flexible(
+            flex: 1,
             child: Padding(
               padding: EdgeInsets.only(left: 10.0),
               child: RaisedButton(
