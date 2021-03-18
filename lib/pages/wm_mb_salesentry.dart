@@ -804,12 +804,12 @@ class _SalesEntryState extends State<SalesEntry> {
   generate_docno() {
     var ls_date = DateFormat("dd/MM/yyyy").format(DateTime.now()).toString();
     var ls_mth_code = ls_date[6] + ls_date[8] + ls_date[9];
-    ls_mth_code = ls_mth_code + "11";
+    ls_mth_code = ls_mth_code + "10";
     return GestureDetector(
         onTap: () {
           getDNDocno().then((value) {
             setState(() {
-              if (value == null) doc_no.text = ls_mth_code.toString() + "0001";
+              if (value == null) doc_no.text = ls_mth_code.toString() + "1001";
               if (value != null) {
                 var docno = value.toInt() + 1;
                 doc_no.text = docno.toString();
