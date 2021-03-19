@@ -114,10 +114,8 @@ class _StocktransferState extends State<Stocktransfer> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => StocktransferEntry(
-                          doc_no: doc_no,
-                          from_zone: from_zone,
-                          to_zone: to_zone))).then((value) {
+                      builder: (context) =>
+                          StocktransferEntry(doc_no: doc_no))).then((value) {
                 setState(() {
                   _searchBar();
                   list();
