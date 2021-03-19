@@ -17,3 +17,31 @@ class ST_detail_list {
     val7 = json['QTY_LUOM'];
   }
 }
+
+class ST_middle {
+  var serial_no;
+  var product_code;
+  var product_name;
+  var puom;
+  var qty_puom;
+  var luom;
+  var qty_luom;
+  var amount;
+  var unit_price;
+  var vat;
+  var net_amount;
+  var tot_qty;
+  var uppp;
+
+  ST_middle.fromJson(Map<String, dynamic> json) {
+    serial_no = json['SERIAL_NO'];
+    product_code = json['PROD_CODE'];
+    product_name = json['PROD_NAME'];
+    puom = json['P_UOM'];
+    qty_puom = json['QTY_PUOM'];
+    luom = json['L_UOM'];
+    qty_luom = json['QTY_LUOM'];
+    tot_qty = json['QUANTITY'];
+    uppp = json['UPPP'];
+  }
+}

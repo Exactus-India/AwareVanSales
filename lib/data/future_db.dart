@@ -959,3 +959,104 @@ Future st_HDR_update(
     return responseerror(response);
   }
 }
+
+Future st_prod_insert(
+  docno,
+  doc_date,
+  sno,
+  prod_code,
+  prod_name,
+  p_uom,
+  qty_puom,
+  l_uom,
+  qty_luom,
+  uppp,
+  qty,
+  cost_rate,
+  fromzone,
+  tozone,
+  tx_id_no,
+  unit_price,
+) async {
+  Map data = {
+    "COMPANY_CODE": gs_company_code,
+    "DOC_TYPE": gs_strdoc_type,
+    "DOC_NO": docno,
+    "DIV_CODE": gl_Div_code,
+    "DEPT_CODE": gs_dept_code,
+    "SERIAL_NO": sno,
+    "PROD_CODE": prod_code,
+    "PROD_NAME": prod_name,
+    "P_UOM": p_uom,
+    "QTY_PUOM": qty_puom,
+    "L_UOM": l_uom,
+    "QTY_LUOM": qty_luom,
+    "UPPP": uppp,
+    "QUANTITY": qty,
+    "COST_RATE": cost_rate,
+    "SIGN_IND": "",
+    "USER_ID": gs_currentUser_empid,
+    "TX_IDENTITY_NUMBER": tx_id_no,
+    "FROM_ZONE_CODE": fromzone,
+    "TO_ZONE_CODE": tozone,
+    "UNIT_PRICE": unit_price,
+  };
+  var value = json.encode(data);
+  var url = '${ip_port}/sales/ST/prod_insert';
+  var response = await http.post(url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+      body: value);
+
+  if (response.statusCode == 200) {
+    return 1;
+  } else {
+    return responseerror(response);
+  }
+}
+
+Future<List> st_middle_view(docno, serialno) async {
+  var url =
+      '${ip_port}/sales/stock_transfer/middle/$gs_company_code/$gs_strdoc_type/$docno/$serialno';
+  var response = await http.get(url);
+  var datas = List<ST_middle>();
+  if (response.statusCode == 200) {
+    Object datasJson = json.decode(response.body.substring(0));
+    for (var dataJson in datasJson) {
+      datas.add(ST_middle.fromJson(dataJson));
+    }
+  }
+  return datas;
+}
+
+Future st_prod_update(
+  serial_no,
+  doc_no,
+  qty_puom,
+  qty_luom,
+  qty,
+) async {
+  Map data = {
+    "COMPANY_CODE": gs_company_code,
+    "DOC_NO": doc_no,
+    "DOC_TYPE": gs_strdoc_type,
+    "SERIAL_NO": serial_no,
+    "QTY_PUOM": qty_puom,
+    "QTY_LUOM": qty_luom,
+    "QTY": qty,
+  };
+  var value = json.encode(data);
+  var url = '${ip_port}/sales/ST/ProdUpt';
+  var response = await http.put(url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+      body: value);
+
+  if (response.statusCode == 200) {
+    return 1;
+  } else {
+    return responseerror(response);
+  }
+}
