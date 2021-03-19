@@ -863,6 +863,11 @@ Future<List> stocktransferDetailList(doc_no) async {
       datas.add(ST_detail_list.fromJson(dataJson));
     }
   }
+  datas.sort((a, b) {
+    var ab = a.val1;
+    var ba = b.val1;
+    return ab.compareTo(ba);
+  });
   return datas;
 }
 

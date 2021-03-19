@@ -163,10 +163,9 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
                     if (doc_no.text.isNotEmpty) {
                       if (quantity.text.isEmpty) updateHdr(det_serial_no);
                       if (prod_name.text != null && quantity.text.isNotEmpty)
-                        // prod_update == false
-                        // ?
-                        productInsert();
-                      // : productupdation();
+                        prod_update == false
+                            ? productInsert()
+                            : productupdation();
 
                       print('serial_no' + serial_no.toString());
                     }
@@ -589,8 +588,8 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
       var resp = await st_prod_update(
         list_serial_no,
         doc_no.text,
-        puom.text,
-        luom.text,
+        qty_puom.text,
+        qty_luom.text,
         quantity.text,
       );
       if (resp == 1) {
