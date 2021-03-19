@@ -1,15 +1,13 @@
 import 'package:aware_van_sales/data/future_db.dart';
+import 'package:aware_van_sales/wigdets/alert.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:custom_datatable/custom_datatable.dart';
 import 'package:flutter/material.dart';
 
 class StocktransferEntry extends StatefulWidget {
   final doc_no;
-  final from_zone;
-  final to_zone;
 
-  const StocktransferEntry({Key key, this.doc_no, this.from_zone, this.to_zone})
-      : super(key: key);
+  const StocktransferEntry({Key key, this.doc_no}) : super(key: key);
   @override
   _StocktransferEntryState createState() => _StocktransferEntryState();
 }
@@ -32,10 +30,12 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
   List st_detailList = List();
   List zone_list = List();
   List zonefrom_list = List();
-  String selectedZonefrom;
-  String selectedZoneto;
+  String selectedZonefrom = null;
+  String selectedZoneto = null;
   bool doc_generate = false;
+  bool middle_view = false;
   var serial_no;
+  var det_serial_no = 0;
   List column = [
     "SNO",
     "PROD CODE",
@@ -64,16 +64,18 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
     return str_HDR(docno).then((value) {
       setState(() {
         doc_generate = true;
+        middle_view = true;
         strHDR.clear();
         strHDR.addAll(value);
         doc_no.text = strHDR[0]['DOC_NO'].toString();
-        zone_from.text = strHDR[0]['FROM_ZONE_CODE'].toString();
-        zone_to.text = strHDR[0]['TO_ZONE_CODE'].toString();
+        selectedZonefrom = strHDR[0]['FROM_ZONE_CODE'].toString();
+        selectedZoneto = strHDR[0]['TO_ZONE_CODE'].toString();
         if (strHDR[0]['REMARKS'] != null)
           remarks.text = strHDR[0]['REMARKS'].toString();
         var sn_no = strHDR[0]['LAST_DTL_SERIAL_NO'];
         if (sn_no == null || sn_no == 0) sn_no = 0;
         serial_no = sn_no + 1;
+        det_serial_no = sn_no;
         fetch_EntryDetails(doc_no.text);
       });
     });
@@ -129,11 +131,29 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title:
-            Text("Stock Transfer Entry", style: TextStyle(color: Colors.white)),
-        elevation: .1,
-        backgroundColor: Color.fromRGBO(59, 87, 110, 1.0),
-      ),
+          title: Text("Stock Transfer Entry",
+              style: TextStyle(color: Colors.white)),
+          elevation: .1,
+          backgroundColor: Color.fromRGBO(59, 87, 110, 1.0),
+          actions: <Widget>[
+            GestureDetector(
+                onTap: () {
+                  setState(() {
+                    if (doc_no.text.isNotEmpty) {
+                      if (quantity.text.isEmpty) updateHdr();
+                      // if (prod_name.text != null && quantity.text.isNotEmpty)
+                      // prod_update == false
+                      // ?
+                      // productInsert();
+                      // : productupdation();
+
+                      print('serial_no' + serial_no.toString());
+                    }
+                  });
+                },
+                child: Icon(Icons.save)),
+            SizedBox(width: 40.0),
+          ]),
       body: new Padding(
         padding: new EdgeInsets.only(top: 14.0),
         child: new Form(
@@ -142,8 +162,8 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
               child: Column(
                 children: [
                   head(),
-                  SizedBox(height: 10),
-                  middle(),
+                  SizedBox(height: 5),
+                  if (middle_view == true) middle(),
                   SizedBox(height: 10),
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -165,13 +185,14 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
             children: [
               Flexible(
                   flex: 2,
-                  child: textField(
-                      "Doc No", doc_no, false, false, TextAlign.left)),
+                  child:
+                      textField("Doc No", doc_no, false, true, TextAlign.left)),
               if (doc_generate != true) SizedBox(width: 4.0),
               if (doc_generate != true)
                 Flexible(
-                    child:
-                        IconButton(icon: Icon(Icons.build), onPressed: () {})),
+                    child: Padding(
+                        padding: EdgeInsets.only(left: 20.0),
+                        child: generate_ST_docno())),
             ],
           ),
           SizedBox(height: 4),
@@ -180,7 +201,7 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
           dropDown_zone_from(),
           // : textField("Zone From", zone_from,
           //     zone_to == null ? true : false, false, TextAlign.left),
-          SizedBox(height: 4),
+          // SizedBox(height: 4),
           // widget.doc_no == null
           //     ?
           dropDown_zone_to(),
@@ -346,5 +367,54 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
     qty_puom.clear();
     qty_luom.clear();
     bal_stock.clear();
+  }
+
+  updateHdr() async {
+    if (selectedZonefrom != null && selectedZoneto != null) {
+      var resp = await st_HDR_update(doc_no.text, remarks.text,
+          selectedZonefrom, selectedZoneto, det_serial_no);
+      if (resp == 1) {
+        setState(() {
+          showToast('updated Succesfully');
+        });
+      } else {
+        alert(this.context, resp.toString(), Colors.green);
+      }
+    }
+  }
+
+  generate_ST_docno() {
+    return GestureDetector(
+        onTap: () {
+          if (selectedZonefrom != null && selectedZoneto != null)
+            getSTDocno().then((value) {
+              setState(() {
+                print("innn");
+                if (value == null) doc_no.text = newDocNo();
+                if (value != null) {
+                  var docno = value.toInt() + 1;
+                  doc_no.text = docno.toString();
+                }
+                var hdr_serial_no = 0;
+
+                st_docno_insert(doc_no.text, remarks.text, selectedZonefrom,
+                        selectedZoneto, hdr_serial_no, det_serial_no)
+                    .then((value) {
+                  if (value == 1) {
+                    doc_generate = true;
+                    middle_view = true;
+                    showToast("Inserted Succesfully");
+                  } else {
+                    alert(context, value.toString(), Colors.red);
+                  }
+                });
+
+                print(doc_no.text);
+              });
+            });
+          if (selectedZonefrom == null || selectedZoneto == null)
+            showToast("Please Select Dropdownlist");
+        },
+        child: Icon(Icons.build));
   }
 }

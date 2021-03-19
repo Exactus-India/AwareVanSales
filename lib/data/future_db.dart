@@ -27,6 +27,7 @@ String gs_company_code = 'BSG';
 String gs_curr = 'AED';
 String gs_dept_code = 'DC';
 String gs_cancelled = 'N';
+String gs_confirmed = 'N';
 String gs_zonecode;
 int gl_Div_code = 10;
 int gl_EX_rate = 1;
@@ -81,15 +82,15 @@ Future<List> getAllRouteName() async {
   return jsonData;
 }
 
-Future<int> getSerialno(doc_no) async {
-  var url = '${ip_port}/sales/customerList/salesDN/serialno/$doc_no';
-  var response = await http.get(url);
-  var jsonBody = response.body;
-  var jsonData = json.decode(jsonBody.substring(0));
-  print(jsonData[0]['SERIAL_NO'].toString() + "last serial");
+// Future<int> getSerialno(doc_no) async {
+//   var url = '${ip_port}/sales/customerList/salesDN/serialno/$doc_no';
+//   var response = await http.get(url);
+//   var jsonBody = response.body;
+//   var jsonData = json.decode(jsonBody.substring(0));
+//   print(jsonData[0]['SERIAL_NO'].toString() + "last serial");
 
-  return jsonData[0]['SERIAL_NO'];
-}
+//   return jsonData[0]['SERIAL_NO'];
+// }
 
 Future<int> getDNDocno() async {
   var url = '${ip_port}/sales/customerList/DN/docno';
@@ -595,16 +596,6 @@ Future<List> sr_HDR(docno) async {
   return jsonData;
 }
 
-Future<int> getSRSerialno(doc_no) async {
-  var url = '${ip_port}/sales/customerList/salesSR/serialno/$doc_no';
-  var response = await http.get(url);
-  var jsonBody = response.body;
-  var jsonData = json.decode(jsonBody.substring(0));
-  print(jsonData[0]['SERIAL_NO'].toString() + "last serial");
-
-  return jsonData[0]['SERIAL_NO'];
-}
-
 Future sr_product_insertion(
   doc_no,
   serial_no,
@@ -883,5 +874,88 @@ Future<bool> dnConfirmDirect(docno) async {
     return true;
   } else {
     return false;
+  }
+}
+
+Future<int> getSTDocno() async {
+  var url = '${ip_port}/sales/ST/max_docno';
+  var response = await http.get(url);
+  var jsonBody = response.body;
+  var jsonData = json.decode(jsonBody.substring(0));
+  print(jsonData[0]['DOC_NO'].toString() + "last dnno");
+
+  return jsonData[0]['DOC_NO'];
+}
+
+Future st_docno_insert(docno, remarks, from_zone, to_zone, hdr_lst_serialno,
+    det_lst_serialno) async {
+  Map data = {
+    "COMPANY_CODE": gs_company_code,
+    "DOC_TYPE": gs_strdoc_type,
+    "DOC_NO": docno,
+    // "DOC_DATE": doc_date,
+    "DIV_CODE": gl_Div_code,
+    "REMARKS": remarks,
+    "CANCELLED": gs_cancelled,
+    // "CANCELLED_DT": DateTime.now(),
+    "CONFIRMED": gs_confirmed,
+    // "CONFIRMED_BY": "",
+    // "CONFIRMED_DT": "",
+    "FROM_ZONE_CODE": from_zone,
+    "TO_ZONE_CODE": to_zone,
+    "ISSUED_BY": gs_currentUser_empid,
+    // "RECEIVED_BY": "",
+    "USER_ID": gs_currentUser,
+    // "USER_DT": "",
+    // "JOB_NO": "",
+    "DEPT_CODE": gs_dept_code,
+    // "REF_DOC_NO": "",
+    // "AC_CODE": "",
+    // "REF_DATE": "",
+    "CURR_CODE": gs_curr,
+    // "REF_DOC_TYPE": "",
+    "EX_RATE": gl_EX_rate,
+    // "REF_NO": "",
+    "LAST_SERIAL_NO": hdr_lst_serialno,
+    "LAST_DTL_SERIAL_NO": det_lst_serialno
+  };
+  var value = json.encode(data);
+  var url = '${ip_port}/sales/ST/doc_insertion';
+  var response = await http.post(url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+      body: value);
+
+  if (response.statusCode == 200) {
+    return 1;
+  } else {
+    return responseerror(response);
+  }
+}
+
+Future st_HDR_update(
+    docno, remarks, from_zone, to_zone, det_lst_serialno) async {
+  Map data = {
+    "COMPANY_CODE": gs_company_code,
+    "DOC_TYPE": gs_strdoc_type,
+    "DOC_NO": docno,
+    "REMARKS": remarks,
+    "FROM_ZONE_CODE": from_zone,
+    "TO_ZONE_CODE": to_zone,
+    "LAST_DTL_SERIAL_NO": det_lst_serialno
+  };
+  var value = json.encode(data);
+  var url = '${ip_port}/sales/ST/HDR/update';
+  var response = await http.put(url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+      body: value);
+
+  if (response.statusCode == 200) {
+    return 1;
+  } else {
+    return responseerror(response);
   }
 }
