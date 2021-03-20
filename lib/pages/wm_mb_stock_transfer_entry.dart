@@ -184,7 +184,25 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
                   });
                 },
                 child: Icon(Icons.add)),
-            SizedBox(width: 40.0),
+            SizedBox(width: 20.0),
+            GestureDetector(
+                onTap: () {
+                  if (prod_name.text != null)
+                    st_prod_Delete(list_serial_no, doc_no.text).then((value) {
+                      setState(() {
+                        if (value == true) {
+                          fetch_EntryDetails(doc_no.text);
+                          showToast('Deleted Succesfully');
+                          print(serial_no.toString() + " new after delete");
+                          clearFields();
+                        } else {
+                          showToast('Deletion Failed');
+                        }
+                      });
+                    });
+                },
+                child: Icon(Icons.delete)),
+            SizedBox(width: 20.0),
           ]),
       body: new Padding(
         padding: new EdgeInsets.only(top: 14.0),

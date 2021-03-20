@@ -26,6 +26,25 @@ textField(_text, _controller, _validate, read) {
   );
 }
 
+textField1(_text, _controller, _validate, read, align) {
+  return Container(
+    height: 40.0,
+    child: TextField(
+      textAlign: align,
+      readOnly: read,
+      style: TextStyle(fontSize: 13),
+      decoration: InputDecoration(
+          labelText: _text,
+          border: const OutlineInputBorder(),
+          contentPadding: EdgeInsets.all(10),
+          errorText: _validate ? 'Value Can\'t Be Empty' : null,
+          focusColor: Colors.blue,
+          labelStyle: TextStyle(color: Colors.black54)),
+      controller: _controller,
+    ),
+  );
+}
+
 Widget text(_text, clr) {
   return Text(
     _text,
