@@ -22,6 +22,8 @@ class _HomePageState extends State<HomePage> {
     get_user_zonecode().then((value) {
       gs_zonecode = value[0]['DEFAULT_ZONE_CODE'];
       print("Zonecode " + gs_zonecode);
+      gl_ac_cash = value[0]['CASH_AC'];
+      print("CASH_AC " + gl_ac_cash);
     });
     super.initState();
   }

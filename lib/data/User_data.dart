@@ -5,6 +5,7 @@ class UserData {
   String rpt_name;
   String outsourced_erp;
   String default_zone_code;
+  String cash_ac;
 
   UserData(this.rpt_name);
 
@@ -15,5 +16,6 @@ class UserData {
     rpt_name = json['RPT_NAME'];
     outsourced_erp = json['OUTSOURCED_ERP'];
     default_zone_code = json['DEFAULT_ZONE_CODE'];
+    cash_ac = json['CASH_AC'];
   }
 }
