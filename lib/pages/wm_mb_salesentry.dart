@@ -143,6 +143,8 @@ class _SalesEntryState extends State<SalesEntry> {
         serial_no = sn_no + 1;
 
         ref != null ? ref_no.text = ref.toString() : ref_no.text = '';
+        var printed_y = salesHDR[0]['PRINTED_Y'];
+        print(printed_y);
         print(salesHDR[0]['REF_NO'].toString() + ' 666');
 
         print(salesHDR[0]['PARTY_NAME'].toString());
@@ -930,7 +932,7 @@ class _SalesEntryState extends State<SalesEntry> {
                       item.val7.toString() +
                       " " +
                       item.val6.toString(),
-                  getNumberFormat(item.val11).toString(),
+                  getNumberFormat(item.val9).toString(),
                   getNumberFormat(item.val10).toString(),
                 ])
           ]),
