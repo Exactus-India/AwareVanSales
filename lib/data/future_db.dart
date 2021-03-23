@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
+import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:http/http.dart' as http;
 
+import 'Rec_inv_list.dart';
 import 'os_summ.dart';
 import 'sales_Middle.dart';
 import 'sales_detailList.dart';
@@ -28,7 +30,9 @@ String gs_curr = 'AED';
 String gs_dept_code = 'DC';
 String gs_cancelled = 'N';
 String gs_confirmed = 'N';
+String gs_rec_doctype = 'CR';
 String gs_zonecode;
+var gl_ac_cash;
 int gl_Div_code = 10;
 int gl_EX_rate = 1;
 int gl_disc_perct = 0;
@@ -52,10 +56,14 @@ responseerror(response) {
 
 Future<List> getAllUserName() async {
   var url = '${ip_port}/user';
-  var response = await http.get(url);
-  var jsonBody = response.body;
-  var jsonData = json.decode(jsonBody.substring(0));
-  return jsonData;
+  try {
+    var response = await http.get(url);
+    var jsonBody = response.body;
+    var jsonData = json.decode(jsonBody.substring(0));
+    return jsonData;
+  } catch (e) {
+    showToast(e);
+  }
 }
 
 Future<List> get_user_zonecode() async {
@@ -76,10 +84,14 @@ Future<List> get_ST_zone() async {
 
 Future<List> getAllRouteName() async {
   var url = '${ip_port}/routes';
-  var response = await http.get(url);
-  var jsonBody = response.body;
-  var jsonData = json.decode(jsonBody.substring(0));
-  return jsonData;
+  try {
+    var response = await http.get(url);
+    var jsonBody = response.body;
+    var jsonData = json.decode(jsonBody.substring(0));
+    return jsonData;
+  } catch (e) {
+    showToast(e);
+  }
 }
 
 // Future<int> getSerialno(doc_no) async {
@@ -587,6 +599,50 @@ Future<int> getSRDocno() async {
   return jsonData[0]['DOC_NO'];
 }
 
+Future<int> getRecDocno() async {
+  var url = '${ip_port}/sales/REC/max_docno';
+  var response = await http.get(url);
+  var jsonBody = response.body;
+  var jsonData = json.decode(jsonBody.substring(0));
+  print(jsonData[0]['DOC_NO'].toString() + "last dnno");
+
+  return jsonData[0]['DOC_NO'];
+}
+
+Future rec_docno_insert(doc_no, amt, lcur_amt) async {
+  print(gl_ac_cash);
+  Map data = {
+    "COMPANY_CODE": gs_company_code,
+    "DOC_TYPE": gs_rec_doctype,
+    "DOC_NO": doc_no,
+    "SERIAL_NO": 9001,
+    "SALESMAN_AC_CODE": gl_ac_cash,
+    "DIV_CODE": gl_Div_code,
+    "HEADER_AC_CODE": gl_ac_cash,
+    "BANK_AC_CODE": ' ',
+    "CHEQUE_NO": ' ',
+    "CURR_CODE": gs_curr,
+    "EX_RATE": gl_EX_rate,
+    "AMOUNT": amt,
+    "LCUR_AMT": lcur_amt,
+    "SIGN_IND": 1,
+    "PDC_IND": 'N',
+  };
+  var value = json.encode(data);
+  var url = '${ip_port}/sales/REC/insert';
+  var response = await http.post(url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+      body: value);
+
+  if (response.statusCode == 200) {
+    return 1;
+  } else {
+    return null;
+  }
+}
+
 Future<List> sr_HDR(docno) async {
   var url =
       '${ip_port}/sales/customerList/salesSR_return/HDR/$gs_srdoc_type/$gs_company_code/$docno';
@@ -594,6 +650,19 @@ Future<List> sr_HDR(docno) async {
   var jsonBody = response.body;
   var jsonData = json.decode(jsonBody.substring(0));
   return jsonData;
+}
+
+Future<List> rec_inv_Table(accode) async {
+  var url = '${ip_port}/sales/receipt/middle/$accode';
+  var response = await http.get(url);
+  var datas = List<Rec_InvList>();
+  if (response.statusCode == 200) {
+    Object datasJson = json.decode(response.body.substring(0));
+    for (var dataJson in datasJson) {
+      datas.add(Rec_InvList.fromJson(dataJson));
+    }
+  }
+  return datas;
 }
 
 Future sr_product_insertion(
@@ -824,6 +893,15 @@ Future<List<Receipt>> receipt() async {
   return datas;
 }
 
+Future<List> receipt_HDR(doc_type, doc_no) async {
+  var url =
+      '${ip_port}/sales/receipt/header/$gs_rec_doctype/$gs_company_code/$doc_no';
+  var response = await http.get(url);
+  var jsonBody = response.body;
+  var jsonData = json.decode(jsonBody.substring(0));
+  return jsonData;
+}
+
 Future<List<StockTransfer>> stocktransfer() async {
   var url = '${ip_port}/sales/stock_transfer/$gs_strdoc_type';
   var response = await http.get(url);
@@ -1035,13 +1113,7 @@ Future<List> st_middle_view(docno, serialno) async {
   return datas;
 }
 
-Future st_prod_update(
-  serial_no,
-  doc_no,
-  qty_puom,
-  qty_luom,
-  qty,
-) async {
+Future st_prod_update(serial_no, doc_no, qty_puom, qty_luom, qty) async {
   Map data = {
     "COMPANY_CODE": gs_company_code,
     "DOC_NO": doc_no,
@@ -1063,5 +1135,16 @@ Future st_prod_update(
     return 1;
   } else {
     return responseerror(response);
+  }
+}
+
+Future<bool> st_prod_Delete(serial_no, doc_no) async {
+  var url =
+      '${ip_port}/sales/ST/Prod/Delete/$gs_company_code/$gs_strdoc_type/$doc_no/$serial_no';
+  var response = await http.delete(url);
+  if (response.statusCode == 200) {
+    return true;
+  } else {
+    return responseerror(response.toString());
   }
 }
