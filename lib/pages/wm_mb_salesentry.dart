@@ -269,7 +269,7 @@ class _SalesEntryState extends State<SalesEntry> {
       child: Column(children: [
         Row(children: <Widget>[
           Flexible(
-            flex: 3,
+            flex: 2,
             child: textField("Customer", customer, false, true, TextAlign.left),
           ),
           Flexible(
@@ -286,7 +286,7 @@ class _SalesEntryState extends State<SalesEntry> {
                   color: Colors.green,
                   child: Text(
                     "CONFIRM",
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   )),
             ),
           ),
