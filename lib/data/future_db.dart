@@ -25,21 +25,28 @@ String ip_port = "http://exactusnet.dyndns.org:4005/api";
 String gs_dndoc_type = 'DN90';
 String gs_srdoc_type = 'SR90';
 String gs_strdoc_type = 'STR';
+String gs_recdoc_type = 'CR';
 String gs_company_code = 'BSG';
 String gs_curr = 'AED';
 String gs_dept_code = 'DC';
 String gs_cancelled = 'N';
 String gs_confirmed = 'N';
 String gs_rec_doctype = 'CR';
+String gs_ind_org = 'N';
+String gs_pdc_ind = 'N';
 String gs_zonecode;
 var gl_ac_cash;
 int gl_Div_code = 10;
 int gl_EX_rate = 1;
 int gl_disc_perct = 0;
+int gl_sr_sign_ind = 1;
+int gl_dn_sign_ind = -1;
 int gl_tx_cat_code = 31;
 int gl_tx_comcat_amt = 13100;
 int gl_tx_compt_hdisc_amt = 0;
 int gl_tx_compt_hdisc_lcur_amt = 0;
+int gl_rec_hdr_sno = 9001;
+int gl_amt_org = 0;
 var gs_date = DateFormat("dd-MMM-yyyy").format(DateTime.now());
 var gs_date_login = DateFormat("yy.MM.dd").format(DateTime.now());
 var gs_date_to =
@@ -62,7 +69,7 @@ Future<List> getAllUserName() async {
     var jsonData = json.decode(jsonBody.substring(0));
     return jsonData;
   } catch (e) {
-    showToast(e);
+    showToast(e.toString());
   }
 }
 
@@ -90,7 +97,7 @@ Future<List> getAllRouteName() async {
     var jsonData = json.decode(jsonBody.substring(0));
     return jsonData;
   } catch (e) {
-    showToast(e);
+    showToast(e.toString());
   }
 }
 
@@ -1146,5 +1153,146 @@ Future<bool> st_prod_Delete(serial_no, doc_no) async {
     return true;
   } else {
     return responseerror(response.toString());
+  }
+}
+
+Future rec_doc_insert(
+    docno, bank_code, cheque_no, remarks, amount, lcur_amount) async {
+  Map data = {
+    "COMPANY_CODE": gs_company_code,
+    "DOC_TYPE": gs_recdoc_type,
+    "DOC_NO": docno,
+    "SERIAL_NO": gl_rec_hdr_sno,
+    "SALESMAN_AC_CODE": gl_ac_cash,
+    "DIV_CODE": gl_Div_code,
+    "HEADER_AC_CODE": gl_ac_cash,
+    "BANK_AC_CODE": bank_code,
+    "CHEQUE_NO": cheque_no,
+    "CURR_CODE": gs_curr,
+    "EX_RATE": gl_EX_rate,
+    "REMARKS": remarks,
+    "AMOUNT": amount,
+    "LCUR_AMOUNT": lcur_amount,
+    "SIGN_IND": gl_sr_sign_ind,
+    "PDC_IND": gs_pdc_ind,
+  };
+  var value = json.encode(data);
+  var url = '${ip_port}/sales/REC/insert';
+  var response = await http.post(url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+      body: value);
+
+  if (response.statusCode == 200) {
+    return 1;
+  } else {
+    return responseerror(response);
+  }
+}
+
+Future rec_doc_insert02(docno, sno, ac_code, bank_code, cheque_no, cheque_date,
+    remarks, amount, lcur_amount) async {
+  Map data = {
+    "COMPANY_CODE": gs_company_code,
+    "DOC_TYPE": gs_recdoc_type,
+    "DOC_NO": docno,
+    "SERIAL_NO": sno,
+    "AC_CODE": ac_code,
+    "DIV_CODE": gl_Div_code,
+    "HEADER_AC_CODE": ac_code,
+    "BANK_AC_CODE": bank_code,
+    "CHEQUE_NO": cheque_no,
+    "CHEQUE_DATE": cheque_date,
+    "CURR_CODE": gs_curr,
+    "EX_RATE": gl_EX_rate,
+    "REMARKS": remarks,
+    "AMOUNT": amount,
+    "LCUR_AMOUNT": lcur_amount,
+    "SIGN_IND": gl_dn_sign_ind,
+    "PDC_IND": gs_pdc_ind,
+  };
+  var value = json.encode(data);
+  var url = '${ip_port}/sales/REC/insert02';
+  var response = await http.post(url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+      body: value);
+
+  if (response.statusCode == 200) {
+    return 1;
+  } else {
+    return responseerror(response);
+  }
+}
+
+Future rec_inv_det_insert(
+    docno, sno, dtl_sr_no, inv_no, amount, lcur_amount) async {
+  Map data = {
+    "COMPANY_CODE": gs_company_code,
+    "DOC_TYPE": gs_recdoc_type,
+    "DOC_NO": docno,
+    "SERIAL_NO": sno,
+    "DTL_SR_NO": dtl_sr_no,
+    "AC_CODE": gs_ac_code,
+    "DIV_CODE": gl_Div_code,
+    "INV_NO": inv_no,
+    "CURR_CODE": gs_curr,
+    "EX_RATE": gl_EX_rate,
+    "AMOUNT": amount,
+    "LCUR_AMOUNT": lcur_amount,
+    "SIGN_IND": gl_dn_sign_ind,
+    "IND_ORG": gs_ind_org,
+    "EX_RATE_ORG": gl_EX_rate,
+    "CURR_CODE_ORG": gs_curr,
+    "AMOUNT_ORG": gl_amt_org,
+  };
+  var value = json.encode(data);
+  var url = '${ip_port}/sales/Rec/invdet/insert';
+  var response = await http.post(url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+      body: value);
+
+  if (response.statusCode == 200) {
+    return 1;
+  } else {
+    return responseerror(response);
+  }
+}
+
+Future rec_ac_hdr_insert(
+    docno, remarks, ref_no, ac_payee, ac_code, lst_dtl_sr_no) async {
+  Map data = {
+    "COMPANY_CODE": gs_company_code,
+    "DOC_TYPE": gs_recdoc_type,
+    "DOC_NO": docno,
+    "DIV_CODE": gl_Div_code,
+    "DEPT_CODE": gs_dept_code,
+    "REMARKS": remarks,
+    "REF_NO": ref_no,
+    "AC_PAYEE": ac_payee,
+    "AC_CODE": ac_code,
+    "CURR_CODE": gs_curr,
+    "EX_RATE": gl_EX_rate,
+    "SALESMAN_CODE": gs_currentUser_empid,
+    "LAST_DTL_SERIAL_NO": lst_dtl_sr_no,
+    "CREATE_USER": gs_currentUser,
+    "CREATE_DATE": ""
+  };
+  var value = json.encode(data);
+  var url = '${ip_port}/sales/Rec/acHeader/insert';
+  var response = await http.post(url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+      body: value);
+
+  if (response.statusCode == 200) {
+    return 1;
+  } else {
+    return responseerror(response);
   }
 }
