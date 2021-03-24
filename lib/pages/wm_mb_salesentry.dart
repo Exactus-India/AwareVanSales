@@ -85,6 +85,8 @@ class _SalesEntryState extends State<SalesEntry> {
   double _netvatamt = 0;
   bool prod_update = false;
   bool details_list = false;
+  bool editing = false;
+  var printed_y;
 
   List saleslog_col = [
     "SNO",
@@ -143,7 +145,8 @@ class _SalesEntryState extends State<SalesEntry> {
         serial_no = sn_no + 1;
 
         ref != null ? ref_no.text = ref.toString() : ref_no.text = '';
-        var printed_y = salesHDR[0]['PRINTED_Y'];
+        printed_y = salesHDR[0]['PRINTED_Y'];
+        if (printed_y == "Y") editing = true;
         print(printed_y);
         print(salesHDR[0]['REF_NO'].toString() + ' 666');
 
@@ -183,54 +186,57 @@ class _SalesEntryState extends State<SalesEntry> {
         elevation: .1,
         backgroundColor: Color.fromRGBO(59, 87, 110, 1.0),
         actions: <Widget>[
-          GestureDetector(
-              onTap: () {
-                setState(() {
-                  if (doc_no.text.isNotEmpty) {
-                    if (net_amt.text.isEmpty || qty.text.isEmpty) updateHdr();
-                    if (net_amt.text != null && qty.text.isNotEmpty)
-                      prod_update == false
-                          ? productInsert()
-                          : productupdation();
+          if (editing != true)
+            GestureDetector(
+                onTap: () {
+                  setState(() {
+                    if (doc_no.text.isNotEmpty) {
+                      if (net_amt.text.isEmpty || qty.text.isEmpty) updateHdr();
+                      if (net_amt.text != null && qty.text.isNotEmpty)
+                        prod_update == false
+                            ? productInsert()
+                            : productupdation();
 
-                    details_list = true;
+                      details_list = true;
 
-                    print('serial_no' + serial_no.toString());
-                  }
-                });
-              },
-              child: Icon(Icons.save)),
-          SizedBox(width: 20.0),
-          GestureDetector(
-              onTap: () {
-                setState(() {
-                  prod_update = false;
-                  clearFields();
-                  middle_view = true;
-                  print(serial_no.toString() + "in new");
-                  gs_list_index = null;
-                });
-              },
-              child: Icon(Icons.add)),
-          SizedBox(width: 20.0),
-          GestureDetector(
-              onTap: () {
-                if (product_name.text != null && details_list == true)
-                  salesDelete(list_serial_no, doc_no.text).then((value) {
-                    setState(() {
-                      sales_delete = value;
-                      if (sales_delete == true) {
-                        fetch_saleseEntry(doc_no.text);
-                        showToast('Deleted Succesfully');
-                        print(serial_no.toString() + " new after delete");
-                        clearFields();
-                      } else {
-                        showToast('Deletion Failed');
-                      }
-                    });
+                      print('serial_no' + serial_no.toString());
+                    }
                   });
-              },
-              child: Icon(Icons.delete)),
+                },
+                child: Icon(Icons.save)),
+          SizedBox(width: 20.0),
+          if (editing != true)
+            GestureDetector(
+                onTap: () {
+                  setState(() {
+                    prod_update = false;
+                    clearFields();
+                    middle_view = true;
+                    print(serial_no.toString() + "in new");
+                    gs_list_index = null;
+                  });
+                },
+                child: Icon(Icons.add)),
+          SizedBox(width: 20.0),
+          if (editing != true)
+            GestureDetector(
+                onTap: () {
+                  if (product_name.text != null && details_list == true)
+                    salesDelete(list_serial_no, doc_no.text).then((value) {
+                      setState(() {
+                        sales_delete = value;
+                        if (sales_delete == true) {
+                          fetch_saleseEntry(doc_no.text);
+                          showToast('Deleted Succesfully');
+                          print(serial_no.toString() + " new after delete");
+                          clearFields();
+                        } else {
+                          showToast('Deletion Failed');
+                        }
+                      });
+                    });
+                },
+                child: Icon(Icons.delete)),
           SizedBox(width: 20.0),
           PopupMenuButton<String>(
             onSelected: choiceAction,
@@ -272,24 +278,25 @@ class _SalesEntryState extends State<SalesEntry> {
             flex: 2,
             child: textField("Customer", customer, false, true, TextAlign.left),
           ),
-          Flexible(
-            flex: 1,
-            child: Padding(
-              padding: EdgeInsets.only(left: 10.0),
-              child: RaisedButton(
-                  onPressed: () {
-                    dnConfirmDirect(doc_no.text).then((value) {
-                      if (value == true) showToast('Confirmed Succesfully');
-                      if (value != true) showToast('Failed');
-                    });
-                  },
-                  color: Colors.green,
-                  child: Text(
-                    "CONFIRM",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  )),
+          if (editing != true)
+            Flexible(
+              flex: 1,
+              child: Padding(
+                padding: EdgeInsets.only(left: 10.0),
+                child: RaisedButton(
+                    onPressed: () {
+                      dnConfirmDirect(doc_no.text).then((value) {
+                        if (value == true) showToast('Confirmed Succesfully');
+                        if (value != true) showToast('Failed');
+                      });
+                    },
+                    color: Colors.green,
+                    child: Text(
+                      "CONFIRM",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    )),
+              ),
             ),
-          ),
         ]),
         SizedBox(height: 4),
         Row(children: <Widget>[
@@ -303,7 +310,7 @@ class _SalesEntryState extends State<SalesEntry> {
             ),
         ]),
         SizedBox(height: 4),
-        textField("Ref_no", ref_no, false, ref_no.text == null ? true : false,
+        textField("Ref_no", ref_no, false, editing == true ? true : false,
             TextAlign.left),
         Row(children: <Widget>[
           Flexible(child: dropDown_salestype()),
@@ -317,8 +324,8 @@ class _SalesEntryState extends State<SalesEntry> {
             onPressed: () {},
           )),
         ]),
-        textField("Remarks", remarks, false,
-            remarks.text == null ? true : false, TextAlign.left)
+        textField("Remarks", remarks, false, editing == true ? true : false,
+            TextAlign.left)
       ]),
     );
   }
@@ -398,7 +405,7 @@ class _SalesEntryState extends State<SalesEntry> {
             numItems,
             (index) => DataRow(
               onSelectChanged: (va) {
-                if (va) {
+                if (editing != true) {
                   setState(() {
                     if (middle_view == false) middle_view = true;
                     prod_update = true;
@@ -533,11 +540,12 @@ class _SalesEntryState extends State<SalesEntry> {
         onChanged: (value) {
           setState(() {
             if (_text == 'QTY PUOM') {
+              if (luom.text.isEmpty) luom.text = '0';
+              var _qty_ = int.parse(puom.text) + int.parse(luom.text);
               if (prod_update == true) productCalculate();
               if (prod_update == false) {
-                if (int.parse(avl_qty) >= int.parse(puom.text))
-                  productCalculate();
-                if (int.parse(avl_qty) < int.parse(puom.text)) {
+                if (int.parse(avl_qty) >= _qty_) productCalculate();
+                if (int.parse(avl_qty) < _qty_) {
                   alert(
                       context, "Available Quantity " + avl_qty, Colors.orange);
                   amt.clear();
@@ -983,6 +991,8 @@ class _SalesEntryState extends State<SalesEntry> {
         ExtStorage.DIRECTORY_DOWNLOADS);
     print(path);
     String fileName = "/SALES-" + widget.doc_no + ".pdf";
+    if (printed_y.toString() == "Y")
+      fileName = "/SALES-" + widget.doc_no + "-copy.pdf";
     final File file = File(path + fileName);
     // if (choice == Constants.DownloadPdf) await file.writeAsBytes(pdf.save());
     // if (choice == Constants.DownloadPdf) showToast("Downloaded to $path");
