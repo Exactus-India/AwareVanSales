@@ -616,40 +616,6 @@ Future<int> getRecDocno() async {
   return jsonData[0]['DOC_NO'];
 }
 
-Future rec_docno_insert(doc_no, amt, lcur_amt) async {
-  print(gl_ac_cash);
-  Map data = {
-    "COMPANY_CODE": gs_company_code,
-    "DOC_TYPE": gs_rec_doctype,
-    "DOC_NO": doc_no,
-    "SERIAL_NO": 9001,
-    "SALESMAN_AC_CODE": gl_ac_cash,
-    "DIV_CODE": gl_Div_code,
-    "HEADER_AC_CODE": gl_ac_cash,
-    "BANK_AC_CODE": ' ',
-    "CHEQUE_NO": ' ',
-    "CURR_CODE": gs_curr,
-    "EX_RATE": gl_EX_rate,
-    "AMOUNT": amt,
-    "LCUR_AMT": lcur_amt,
-    "SIGN_IND": 1,
-    "PDC_IND": 'N',
-  };
-  var value = json.encode(data);
-  var url = '${ip_port}/sales/REC/insert';
-  var response = await http.post(url,
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8'
-      },
-      body: value);
-
-  if (response.statusCode == 200) {
-    return 1;
-  } else {
-    return null;
-  }
-}
-
 Future<List> sr_HDR(docno) async {
   var url =
       '${ip_port}/sales/customerList/salesSR_return/HDR/$gs_srdoc_type/$gs_company_code/$docno';
@@ -1156,64 +1122,29 @@ Future<bool> st_prod_Delete(serial_no, doc_no) async {
   }
 }
 
-Future rec_doc_insert(
-    docno, bank_code, cheque_no, remarks, amount, lcur_amount) async {
+Future rec_docno_insert(doc_no, amt, lcur_amt, snno, ac_code, sign_ind) async {
+  print(gl_ac_cash);
   Map data = {
     "COMPANY_CODE": gs_company_code,
-    "DOC_TYPE": gs_recdoc_type,
-    "DOC_NO": docno,
-    "SERIAL_NO": gl_rec_hdr_sno,
-    "SALESMAN_AC_CODE": gl_ac_cash,
-    "DIV_CODE": gl_Div_code,
-    "HEADER_AC_CODE": gl_ac_cash,
-    "BANK_AC_CODE": bank_code,
-    "CHEQUE_NO": cheque_no,
-    "CURR_CODE": gs_curr,
-    "EX_RATE": gl_EX_rate,
-    "REMARKS": remarks,
-    "AMOUNT": amount,
-    "LCUR_AMOUNT": lcur_amount,
-    "SIGN_IND": gl_sr_sign_ind,
-    "PDC_IND": gs_pdc_ind,
-  };
-  var value = json.encode(data);
-  var url = '${ip_port}/sales/REC/insert';
-  var response = await http.post(url,
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8'
-      },
-      body: value);
-
-  if (response.statusCode == 200) {
-    return 1;
-  } else {
-    return responseerror(response);
-  }
-}
-
-Future rec_doc_insert02(docno, sno, ac_code, bank_code, cheque_no, cheque_date,
-    remarks, amount, lcur_amount) async {
-  Map data = {
-    "COMPANY_CODE": gs_company_code,
-    "DOC_TYPE": gs_recdoc_type,
-    "DOC_NO": docno,
-    "SERIAL_NO": sno,
+    "DOC_TYPE": gs_rec_doctype,
+    "DOC_NO": doc_no,
+    "SERIAL_NO": snno,
     "AC_CODE": ac_code,
     "DIV_CODE": gl_Div_code,
-    "HEADER_AC_CODE": ac_code,
-    "BANK_AC_CODE": bank_code,
-    "CHEQUE_NO": cheque_no,
-    "CHEQUE_DATE": cheque_date,
+    "HEADER_AC_CODE": gl_ac_cash,
+    "BANK_AC_CODE": ' ',
+    // "CHEQUE_NO": ' ',
+    // "CHEQUE_DATE": ' ',
     "CURR_CODE": gs_curr,
     "EX_RATE": gl_EX_rate,
-    "REMARKS": remarks,
-    "AMOUNT": amount,
-    "LCUR_AMOUNT": lcur_amount,
-    "SIGN_IND": gl_dn_sign_ind,
-    "PDC_IND": gs_pdc_ind,
+    "AMOUNT": amt,
+    "LCUR_AMT": lcur_amt,
+    "SIGN_IND": sign_ind,
+    "PDC_IND": 'N',
+    "CREATE_USER": gs_currentUser
   };
   var value = json.encode(data);
-  var url = '${ip_port}/sales/REC/insert02';
+  var url = '${ip_port}/sales/REC/ac_detail/insert';
   var response = await http.post(url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8'
@@ -1223,33 +1154,34 @@ Future rec_doc_insert02(docno, sno, ac_code, bank_code, cheque_no, cheque_date,
   if (response.statusCode == 200) {
     return 1;
   } else {
-    return responseerror(response);
+    return null;
   }
 }
 
-Future rec_inv_det_insert(
-    docno, sno, dtl_sr_no, inv_no, amount, lcur_amount) async {
+Future rec_inv_det_insert(docno, sno, dtl_sr_no, ac_code, inv_no, amount,
+    lcur_amount, sign_ind) async {
+  print(dtl_sr_no);
   Map data = {
     "COMPANY_CODE": gs_company_code,
     "DOC_TYPE": gs_recdoc_type,
     "DOC_NO": docno,
     "SERIAL_NO": sno,
     "DTL_SR_NO": dtl_sr_no,
-    "AC_CODE": gs_ac_code,
+    "AC_CODE": ac_code,
     "DIV_CODE": gl_Div_code,
     "INV_NO": inv_no,
     "CURR_CODE": gs_curr,
     "EX_RATE": gl_EX_rate,
     "AMOUNT": amount,
     "LCUR_AMOUNT": lcur_amount,
-    "SIGN_IND": gl_dn_sign_ind,
+    "SIGN_IND": sign_ind,
     "IND_ORG": gs_ind_org,
     "EX_RATE_ORG": gl_EX_rate,
     "CURR_CODE_ORG": gs_curr,
     "AMOUNT_ORG": gl_amt_org,
   };
   var value = json.encode(data);
-  var url = '${ip_port}/sales/Rec/invdet/insert';
+  var url = '${ip_port}/sales/Rec/ac_inv_det/insert';
   var response = await http.post(url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8'
@@ -1280,10 +1212,9 @@ Future rec_ac_hdr_insert(
     "SALESMAN_CODE": gs_currentUser_empid,
     "LAST_DTL_SERIAL_NO": lst_dtl_sr_no,
     "CREATE_USER": gs_currentUser,
-    "CREATE_DATE": ""
   };
   var value = json.encode(data);
-  var url = '${ip_port}/sales/Rec/acHeader/insert';
+  var url = '${ip_port}/sales/Rec/ac_Header/insert';
   var response = await http.post(url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8'

@@ -865,6 +865,7 @@ class _SalesEntryState extends State<SalesEntry> {
       pdf: pdf.document,
       image: const AssetImage('assets/exactus_logo.png'),
     );
+
     // final image = pdfLib.MemoryImage(
     //   File('assets/exactus_logo.png').readAsBytesSync(),
     // );
@@ -906,6 +907,10 @@ class _SalesEntryState extends State<SalesEntry> {
                 children: [
                   // pdfLib.Align(alignment:  ),
                   pdfLib.Text("TAX INVOICE "),
+                  if (printed_y.toString() == "Y")
+                    pdfLib.Center(
+                        child: pdfLib.Text("Duplicate copy",
+                            style: pdfLib.TextStyle(fontSize: 10.0))),
                 ]),
           ),
           pdfLib.SizedBox(height: 10.0),
@@ -967,6 +972,7 @@ class _SalesEntryState extends State<SalesEntry> {
                   ),
                 ]),
           ),
+
           // pdfLib.SizedBox(height: 320.0),
 
           // pdfLib.Footer()

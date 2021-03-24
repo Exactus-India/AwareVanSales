@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import 'wm_mb_receipt_entry.dart';
 import '../wigdets/widget_rowData.dart';
 import '../wigdets/widgets.dart';
 import '../data/future_db.dart';
@@ -52,26 +53,6 @@ class _ReceiptListState extends State<ReceiptList> {
         title: text("Receipt List", Colors.white),
         elevation: .1,
         backgroundColor: Color.fromRGBO(59, 87, 110, 1.0),
-        actions: <Widget>[
-          GestureDetector(
-              onTap: () {
-                // Navigator.push(
-                //     context,
-                //     MaterialPageRoute(
-                //         builder: (context) => SalesEntry(
-                //             doc_no: null,
-                //             party_address: gs_party_address,
-                //             ac_code: gs_ac_code,
-                //             ac_name: gs_sales_param2))).then((value) {
-                //   setState(() {
-                //     list();
-                //     _searchBar();
-                //   });
-                // });
-              },
-              child: Icon(Icons.add)),
-          SizedBox(width: 20.0),
-        ],
       ),
       body: head(),
     );
@@ -113,22 +94,21 @@ class _ReceiptListState extends State<ReceiptList> {
               ],
             ),
             onTap: () {
-              var cust_name = _datasForDisplay[index].val1.toString();
-              var ac_code = _datasForDisplay[index].val2.toString();
-              // Navigator.push(
-              //     context,
-              //     MaterialPageRoute(
-              //         builder: (context) => SalesEntry(
-              //               doc_no: doc_no,
-              //               party_address: partyaddress,
-              //               ac_code: gs_ac_code,
-              //               ac_name: ac_name,
-              //             ))).then((value) {
-              //   setState(() {
-              //     _searchBar();
-              //     list();
-              //   });
-              // });
+              var out_bal = _datasForDisplay[index].val3.toString();
+              var ac_name = _datasForDisplay[index].val2.toString();
+              var ac_code = _datasForDisplay[index].val1.toString();
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ReceiptEntry(
+                          ac_code: ac_code,
+                          ac_name: ac_name,
+                          outbal: out_bal))).then((value) {
+                setState(() {
+                  _searchBar();
+                  list();
+                });
+              });
             },
           ),
         );
