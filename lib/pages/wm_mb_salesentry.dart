@@ -85,7 +85,7 @@ class _SalesEntryState extends State<SalesEntry> {
   double _netvatamt = 0;
   bool prod_update = false;
   bool details_list = false;
-  bool editing = false;
+  bool editing = true;
   var printed_y;
 
   List saleslog_col = [
@@ -146,7 +146,7 @@ class _SalesEntryState extends State<SalesEntry> {
 
         ref != null ? ref_no.text = ref.toString() : ref_no.text = '';
         printed_y = salesHDR[0]['PRINTED_Y'];
-        if (printed_y == "Y") editing = true;
+        if (printed_y == "Y") editing = false;
         print(printed_y);
         print(salesHDR[0]['REF_NO'].toString() + ' 666');
 
@@ -186,7 +186,7 @@ class _SalesEntryState extends State<SalesEntry> {
         elevation: .1,
         backgroundColor: Color.fromRGBO(59, 87, 110, 1.0),
         actions: <Widget>[
-          if (editing != true)
+          if (editing == true)
             GestureDetector(
                 onTap: () {
                   setState(() {
@@ -205,7 +205,7 @@ class _SalesEntryState extends State<SalesEntry> {
                 },
                 child: Icon(Icons.save)),
           SizedBox(width: 20.0),
-          if (editing != true)
+          if (editing == true)
             GestureDetector(
                 onTap: () {
                   setState(() {
@@ -218,7 +218,7 @@ class _SalesEntryState extends State<SalesEntry> {
                 },
                 child: Icon(Icons.add)),
           SizedBox(width: 20.0),
-          if (editing != true)
+          if (editing == true)
             GestureDetector(
                 onTap: () {
                   if (product_name.text != null && details_list == true)
@@ -278,7 +278,7 @@ class _SalesEntryState extends State<SalesEntry> {
             flex: 2,
             child: textField("Customer", customer, false, true, TextAlign.left),
           ),
-          if (editing != true)
+          if (editing == true)
             Flexible(
               flex: 1,
               child: Padding(
@@ -310,7 +310,7 @@ class _SalesEntryState extends State<SalesEntry> {
             ),
         ]),
         SizedBox(height: 4),
-        textField("Ref_no", ref_no, false, editing == true ? true : false,
+        textField("Ref_no", ref_no, false, editing == false ? true : false,
             TextAlign.left),
         Row(children: <Widget>[
           Flexible(child: dropDown_salestype()),
@@ -324,7 +324,7 @@ class _SalesEntryState extends State<SalesEntry> {
             onPressed: () {},
           )),
         ]),
-        textField("Remarks", remarks, false, editing == true ? true : false,
+        textField("Remarks", remarks, false, editing == false ? true : false,
             TextAlign.left)
       ]),
     );
@@ -405,7 +405,7 @@ class _SalesEntryState extends State<SalesEntry> {
             numItems,
             (index) => DataRow(
               onSelectChanged: (va) {
-                if (editing != true) {
+                if (editing == true) {
                   setState(() {
                     if (middle_view == false) middle_view = true;
                     prod_update = true;
