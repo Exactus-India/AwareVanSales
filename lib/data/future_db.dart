@@ -48,7 +48,9 @@ int gl_tx_compt_hdisc_lcur_amt = 0;
 int gl_rec_hdr_sno = 9001;
 int gl_amt_org = 0;
 var gs_date = DateFormat("dd-MMM-yyyy").format(DateTime.now());
-var gs_date_login = DateFormat("yy.MM.dd").format(DateTime.now());
+var gs_doc_date = DateFormat("dd-MMM-yyyy").add_jms().format(DateTime.now());
+var gs_sys_date = DateFormat("dd-MMM-yyyy").format(DateTime.now());
+var gs_date_login = DateFormat("yy.MMM.dd").format(DateTime.now());
 var gs_date_to =
     DateFormat("dd-MMM-yyyy").format(DateTime.now().add(Duration(days: 1)));
 
@@ -182,7 +184,7 @@ Future<List<Salessum2>> sales_sum2() async {
 Future os_summary_pro() async {
   print(gs_date.toString());
   var url =
-      '${ip_port}/sales/customerList/proOS/Summary/$gs_company_code/25-JAN-2021';
+      '${ip_port}/sales/customerList/proOS/Summary/$gs_company_code/$gs_date';
   var response = await http.get(url);
   var jsonBody = response.body;
   var jsonData = json.decode(jsonBody.substring(0));
@@ -190,7 +192,7 @@ Future os_summary_pro() async {
 }
 
 Future<List<Ossumm>> os_summary() async {
-  var url = '${ip_port}/sales/customerList/OS/Summary/01';
+  var url = '${ip_port}/sales/customerList/OS/Summary/01/$gs_currentUser';
   var response = await http.get(url);
   var datas = List<Ossumm>();
   if (response.statusCode == 200) {
@@ -1122,12 +1124,25 @@ Future<bool> st_prod_Delete(serial_no, doc_no) async {
   }
 }
 
-Future rec_docno_insert(doc_no, amt, lcur_amt, snno, ac_code, sign_ind) async {
+Future<bool> st_pro(doc_no) async {
+  var url =
+      '${ip_port}/sales/stock_transfer/pro/$gs_company_code/$gs_strdoc_type/$doc_no';
+  var response = await http.get(url);
+  if (response.statusCode == 200) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+Future rec_docno_insert(
+    doc_no, remarks, amt, lcur_amt, snno, ac_code, sign_ind) async {
   print(gl_ac_cash);
   Map data = {
     "COMPANY_CODE": gs_company_code,
     "DOC_TYPE": gs_rec_doctype,
     "DOC_NO": doc_no,
+
     "SERIAL_NO": snno,
     "AC_CODE": ac_code,
     "DIV_CODE": gl_Div_code,
@@ -1137,11 +1152,14 @@ Future rec_docno_insert(doc_no, amt, lcur_amt, snno, ac_code, sign_ind) async {
     // "CHEQUE_DATE": ' ',
     "CURR_CODE": gs_curr,
     "EX_RATE": gl_EX_rate,
+    "REMARKS": remarks,
     "AMOUNT": amt,
     "LCUR_AMT": lcur_amt,
     "SIGN_IND": sign_ind,
     "PDC_IND": 'N',
-    "CREATE_USER": gs_currentUser
+    "CREATE_USER": gs_currentUser,
+    "CANCELLED": gs_cancelled,
+    "RECON_IND": "N"
   };
   var value = json.encode(data);
   var url = '${ip_port}/sales/REC/ac_detail/insert';
@@ -1161,6 +1179,7 @@ Future rec_docno_insert(doc_no, amt, lcur_amt, snno, ac_code, sign_ind) async {
 Future rec_inv_det_insert(docno, sno, dtl_sr_no, ac_code, inv_no, amount,
     lcur_amount, sign_ind) async {
   print(dtl_sr_no);
+  print(gs_date);
   Map data = {
     "COMPANY_CODE": gs_company_code,
     "DOC_TYPE": gs_recdoc_type,
