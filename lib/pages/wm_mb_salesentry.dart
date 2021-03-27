@@ -929,7 +929,7 @@ class _SalesEntryState extends State<SalesEntry> {
           pdfLib.Column(
               crossAxisAlignment: pdfLib.CrossAxisAlignment.start,
               children: [
-                pdfLib.Text("Doc No: " + widget.doc_no),
+                pdfLib.Text("Doc No: " + doc_no.text),
                 pdfLib.Row(
                     mainAxisAlignment: pdfLib.MainAxisAlignment.spaceBetween,
                     children: [
@@ -939,7 +939,7 @@ class _SalesEntryState extends State<SalesEntry> {
                 pdfLib.Row(
                     mainAxisAlignment: pdfLib.MainAxisAlignment.spaceBetween,
                     children: [
-                      pdfLib.Text("Customer: " + widget.ac_name),
+                      pdfLib.Text("Customer: " + customer.text),
                       pdfLib.Text("Sale Tyoe: " + selectedtype),
                     ]),
                 pdfLib.Text("Salesman Name: " + gs_currentUser),
@@ -1008,9 +1008,9 @@ class _SalesEntryState extends State<SalesEntry> {
     var path = await ExtStorage.getExternalStoragePublicDirectory(
         ExtStorage.DIRECTORY_DOWNLOADS);
     print(path);
-    String fileName = "/SALES-" + widget.doc_no + ".pdf";
+    String fileName = "/SALES-" + doc_no.text + ".pdf";
     if (printed_y.toString() == "Y")
-      fileName = "/SALES-" + widget.doc_no + "-copy.pdf";
+      fileName = "/SALES-" + doc_no.text + "-copy.pdf";
     final File file = File(path + fileName);
     // if (choice == Constants.DownloadPdf) await file.writeAsBytes(pdf.save());
     // if (choice == Constants.DownloadPdf) showToast("Downloaded to $path");
