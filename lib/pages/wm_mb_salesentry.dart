@@ -85,8 +85,10 @@ class _SalesEntryState extends State<SalesEntry> {
   double _netvatamt = 0;
   bool prod_update = false;
   bool details_list = false;
-  bool editing = true;
   var printed_y;
+  var confirmed;
+  bool editing = true;
+  bool newEntry = true;
 
   List saleslog_col = [
     "SNO",
@@ -106,6 +108,8 @@ class _SalesEntryState extends State<SalesEntry> {
     _luom = "LUOM";
     print(widget.ac_code + '' + widget.party_address);
     if (widget.doc_no == null) {
+      editing = true;
+      newEntry = true;
       serial_no = 1;
       customer.text = widget.ac_name;
       selectedtype = salestypes[0];
@@ -140,17 +144,20 @@ class _SalesEntryState extends State<SalesEntry> {
         doc_date = date.toString().split('T')[0];
         print(doc_date + " doc_date");
         var ref = salesHDR[0]['REF_NO'];
+        doc_date = salesHDR[0]['REF_NO'];
         var sn_no = salesHDR[0]['LAST_DTL_SERIAL_NO'];
         if (sn_no == null || sn_no == 0) sn_no = 0;
         serial_no = sn_no + 1;
 
         ref != null ? ref_no.text = ref.toString() : ref_no.text = '';
         printed_y = salesHDR[0]['PRINTED_Y'];
-        if (printed_y == "Y") editing = false;
-        print(printed_y);
+        confirmed = salesHDR[0]['CONFIRMED'];
+        if (confirmed == "Y") editing = false;
+        print(confirmed);
         print(salesHDR[0]['REF_NO'].toString() + ' 666');
 
         print(salesHDR[0]['PARTY_NAME'].toString());
+        newEntry = false;
       });
     });
   }
@@ -205,7 +212,7 @@ class _SalesEntryState extends State<SalesEntry> {
                 },
                 child: Icon(Icons.save)),
           SizedBox(width: 20.0),
-          if (editing == true)
+          if (editing == true && newEntry == false)
             GestureDetector(
                 onTap: () {
                   setState(() {
@@ -218,7 +225,7 @@ class _SalesEntryState extends State<SalesEntry> {
                 },
                 child: Icon(Icons.add)),
           SizedBox(width: 20.0),
-          if (editing == true)
+          if (editing == true && newEntry == false)
             GestureDetector(
                 onTap: () {
                   if (product_name.text != null && details_list == true)
@@ -278,7 +285,7 @@ class _SalesEntryState extends State<SalesEntry> {
             flex: 2,
             child: textField("Customer", customer, false, true, TextAlign.left),
           ),
-          if (editing == true)
+          if (editing == true && newEntry == false && salesdetails.length > 0)
             Flexible(
               flex: 1,
               child: Padding(
@@ -286,7 +293,10 @@ class _SalesEntryState extends State<SalesEntry> {
                 child: RaisedButton(
                     onPressed: () {
                       dnConfirmDirect(doc_no.text).then((value) {
-                        if (value == true) showToast('Confirmed Succesfully');
+                        if (value == true) {
+                          getHDR(doc_no.text);
+                          showToast('Confirmed Succesfully');
+                        }
                         if (value != true) showToast('Failed');
                       });
                     },
@@ -589,16 +599,16 @@ class _SalesEntryState extends State<SalesEntry> {
       setState(() {
         salesdetails.clear();
         salesdetails.addAll(value);
+        _pqty = 0;
+        _lqty = 0;
+        _amt = 0;
+        _vat = 0;
+        _tot = 0;
         if (salesdetails.isNotEmpty) {
           print("in details");
           details_list = true;
           list_length = 0;
           list_length = salesdetails.length;
-          _pqty = 0;
-          _lqty = 0;
-          _amt = 0;
-          _vat = 0;
-          _tot = 0;
 
           for (int i = 0; i < salesdetails.length; i++) {
             _pqty += salesdetails[i].val5.toInt();
@@ -828,7 +838,9 @@ class _SalesEntryState extends State<SalesEntry> {
                       customer.text, doc_no.text, selectedtype, ref_no.text)
                   .then((value) {
                 if (value == 1) {
+                  getHDR(doc_no.text);
                   middle_view = true;
+                  newEntry = false;
                   showToast("Inserted Succesfully");
                 } else {
                   showToast(value.toString());

@@ -40,6 +40,7 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
   bool doc_generate = false;
   bool middle_view = false;
   bool prod_update = false;
+  bool editing = true;
   var uppp;
   var avl_qty;
   var cost_rate;
@@ -96,6 +97,8 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
         serial_no = sn_no + 1;
         var date = strHDR[0]['DOC_DATE'];
         doc_date = date.toString().split('T')[0];
+        var confirm = strHDR[0]['CONFIRMED'];
+        if (confirm == "Y") editing = false;
         det_serial_no = sn_no;
         fetch_EntryDetails(doc_no.text);
       });
@@ -157,51 +160,54 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
           elevation: .1,
           backgroundColor: Color.fromRGBO(59, 87, 110, 1.0),
           actions: <Widget>[
-            GestureDetector(
-                onTap: () {
-                  setState(() {
-                    if (doc_no.text.isNotEmpty) {
-                      if (quantity.text.isEmpty) updateHdr(det_serial_no);
-                      if (prod_name.text != null && quantity.text.isNotEmpty)
-                        prod_update == false
-                            ? productInsert()
-                            : productupdation();
+            if (editing == true)
+              GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      if (doc_no.text.isNotEmpty) {
+                        if (quantity.text.isEmpty) updateHdr(det_serial_no);
+                        if (prod_name.text != null && quantity.text.isNotEmpty)
+                          prod_update == false
+                              ? productInsert()
+                              : productupdation();
 
-                      print('serial_no' + serial_no.toString());
-                    }
-                  });
-                },
-                child: Icon(Icons.save)),
-            SizedBox(width: 20.0),
-            GestureDetector(
-                onTap: () {
-                  setState(() {
-                    prod_update = false;
-                    clearFields();
-                    middle_view = true;
-                    print(serial_no.toString() + "in new");
-                    gs_list_index = null;
-                  });
-                },
-                child: Icon(Icons.add)),
-            SizedBox(width: 20.0),
-            GestureDetector(
-                onTap: () {
-                  if (prod_name.text != null)
-                    st_prod_Delete(list_serial_no, doc_no.text).then((value) {
-                      setState(() {
-                        if (value == true) {
-                          fetch_EntryDetails(doc_no.text);
-                          showToast('Deleted Succesfully');
-                          print(serial_no.toString() + " new after delete");
-                          clearFields();
-                        } else {
-                          showToast('Deletion Failed');
-                        }
-                      });
+                        print('serial_no' + serial_no.toString());
+                      }
                     });
-                },
-                child: Icon(Icons.delete)),
+                  },
+                  child: Icon(Icons.save)),
+            SizedBox(width: 20.0),
+            if (editing == true)
+              GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      prod_update = false;
+                      clearFields();
+                      middle_view = true;
+                      print(serial_no.toString() + "in new");
+                      gs_list_index = null;
+                    });
+                  },
+                  child: Icon(Icons.add)),
+            SizedBox(width: 20.0),
+            if (editing == true)
+              GestureDetector(
+                  onTap: () {
+                    if (prod_name.text != null)
+                      st_prod_Delete(list_serial_no, doc_no.text).then((value) {
+                        setState(() {
+                          if (value == true) {
+                            fetch_EntryDetails(doc_no.text);
+                            showToast('Deleted Succesfully');
+                            print(serial_no.toString() + " new after delete");
+                            clearFields();
+                          } else {
+                            showToast('Deletion Failed');
+                          }
+                        });
+                      });
+                  },
+                  child: Icon(Icons.delete)),
             SizedBox(width: 20.0),
           ]),
       body: new Padding(
@@ -232,6 +238,7 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
       child: Column(
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Flexible(
                   flex: 2,
@@ -243,6 +250,24 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
                     child: Padding(
                         padding: EdgeInsets.only(left: 20.0),
                         child: generate_ST_docno())),
+              SizedBox(
+                width: 10.0,
+              ),
+              Flexible(
+                  flex: 1,
+                  child: RaisedButton(
+                      onPressed: () {
+                        st_pro(doc_no.text).then((value) {
+                          editing = false;
+                          if (value == true) showToast('Confirmed Succesfully');
+                          if (value != true) showToast('Failed');
+                        });
+                      },
+                      color: Colors.green,
+                      child: Text(
+                        "CONFIRM",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ))),
             ],
           ),
           SizedBox(height: 4),

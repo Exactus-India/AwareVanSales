@@ -32,6 +32,7 @@ class _SalesSummaryState extends State<SalesSummary> {
   void initState() {
     _selectedDate = gs_date;
     userid.text = gs_currentUser_empid.toString();
+    retrive();
     super.initState();
   }
 
@@ -99,7 +100,9 @@ class _SalesSummaryState extends State<SalesSummary> {
             child: RaisedButton(
               color: Colors.green[400],
               onPressed: () {
-                retrive();
+                setState(() {
+                  retrive();
+                });
               },
               child: Text('Retrive'),
             ),

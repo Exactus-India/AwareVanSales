@@ -130,8 +130,8 @@ rowData6(first, second, third, fourth, fivth, last, size) {
       SizedBox(
         height: 10,
       ),
-      rowData5("<15 Days", "16-30 Days", "31-60 Days", "60< Days", null, 13.0,
-          Colors.deepPurpleAccent),
+      rowData5("<15 Days", "16-30 Days", "31-60 Days", "Above 60 Days", null,
+          13.0, Colors.deepPurpleAccent),
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         // crossAxisAlignment: CrossAxisAlignment.start,

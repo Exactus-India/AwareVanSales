@@ -20,8 +20,9 @@ class _OsSummaryState extends State<OsSummary> {
   void initState() {
     os_summary_pro().then((value) {
       os_summary().then((value) {
+        os_summary_report.clear();
+        os_summary_report.addAll(value);
         setState(() {
-          os_summary_report.addAll(value);
           for (int i = 0; i < os_summary_report.length; i++) {
             total += os_summary_report[i].val3;
             d1 += os_summary_report[i].val4;
@@ -42,6 +43,7 @@ class _OsSummaryState extends State<OsSummary> {
     return Scaffold(
       appBar: AppBar(
         title: Text('OS Summary'),
+        backgroundColor: Color.fromRGBO(59, 87, 110, 1.0),
         actions: <Widget>[
           Padding(
             padding: EdgeInsets.only(right: 30.0),
