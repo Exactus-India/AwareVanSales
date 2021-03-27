@@ -28,7 +28,7 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
   bool second_insert = false;
   bool third_insert = false;
   var lcur_amt;
-  var amt;
+  String remarks;
   double tot_amt = 0;
   double bamt = 0;
   double oamt = 0;
@@ -41,7 +41,6 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
   @override
   void initState() {
     customer.text = widget.ac_name;
-    amt = widget.outbal;
     // customer.text = widget.outbal;
     // receipt_HDR(docno).then((value) {
     //   recHDR.clear();
@@ -73,72 +72,14 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
           GestureDetector(
             onTap: () async {
               if (doc_no.text.isNotEmpty) {
-                for (int i = 0; i < _controller.length; i++)
-                  tot_amt += double.parse(_controller[i].text);
-                for (int i = 0; i < _controller.length; i++)
-                  if (_controller[i].text.isNotEmpty) {
-                    det_serial_no += 1;
-                    print(det_serial_no);
-                    print("det_serial_no");
-                    var amount = double.parse(_controller[i].text);
-                    var loc_amt = amount * gl_EX_rate;
-                    lcur_amt = (amount * gl_EX_rate) / loc_amt;
-                    var resp = await rec_inv_det_insert(
-                        doc_no.text,
-                        serial_no,
-                        det_serial_no,
-                        widget.ac_code,
-                        rec_inv_List[i].val2,
-                        _controller[i].text,
-                        lcur_amt,
-                        -1);
-                    if (resp == 1) print("inserted");
-                    if (resp != 1) alert(context, "ERROR", Colors.red);
-                    if (_controller.length == i + 1) second_insert = true;
-                  }
-                if (second_insert == true) {
-                  lcur_amt = 0;
-                  var loc_amt = tot_amt * gl_EX_rate;
-                  lcur_amt = (tot_amt * gl_EX_rate) / loc_amt;
-                  await rec_docno_insert(
-                          doc_no.text, amt, lcur_amt, 1, widget.ac_code, -1)
-                      .then((value) async {
-                    if (value == 1) {
-                      showToast("Inserted 1");
-                      await rec_docno_insert(doc_no.text, amt, lcur_amt, 9001,
-                              widget.ac_code, 1)
-                          .then((value) {
-                        if (value == 1) {
-                          third_insert = true;
-                          showToast("Inserted 2");
-                        } else {
-                          showToast(value.toString());
-                        }
-                      });
-                    } else {
-                      showToast(value.toString());
-                    }
-                  });
-                }
-                if (third_insert == true)
-                  await rec_ac_hdr_insert(doc_no.text, " ", ref_no.text,
-                          "ac_payee", widget.ac_code, 0)
-                      .then((value) {
-                    if (value == 1) {
-                      second_insert = false;
-                      third_insert = false;
-                      showToast("Inserted 2");
-                    } else {
-                      showToast(value.toString());
-                    }
-                  });
+                save();
+              } else {
+                alert(context, "Doc no is Empty", Colors.red);
               }
             },
             child: Icon(Icons.save),
           ),
-          SizedBox(
-            width: 40.0,
-          )
+          SizedBox(width: 40.0)
         ],
       ),
       body: SingleChildScrollView(
@@ -178,7 +119,7 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
             Flexible(
                 flex: 1,
                 child:
-                    textField1("Doc No", doc_no, false, true, TextAlign.left)),
+                    textField1("DOC NO", doc_no, false, true, TextAlign.left)),
             if (doc_generate != true) SizedBox(width: 4.0),
             if (doc_generate == false)
               Flexible(
@@ -190,7 +131,7 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
         Row(children: <Widget>[
           Flexible(
               flex: 1,
-              child: textField1("Ref_no", ref_no, false, true, TextAlign.left)),
+              child: textField1("REF NO", ref_no, false, true, TextAlign.left)),
           Flexible(
             child: Padding(
               padding: EdgeInsets.only(left: 20.0),
@@ -292,6 +233,8 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
                               setState(() {
                                 _controller[index].text =
                                     rowList[index].val5.toString();
+                                calculate(_controller[index].text,
+                                    rowList[index].val5);
                               });
                               print(_controller[index].text);
                               print("done");
@@ -322,6 +265,81 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
     );
   }
 
+  save() async {
+    var count = 0;
+    tot_amt = 0.0;
+    remarks = customer.text;
+
+    for (int i = 0; i < rec_inv_List.length; i++)
+      if (_controller[i].text.isNotEmpty)
+        tot_amt += double.parse(_controller[i].text);
+    for (int i = 0; i < rec_inv_List.length; i++) {
+      count += 1;
+      if (count == rec_inv_List.length) second_insert = true;
+      if (_controller[i].text.isNotEmpty) {
+        remarks = " " + rec_inv_List[i].val2.toString();
+        det_serial_no += 1;
+        print(det_serial_no);
+        print("det_serial_no");
+        print(_controller[i].text);
+        var amount = double.parse(_controller[i].text);
+        // var loc_amt = amount * gl_EX_rate;
+        lcur_amt = amount * gl_EX_rate;
+        var resp = await rec_inv_det_insert(
+            doc_no.text,
+            serial_no,
+            det_serial_no,
+            widget.ac_code,
+            rec_inv_List[i].val2,
+            _controller[i].text,
+            lcur_amt,
+            -1);
+        if (resp == 1) print("inserted ac_inv_detail");
+        if (resp != 1) alert(context, "ERROR", Colors.red);
+      }
+    }
+    if (second_insert == true) {
+      lcur_amt = 0;
+      // var loc_amt = tot_amt * gl_EX_rate;
+      lcur_amt = (tot_amt * gl_EX_rate);
+      await rec_docno_insert(
+              doc_no.text, remarks, tot_amt, lcur_amt, 1, widget.ac_code, -1)
+          .then((value) async {
+        if (value == 1) {
+          print("inserted ac_detail 2");
+          // showToast("Inserted 1");
+          await rec_docno_insert(
+                  doc_no.text, remarks, tot_amt, lcur_amt, 9001, gl_ac_cash, 1)
+              .then((value) {
+            if (value == 1) {
+              second_insert = false;
+              third_insert = true;
+              print("inserted ac_detail 2");
+              // showToast("Inserted 2");
+            } else {
+              showToast(value.toString());
+            }
+          });
+        } else {
+          showToast(value.toString());
+        }
+      });
+    }
+    if (third_insert == true)
+      await rec_ac_hdr_insert(doc_no.text, remarks, ref_no.text, "ac_payee",
+              gl_ac_cash, det_serial_no)
+          .then((value) {
+        if (value == 1) {
+          second_insert = false;
+          third_insert = false;
+          // showToast("Inserted 2");
+          alert(context, "Datas Inserted", Colors.red);
+        } else {
+          showToast(value.toString());
+        }
+      });
+  }
+
   textField_data(_label, _controller_, _align, bal_amt) {
     return TextField(
       controller: _controller_,
@@ -329,18 +347,20 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
       style: TextStyle(fontSize: 12),
       onChanged: (value) {
         setState(() {
-          if (double.parse(value) > bal_amt) {
-            alert(context, "Available balance " + bal_amt.toString(),
-                Colors.orange);
-            _controller_.clear();
-          }
-          tot_amt = 0;
-          for (int i = 0; i < rec_inv_List.length; i++)
-            if (_controller[i].text.isNotEmpty)
-              tot_amt += int.parse(_controller[i].text);
+          calculate(value, bal_amt);
         });
       },
       decoration: InputDecoration(border: InputBorder.none, hintText: _label),
     );
+  }
+
+  calculate(value, bal_amt) {
+    if (double.parse(value) > bal_amt) {
+      alert(context, "Available balance " + bal_amt.toString(), Colors.orange);
+    }
+    tot_amt = 0;
+    for (int i = 0; i < rec_inv_List.length; i++)
+      if (_controller[i].text.isNotEmpty)
+        tot_amt += double.parse(_controller[i].text);
   }
 }
