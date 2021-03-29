@@ -71,8 +71,8 @@ class _OsSummaryState extends State<OsSummary> {
                 color: Colors.grey[800],
                 child: Card(
                   child: ListTile(
-                    title: rowData5("<15", "16-30", "31-60", "60 < ", "Total",
-                        15.0, Colors.deepPurpleAccent),
+                    title: rowData5("Below 15", "16-30", "31-60", "Above 60  ",
+                        "Total", 15.0, Colors.deepPurpleAccent),
                     subtitle: rowData5(
                         getNumberFormat(d1),
                         getNumberFormat(d2),
