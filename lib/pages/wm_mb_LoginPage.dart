@@ -31,12 +31,13 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
       setState(() {
         user_list.addAll(value);
         user_list.sort((a, b) => a['RPT_NAME'].compareTo(b['RPT_NAME']));
-      });
-    });
-    getAllRouteName().then((value) {
-      setState(() {
-        route_list.addAll(value);
-        route_list.sort((a, b) => a['ROUTE_NAME'].compareTo(b['ROUTE_NAME']));
+        getAllRouteName().then((value) {
+          setState(() {
+            route_list.addAll(value);
+            route_list
+                .sort((a, b) => a['ROUTE_NAME'].compareTo(b['ROUTE_NAME']));
+          });
+        });
       });
     });
     super.initState();
@@ -113,7 +114,7 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
                     loginButton(),
                     textTitle(
                         '\u00a9 1998-2020 Exactus Inc',
-                        'ver $gs_date_login.02',
+                        'ver 21.03.29.01',
                         Colors.black,
                         Colors.black,
                         11.0,

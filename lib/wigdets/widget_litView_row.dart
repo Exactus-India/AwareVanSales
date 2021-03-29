@@ -35,7 +35,7 @@ listView_row_4_fields(List datasForDisplay) {
                 datasForDisplay[index].val2.toString(),
                 datasForDisplay[index].val3.toString(),
                 getNumberFormat(datasForDisplay[index].val4),
-                13.0),
+                12.0),
           ),
         ),
       );

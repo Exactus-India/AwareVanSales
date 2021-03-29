@@ -57,18 +57,18 @@ rowData4(first, second, third, last, size) {
     crossAxisAlignment: CrossAxisAlignment.end,
     children: <Widget>[
       Flexible(
-          // flex: 1,
-          fit: FlexFit.loose,
+          flex: 1,
+          fit: FlexFit.tight,
           child: columnRow(first.toString(), CrossAxisAlignment.start,
               MainAxisAlignment.spaceEvenly, size, TextAlign.left)),
       Flexible(
-          flex: 2,
-          // fit: FlexFit.tight,
+          flex: 3,
+          fit: FlexFit.tight,
           child: columnRow(second.toString(), CrossAxisAlignment.center,
               MainAxisAlignment.spaceEvenly, size, TextAlign.left)),
       Flexible(
           flex: 1,
-          // fit: FlexFit.tight,
+          fit: FlexFit.tight,
           child: columnRow(third.toString(), CrossAxisAlignment.center,
               MainAxisAlignment.center, size, TextAlign.center)),
       Flexible(
