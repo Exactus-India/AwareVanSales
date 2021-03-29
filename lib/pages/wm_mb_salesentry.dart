@@ -964,7 +964,7 @@ class _SalesEntryState extends State<SalesEntry> {
                       item.val7.toString() +
                       " " +
                       item.val6.toString(),
-                  getNumberFormat(item.val9).toString(),
+                  getNumberFormat(item.val11).toString(),
                   getNumberFormat(item.val10).toString(),
                 ])
           ]),
