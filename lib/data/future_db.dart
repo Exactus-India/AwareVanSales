@@ -904,7 +904,7 @@ Future<List<StockTransfer>> stocktransfer() async {
   datas.sort((a, b) {
     var ab = a.val4;
     var ba = b.val4;
-    return ab.compareTo(ba);
+    return ba.compareTo(ab);
   });
 
   return datas;

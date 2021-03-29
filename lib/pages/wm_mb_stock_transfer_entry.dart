@@ -63,6 +63,9 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
     luom.text = "LUOM";
     if (widget.doc_no == null) {
       serial_no = 1;
+    } else if (widget.doc_no != null) {
+      doc_no.text = widget.doc_no;
+      getHDR(widget.doc_no);
     }
     getAllProduct().then((value) {
       setState(() {
@@ -76,17 +79,16 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
         zone_list.addAll(value);
       });
     });
-    if (widget.doc_no != null) getHDR(widget.doc_no);
     super.initState();
   }
 
   getHDR(docno) {
     return str_HDR(docno).then((value) {
+      strHDR.clear();
+      strHDR.addAll(value);
       setState(() {
         doc_generate = true;
         middle_view = true;
-        strHDR.clear();
-        strHDR.addAll(value);
         doc_no.text = strHDR[0]['DOC_NO'].toString();
         selectedZonefrom = strHDR[0]['FROM_ZONE_CODE'].toString();
         selectedZoneto = strHDR[0]['TO_ZONE_CODE'].toString();

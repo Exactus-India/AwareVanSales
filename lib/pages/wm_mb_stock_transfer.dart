@@ -7,7 +7,6 @@ import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:flutter/material.dart';
 
 import 'wm_mb_LoginPage.dart';
-import 'wm_mb_sales.dart';
 
 class Stocktransfer extends StatefulWidget {
   @override
