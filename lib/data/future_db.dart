@@ -34,6 +34,7 @@ String gs_confirmed = 'N';
 String gs_rec_doctype = 'CR';
 String gs_ind_org = 'N';
 String gs_pdc_ind = 'N';
+String gs_discount_prod = 'DSQ20';
 String gs_zonecode;
 var gl_ac_cash;
 int gl_Div_code = 10;
@@ -366,7 +367,8 @@ Future docno_insert(
   }
 }
 
-Future dn_hdrUpdate(doc_no, sales_type, ref_no, remarks, serial_no) async {
+Future dn_hdrUpdate(
+    doc_no, sales_type, ref_no, remarks, serial_no, printed_y) async {
   Map data = {
     "COMPANY_CODE": gs_company_code,
     "DOC_TYPE": gs_dndoc_type,
@@ -374,7 +376,8 @@ Future dn_hdrUpdate(doc_no, sales_type, ref_no, remarks, serial_no) async {
     "SALE_TYPE": sales_type,
     "REF_NO": ref_no,
     "REMARKS": remarks,
-    "LAST_DTL_SERIAL_NO": serial_no
+    "LAST_DTL_SERIAL_NO": serial_no,
+    "PRINTED_Y": printed_y
   };
   var value = json.encode(data);
   var url = '${ip_port}/sales/customerList/salesDN/hdr_update';
@@ -459,6 +462,17 @@ Future<List> getAllProduct() async {
     }
   }
   return datas;
+}
+
+Future<int> discount_product(prod_code, qty) async {
+  var url =
+      '${ip_port}/sales/customerList/salesDN/product/discount/$gs_discount_prod/$prod_code/$qty';
+  var response = await http.get(url);
+  var jsonBody = response.body;
+  var jsonData = json.decode(jsonBody.substring(0));
+  print(jsonData[0]['unit_price'].toString() + "dicount prod");
+
+  return jsonData[0]['unit_price'];
 }
 
 Future<List<Customer>> customersaleslist() async {

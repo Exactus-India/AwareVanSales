@@ -369,8 +369,7 @@ class _SalesEntryState extends State<SalesEntry> {
       ]),
       Row(children: <Widget>[
         Flexible(
-            child: textField("Unit rate ", rate, false,
-                rate.text != null ? true : false, TextAlign.end)),
+            child: textField("Unit rate", rate, false, false, TextAlign.end)),
         SizedBox(width: 10.0),
         Flexible(
             child: textField('Amount', amt, false,
@@ -539,18 +538,20 @@ class _SalesEntryState extends State<SalesEntry> {
   }
 
   textField(_text, _controller, _validate, read, align) {
-    bool obs = false;
-    if (_text == 'Password') obs = true;
     return Container(
       height: 40.0,
       child: TextField(
         textAlign: align,
         readOnly: read,
-        obscureText: obs,
         onChanged: (value) {
           setState(() {
+            if (_text == 'Unit rate') {
+              rate.text = value;
+              if (qty.text.isNotEmpty) productCalculate();
+            }
             if (_text == 'QTY PUOM') {
               if (luom.text.isEmpty) luom.text = '0';
+              if (puom.text.isEmpty) puom.text = '0';
               var _qty_ = int.parse(puom.text) + int.parse(luom.text);
               if (prod_update == true) productCalculate();
               if (prod_update == false) {
@@ -581,9 +582,10 @@ class _SalesEntryState extends State<SalesEntry> {
   }
 
   updateHdr() async {
+    print(printed_y);
     if (ref_no.text.isNotEmpty) {
-      var resp = await dn_hdrUpdate(
-          doc_no.text, selectedtype, ref_no.text, remarks.text, serial_no);
+      var resp = await dn_hdrUpdate(doc_no.text, selectedtype, ref_no.text,
+          remarks.text, serial_no, printed_y);
       if (resp == 1) {
         setState(() {
           showToast('updated Succesfully');
@@ -669,11 +671,16 @@ class _SalesEntryState extends State<SalesEntry> {
     product.text = productList[gs_list_index].val2.toString();
     product_name.text = productList[gs_list_index].val1.toString();
     uppp = productList[gs_list_index].uppp;
-    rate.text = productList[gs_list_index].val9.toString();
     cost_rate = productList[gs_list_index].cost_rate.toString();
     if (stk_luom == null) stk_luom = 0;
     avl_qty = (stk_puom + stk_luom).toString();
     bal_stk.text = 'Bal: ' + stk_puom.toString() + ' ' + _puom;
+    discount_product(product.text, avl_qty).then((value) {
+      if (value.toInt() != 0)
+        rate.text = value.toString();
+      else
+        rate.text = productList[gs_list_index].val9.toString();
+    });
     amt.clear();
     vat.clear();
     net_amt.clear();
@@ -1016,8 +1023,14 @@ class _SalesEntryState extends State<SalesEntry> {
     // if (choice == Constants.DownloadPdf) showToast("Downloaded to $path");
     if (choice == Constants.ViewPdf)
       Printing.layoutPdf(onLayout: (PdfPageFormat format) async => pdf.save());
-    if (choice == Constants.SharePdf)
+    if (choice == Constants.SharePdf) {
+      if (printed_y == "N")
+        setState(() {
+          printed_y = "Y";
+          updateHdr();
+        });
       await Printing.sharePdf(bytes: pdf.save(), filename: fileName);
+    }
   }
 
   void choiceAction(String choice) {
