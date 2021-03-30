@@ -61,22 +61,16 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
   void initState() {
     puom.text = "PUOM";
     luom.text = "LUOM";
-    if (widget.doc_no == null) {
-      serial_no = 1;
-    } else if (widget.doc_no != null) {
-      doc_no.text = widget.doc_no;
-      getHDR(widget.doc_no);
-    }
-    getAllProduct().then((value) {
-      setState(() {
-        productList.clear();
-        productList.addAll(value);
-      });
-    });
 
     get_ST_zone().then((value) {
       setState(() {
         zone_list.addAll(value);
+        if (widget.doc_no == null) {
+          serial_no = 1;
+        } else if (widget.doc_no != null) {
+          doc_no.text = widget.doc_no;
+          getHDR(widget.doc_no);
+        }
       });
     });
     super.initState();
@@ -252,24 +246,28 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
                     child: Padding(
                         padding: EdgeInsets.only(left: 20.0),
                         child: generate_ST_docno())),
-              SizedBox(
-                width: 10.0,
-              ),
-              Flexible(
-                  flex: 1,
-                  child: RaisedButton(
-                      onPressed: () {
-                        st_pro(doc_no.text).then((value) {
-                          editing = false;
-                          if (value == true) showToast('Confirmed Succesfully');
-                          if (value != true) showToast('Failed');
-                        });
-                      },
-                      color: Colors.green,
-                      child: Text(
-                        "CONFIRM",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ))),
+              if (doc_generate == true)
+                SizedBox(
+                  width: 10.0,
+                ),
+              if (doc_generate == true)
+                Flexible(
+                    flex: 1,
+                    child: RaisedButton(
+                        onPressed: () {
+                          st_pro(doc_no.text).then((value) {
+                            if (value == true) {
+                              editing = false;
+                              showToast('Confirmed Succesfully');
+                            }
+                            if (value != true) showToast('Failed');
+                          });
+                        },
+                        color: Colors.green,
+                        child: Text(
+                          "CONFIRM",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ))),
             ],
           ),
           SizedBox(height: 4),
@@ -358,6 +356,14 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
 
   prodlist() {
     // list_length = productList.length;
+    getAllSTRProduct(selectedZonefrom).then((value) {
+      setState(() {
+        print("selected zone" + selectedZonefrom);
+        productList.clear();
+        productList.addAll(value);
+      });
+    });
+
     return AlertDialog(
         title: Text('Products'),
         content: Container(

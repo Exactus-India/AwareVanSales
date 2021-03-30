@@ -464,6 +464,19 @@ Future<List> getAllProduct() async {
   return datas;
 }
 
+Future<List> getAllSTRProduct(from_zonecode) async {
+  var url = '${ip_port}/sales/customerList/salesDN/search_prod/$from_zonecode';
+  var response = await http.get(url);
+  var datas = List<Productlist>();
+  if (response.statusCode == 200) {
+    Object datasJson = json.decode(response.body.substring(0));
+    for (var dataJson in datasJson) {
+      datas.add(Productlist.fromJson(dataJson));
+    }
+  }
+  return datas;
+}
+
 Future<int> discount_product(prod_code, qty) async {
   var url =
       '${ip_port}/sales/customerList/salesDN/product/discount/$gs_discount_prod/$prod_code/$qty';
