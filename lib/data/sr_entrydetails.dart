@@ -9,6 +9,7 @@ class SRSalesDetail {
   var val8;
   var val9;
   var val10;
+  var val11;
 
   SRSalesDetail.fromJson(Map<String, dynamic> json) {
     val1 = json['SERIAL_NO'];
@@ -21,6 +22,7 @@ class SRSalesDetail {
     val8 = json['AMOUNT'];
     val9 = json['TX_COMPNT_AMT_1'];
     val10 = json['NET_AMOUNT'];
+    val11 = json['UNIT_PRICE'];
   }
 }
 
