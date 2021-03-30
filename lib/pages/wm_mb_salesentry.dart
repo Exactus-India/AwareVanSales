@@ -322,18 +322,7 @@ class _SalesEntryState extends State<SalesEntry> {
         SizedBox(height: 4),
         textField("Ref_no", ref_no, false, editing == false ? true : false,
             TextAlign.left),
-        Row(children: <Widget>[
-          Flexible(child: dropDown_salestype()),
-          SizedBox(width: 20.0),
-          Flexible(
-              child: IconButton(
-            icon: Icon(
-              Icons.print,
-              size: 30.0,
-            ),
-            onPressed: () {},
-          )),
-        ]),
+        dropDown_salestype(),
         textField("Remarks", remarks, false, editing == false ? true : false,
             TextAlign.left)
       ]),
@@ -885,13 +874,6 @@ class _SalesEntryState extends State<SalesEntry> {
       image: const AssetImage('assets/exactus_logo.png'),
     );
 
-    // final image = pdfLib.MemoryImage(
-    //   File('assets/exactus_logo.png').readAsBytesSync(),
-    // );
-
-    // PdfImage logoImage = await pdfImageFromImageProvider(
-    //     pdf: pdf.document, image: AssetImage('assets/exactus_logo.png'));
-    // pdfLib.Image.provider(image)
     pdf.addPage(
       pdfLib.MultiPage(
         header: (context) {
@@ -947,7 +929,7 @@ class _SalesEntryState extends State<SalesEntry> {
                     mainAxisAlignment: pdfLib.MainAxisAlignment.spaceBetween,
                     children: [
                       pdfLib.Text("Customer: " + customer.text),
-                      pdfLib.Text("Sale Tyoe: " + selectedtype),
+                      pdfLib.Text("Sale Type: " + selectedtype),
                     ]),
                 pdfLib.Text("Salesman Name: " + gs_currentUser),
               ]),
@@ -1024,12 +1006,12 @@ class _SalesEntryState extends State<SalesEntry> {
     if (choice == Constants.ViewPdf)
       Printing.layoutPdf(onLayout: (PdfPageFormat format) async => pdf.save());
     if (choice == Constants.SharePdf) {
+      await Printing.sharePdf(bytes: pdf.save(), filename: fileName);
       if (printed_y == "N")
         setState(() {
           printed_y = "Y";
           updateHdr();
         });
-      await Printing.sharePdf(bytes: pdf.save(), filename: fileName);
     }
   }
 

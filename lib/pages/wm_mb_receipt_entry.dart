@@ -93,13 +93,13 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
                 SizedBox(height: 15),
                 listing(rec_inv_List.length + 1, rec_inv_List, datacolumn),
                 SizedBox(height: 10),
-                RaisedButton(
-                  onPressed: null,
-                  child: Text(
-                    "View Invoice",
-                    style: TextStyle(color: Colors.black),
-                  ),
-                )
+                // RaisedButton(
+                //   onPressed: null,
+                //   child: Text(
+                //     "View Invoice",
+                //     style: TextStyle(color: Colors.black),
+                //   ),
+                // )
               ],
             ),
           ),
@@ -128,21 +128,24 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
                       child: generate_docno())),
           ],
         ),
+        SizedBox(
+          height: 4.0,
+        ),
         Row(children: <Widget>[
           Flexible(
               flex: 1,
               child: textField1("REF NO", ref_no, false, true, TextAlign.left)),
-          Flexible(
-            child: Padding(
-              padding: EdgeInsets.only(left: 20.0),
-              child: IconButton(
-                  icon: Icon(
-                    Icons.print,
-                    size: 30.0,
-                  ),
-                  onPressed: () {}),
-            ),
-          )
+          // Flexible(
+          //   child: Padding(
+          //     padding: EdgeInsets.only(left: 20.0),
+          //     child: IconButton(
+          //         icon: Icon(
+          //           Icons.print,
+          //           size: 30.0,
+          //         ),
+          //         onPressed: () {}),
+          //   ),
+          // )
         ]),
       ]),
     );

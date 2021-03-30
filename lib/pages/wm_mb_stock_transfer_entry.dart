@@ -237,19 +237,17 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Flexible(
-                  flex: 2,
+                  flex: 3,
                   child:
                       textField("Doc No", doc_no, false, true, TextAlign.left)),
-              if (doc_generate != true) SizedBox(width: 4.0),
+              // if (doc_generate != true) SizedBox(width: 4.0),
               if (doc_generate != true)
                 Flexible(
                     child: Padding(
-                        padding: EdgeInsets.only(left: 20.0),
+                        padding: EdgeInsets.only(left: 5.0, right: 35),
                         child: generate_ST_docno())),
               if (doc_generate == true)
-                SizedBox(
-                  width: 10.0,
-                ),
+                SizedBox(width: 10.0),
               if (doc_generate == true)
                 Flexible(
                     flex: 1,
