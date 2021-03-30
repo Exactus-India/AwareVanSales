@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:aware_van_sales/data/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -6,6 +9,11 @@ import '../wigdets/widget_rowData.dart';
 import '../wigdets/widgets.dart';
 import 'wm_mb_LoginPage.dart';
 import '../data/future_db.dart';
+import 'package:pdf/pdf.dart';
+
+import 'package:printing/printing.dart';
+import 'package:pdf/widgets.dart' as pdfLib;
+import 'package:ext_storage/ext_storage.dart';
 
 class SalesSummary extends StatefulWidget {
   @override
@@ -24,6 +32,9 @@ class _SalesSummaryState extends State<SalesSummary> {
 
   String finalDate = '';
   var _selectedDate;
+  var _tot_cash;
+  var _tot_credit;
+  var _tot_sales;
 
   TextEditingController _datecontroller = new TextEditingController();
   TextEditingController userid = new TextEditingController();
@@ -61,6 +72,9 @@ class _SalesSummaryState extends State<SalesSummary> {
       sales_sum1().then((value) {
         setState(() {
           salesumm_1.addAll(value);
+          _tot_cash = salesumm_1[0].val3;
+          _tot_credit = salesumm_1[1].val3;
+          _tot_sales = salesumm_1[2].val3;
           print("summary1 list length " + salesumm_1.length.toString());
         });
       });
@@ -123,6 +137,20 @@ class _SalesSummaryState extends State<SalesSummary> {
               },
               child: Text('Retrive'),
             ),
+          ),
+          SizedBox(
+            width: 3.0,
+          ),
+          PopupMenuButton<String>(
+            onSelected: choiceAction,
+            itemBuilder: (BuildContext context) {
+              return Constants.choices.map((String choice) {
+                return PopupMenuItem<String>(
+                  value: choice,
+                  child: Text(choice),
+                );
+              }).toList();
+            },
           ),
         ],
       ),
@@ -193,5 +221,135 @@ class _SalesSummaryState extends State<SalesSummary> {
         ),
       ),
     );
+  }
+
+  _generatePdfAndView(String choice) async {
+    final pdf = pdfLib.Document();
+    String now = DateFormat("dd-MM-yyyy hh:mm:ss").format(DateTime.now());
+    // ignore: deprecated_member_use
+    final PdfImage assetImage = await pdfImageFromImageProvider(
+      pdf: pdf.document,
+      image: const AssetImage('assets/exactus_logo.png'),
+    );
+    pdf.addPage(
+      pdfLib.MultiPage(
+        header: (context) {
+          pdfLib.Text(now);
+          return pdfLib.Row(children: [
+            pdfLib.ClipRRect(
+                child: pdfLib.Container(
+                    // ignore: deprecated_member_use
+                    child: pdfLib.Image(assetImage),
+                    width: 150)),
+            pdfLib.SizedBox(width: 15.0),
+            pdfLib.Column(
+                crossAxisAlignment: pdfLib.CrossAxisAlignment.start,
+                children: [
+                  pdfLib.Text(
+                    "BMK",
+                    style: pdfLib.TextStyle(
+                        fontSize: 18.0, fontWeight: pdfLib.FontWeight.bold),
+                  ),
+                  pdfLib.Text("Phn"),
+                  pdfLib.Text("tr_no"),
+                ])
+          ]);
+        },
+        build: (context) => [
+          pdfLib.SizedBox(height: 15.0),
+          pdfLib.Center(
+            child: pdfLib.Column(
+                crossAxisAlignment: pdfLib.CrossAxisAlignment.center,
+                children: [
+                  // pdfLib.Align(alignment:  ),
+                  pdfLib.Text("SALES SUMMARY "),
+                  // if (printed_y.toString() == "Y")
+                  // pdfLib.Center(
+                  //     child: pdfLib.Text("Duplicate copy",
+                  //         style: pdfLib.TextStyle(fontSize: 10.0))),
+                ]),
+          ),
+          pdfLib.SizedBox(height: 10.0),
+          pdfLib.Column(
+              crossAxisAlignment: pdfLib.CrossAxisAlignment.start,
+              children: [
+                pdfLib.Text("Date: " + _selectedDate),
+                pdfLib.Text("Salesman Name: " + gs_currentUser),
+              ]),
+          pdfLib.SizedBox(height: 20.0),
+          pdfLib.Table.fromTextArray(
+              context: context,
+              headers: <String>[
+                'SNo',
+                'SALES TYPE',
+                'DESCRIPTION',
+                'ITEMS',
+                'AMOUNT'
+              ],
+              cellAlignment: pdfLib.Alignment.centerRight,
+              data: <List<dynamic>>[
+                ...salesumm_2.map((item) => [
+                      item.val1.toString(),
+                      item.val5.toString(),
+                      item.val2.toString(),
+                      item.val3.toString(),
+                      getNumberFormat(item.val4).toString(),
+                    ])
+              ]),
+          pdfLib.SizedBox(height: 10.0),
+          pdfLib.Container(
+            width: double.infinity,
+            child:
+                pdfLib.Column(crossAxisAlignment: pdfLib.CrossAxisAlignment.end,
+                    // mainAxisAlignment: pdfLib.MainAxisAlignment.end,
+                    children: [
+                  pdfLib.Text(
+                    "Total Cash Sale :" + getNumberFormat(_tot_cash),
+                    style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
+                  ),
+                  pdfLib.Text(
+                    "Total Credit Sale :" + getNumberFormat(_tot_credit),
+                    style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
+                  ),
+                  pdfLib.Text(
+                    "Total Sale :" + getNumberFormat(_tot_sales),
+                    style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
+                  ),
+                ]),
+          ),
+
+          // pdfLib.SizedBox(height: 320.0),
+
+          // pdfLib.Footer()
+        ],
+      ),
+    );
+    var path = await ExtStorage.getExternalStoragePublicDirectory(
+        ExtStorage.DIRECTORY_DOWNLOADS);
+    print(path);
+    String fileName = "/SALES_SUMMARY-" + gs_currentUser + ".pdf";
+    // if (printed_y.toString() == "Y")
+    // fileName = "/SALES_SUMMARY-" + doc_no.text + "-copy.pdf";
+    final File file = File(path + fileName);
+    // if (choice == Constants.DownloadPdf) await file.writeAsBytes(pdf.save());
+    // if (choice == Constants.DownloadPdf) showToast("Downloaded to $path");
+    if (choice == Constants.ViewPdf)
+      Printing.layoutPdf(onLayout: (PdfPageFormat format) async => pdf.save());
+    if (choice == Constants.SharePdf) {
+      await Printing.sharePdf(bytes: pdf.save(), filename: fileName);
+      // if (printed_y == "N")
+      //   setState(() {
+      //     printed_y = "Y";
+      //     updateHdr();
+      //   });
+    }
+  }
+
+  void choiceAction(String choice) {
+    if (choice == Constants.ViewPdf) {
+      _generatePdfAndView(choice);
+    } else {
+      _generatePdfAndView(choice);
+    }
   }
 }
