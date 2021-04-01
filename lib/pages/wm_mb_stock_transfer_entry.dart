@@ -1,11 +1,19 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:aware_van_sales/data/constants.dart';
 import 'package:aware_van_sales/data/future_db.dart';
+import 'package:aware_van_sales/pages/wm_mb_LoginPage.dart';
 import 'package:aware_van_sales/wigdets/alert.dart';
 import 'package:aware_van_sales/wigdets/listing_Builder.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:custom_datatable/custom_datatable.dart';
+import 'package:ext_storage/ext_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:pdf/pdf.dart';
+import 'package:printing/printing.dart';
+import 'package:pdf/widgets.dart' as pdfLib;
 
 class StocktransferEntry extends StatefulWidget {
   final doc_no;
@@ -205,6 +213,18 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
                   },
                   child: Icon(Icons.delete)),
             SizedBox(width: 20.0),
+            PopupMenuButton<String>(
+              onSelected: choiceAction,
+              itemBuilder: (BuildContext context) {
+                return Constants.choices.map((String choice) {
+                  return PopupMenuItem<String>(
+                    value: choice,
+                    child: Text(choice),
+                  );
+                }).toList();
+              },
+            ),
+            SizedBox(width: 5.0),
           ]),
       body: new Padding(
         padding: new EdgeInsets.only(top: 14.0),
@@ -650,6 +670,132 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
       } else {
         alert(this.context, resp.toString(), Colors.red);
       }
+    }
+  }
+
+  _generatePdfAndView(String choice) async {
+    final pdf = pdfLib.Document();
+    String now = DateFormat("dd-MM-yyyy hh:mm:ss").format(DateTime.now());
+    // ignore: deprecated_member_use
+    final PdfImage assetImage = await pdfImageFromImageProvider(
+      pdf: pdf.document,
+      image: const AssetImage('assets/exactus_logo.png'),
+    );
+    pdf.addPage(
+      pdfLib.MultiPage(
+        header: (context) {
+          pdfLib.Text(now);
+          return pdfLib.Row(children: [
+            pdfLib.ClipRRect(
+                child: pdfLib.Container(
+                    // ignore: deprecated_member_use
+                    child: pdfLib.Image(assetImage),
+                    width: 150)),
+            pdfLib.SizedBox(width: 15.0),
+            pdfLib.Column(
+                crossAxisAlignment: pdfLib.CrossAxisAlignment.start,
+                children: [
+                  pdfLib.Text(
+                    "BMK",
+                    style: pdfLib.TextStyle(
+                        fontSize: 18.0, fontWeight: pdfLib.FontWeight.bold),
+                  ),
+                  pdfLib.Text("Phn"),
+                  pdfLib.Text("tr_no"),
+                ])
+          ]);
+        },
+        build: (context) => [
+          pdfLib.SizedBox(height: 15.0),
+          pdfLib.Center(
+            child: pdfLib.Column(
+                crossAxisAlignment: pdfLib.CrossAxisAlignment.center,
+                children: [
+                  // pdfLib.Align(alignment:  ),
+                  pdfLib.Text("STOCK TRANSFER"),
+                  // if (printed_y.toString() == "Y")
+                  // pdfLib.Center(
+                  //     child: pdfLib.Text("Duplicate copy",
+                  //         style: pdfLib.TextStyle(fontSize: 10.0))),
+                ]),
+          ),
+          pdfLib.SizedBox(height: 10.0),
+          pdfLib.Column(
+              crossAxisAlignment: pdfLib.CrossAxisAlignment.start,
+              children: [
+                pdfLib.Text("Date: " + doc_date),
+                pdfLib.Text("Salesman Name: " + gs_currentUser),
+              ]),
+          pdfLib.SizedBox(height: 20.0),
+          pdfLib.Table.fromTextArray(context: context, headers: <String>[
+            'SNo',
+            'PRODUCT',
+            'OTY PUOM',
+            'QTY LUOM'
+          ],
+              // cellAlignment: pdfLib.Alignment.centerRight,
+              data: <List<dynamic>>[
+                ...st_detailList.map((item) => [
+                      item.val1.toString(),
+                      item.val2.toString() + "\n" + item.val3.toString(),
+                      item.val5.toString() + "\t" + item.val4.toString(),
+                      item.val7.toString() + "\t" + item.val6.toString(),
+                    ])
+              ]),
+          pdfLib.SizedBox(height: 10.0),
+          // pdfLib.Container(
+          //   width: double.infinity,
+          //   child:
+          //       pdfLib.Column(crossAxisAlignment: pdfLib.CrossAxisAlignment.end,
+          //           // mainAxisAlignment: pdfLib.MainAxisAlignment.end,
+          //           children: [
+          //         pdfLib.Text(
+          //           "Total Cash Sale :" + getNumberFormat(_tot_cash),
+          //           style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
+          //         ),
+          //         pdfLib.Text(
+          //           "Total Credit Sale :" + getNumberFormat(_tot_credit),
+          //           style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
+          //         ),
+          //         pdfLib.Text(
+          //           "Total Sale :" + getNumberFormat(_tot_sales),
+          //           style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
+          //         ),
+          //       ]),
+          // ),
+
+          // pdfLib.SizedBox(height: 320.0),
+
+          // pdfLib.Footer()
+        ],
+      ),
+    );
+    var path = await ExtStorage.getExternalStoragePublicDirectory(
+        ExtStorage.DIRECTORY_DOWNLOADS);
+    print(path);
+    String fileName = "/STOCK_TRANSFER-" + gs_currentUser + ".pdf";
+    // if (printed_y.toString() == "Y")
+    // fileName = "/SALES_SUMMARY-" + doc_no.text + "-copy.pdf";
+    final File file = File(path + fileName);
+    // if (choice == Constants.DownloadPdf) await file.writeAsBytes(pdf.save());
+    // if (choice == Constants.DownloadPdf) showToast("Downloaded to $path");
+    if (choice == Constants.ViewPdf)
+      Printing.layoutPdf(onLayout: (PdfPageFormat format) async => pdf.save());
+    if (choice == Constants.SharePdf) {
+      await Printing.sharePdf(bytes: pdf.save(), filename: fileName);
+      // if (printed_y == "N")
+      //   setState(() {
+      //     printed_y = "Y";
+      //     updateHdr();
+      //   });
+    }
+  }
+
+  void choiceAction(String choice) {
+    if (choice == Constants.ViewPdf) {
+      _generatePdfAndView(choice);
+    } else {
+      _generatePdfAndView(choice);
     }
   }
 }
