@@ -137,7 +137,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
         if (srHDR[0]['REMARKS'] != null)
           remarks.text = srHDR[0]['REMARKS'].toString();
         var doc = srHDR[0]['DOC_NO'].toString();
-        doc_date = srHDR[0]['DOC_DATE'];
+        doc_date = srHDR[0]['DOC_DATE'].toString().split('T')[0];
         if (doc != null) doc_no.text = doc.toString();
         var ref = srHDR[0]['REF_NO'];
         var sn_no = srHDR[0]['LAST_DTL_SERIAL_NO'];
