@@ -265,9 +265,9 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
                     child: Padding(
                         padding: EdgeInsets.only(left: 5.0, right: 35),
                         child: generate_ST_docno())),
-              if (doc_generate == true)
+              if (doc_generate == true && editing == true)
                 SizedBox(width: 10.0),
-              if (doc_generate == true)
+              if (doc_generate == true && editing == true)
                 Flexible(
                     flex: 1,
                     child: RaisedButton(
