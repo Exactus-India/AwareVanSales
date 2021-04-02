@@ -180,7 +180,7 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
                     });
                   },
                   child: Icon(Icons.save)),
-            SizedBox(width: 20.0),
+            SizedBox(width: 15.0),
             if (editing == true)
               GestureDetector(
                   onTap: () {
@@ -193,7 +193,7 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
                     });
                   },
                   child: Icon(Icons.add)),
-            SizedBox(width: 20.0),
+            SizedBox(width: 15.0),
             if (editing == true)
               GestureDetector(
                   onTap: () {
@@ -212,7 +212,6 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
                       });
                   },
                   child: Icon(Icons.delete)),
-            SizedBox(width: 20.0),
             PopupMenuButton<String>(
               onSelected: choiceAction,
               itemBuilder: (BuildContext context) {
