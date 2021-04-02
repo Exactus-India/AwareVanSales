@@ -95,6 +95,14 @@ align(alignment, _text, size) {
   );
 }
 
+alignCon(alignment, _text, size) {
+  if (_text == 'null' || _text == null) _text = ' ';
+  return Align(
+    alignment: alignment,
+    child: textData(_text, Colors.red, size),
+  );
+}
+
 labelWidget(clr, _controller, size) {
   return Container(
       height: 30.0,
