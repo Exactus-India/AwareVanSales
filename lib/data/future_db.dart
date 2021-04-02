@@ -924,7 +924,7 @@ Future<List> receipt_HDR(doc_type, doc_no) async {
 }
 
 Future<List<StockTransfer>> stocktransfer() async {
-  var url = '${ip_port}/sales/stock_transfer/$gs_strdoc_type';
+  var url = '${ip_port}/sales/stock_transfer/$gs_strdoc_type/$gs_currentUser';
   var response = await http.get(url);
   var datas = List<StockTransfer>();
   if (response.statusCode == 200) {
