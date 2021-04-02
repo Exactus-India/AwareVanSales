@@ -124,6 +124,8 @@ class _SalesListState extends State<SalesList> {
                 if (datasForDisplay[index].val4 != null)
                   align(Alignment.centerLeft,
                       datasForDisplay[index].val4.toString(), 14.0),
+                if (datasForDisplay[index].val11 == 'Y')
+                  alignCon(Alignment.centerLeft, "Confirmed", 14.0),
               ],
             ),
             onTap: () {
