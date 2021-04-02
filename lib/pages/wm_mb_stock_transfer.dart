@@ -104,6 +104,8 @@ class _StocktransferState extends State<Stocktransfer> {
                       datasForDisplay[index].val4.toString(), 14.0),
                 rowData_2(datasForDisplay[index].val5.toString(),
                     datasForDisplay[index].val6.toString(), 14.0),
+                if (datasForDisplay[index].val7 == 'Y')
+                  alignCon(Alignment.bottomLeft, "Confirmed", 14.0)
               ],
             ),
             onTap: () {

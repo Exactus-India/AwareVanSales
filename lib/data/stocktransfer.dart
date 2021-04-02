@@ -5,6 +5,7 @@ class StockTransfer {
   var val4;
   var val5;
   var val6;
+  var val7;
   var param1;
   var param2;
   var param3;
@@ -16,6 +17,7 @@ class StockTransfer {
     val4 = json['DOC_NO'];
     val5 = json['FROM_ZONE_NAME'];
     val6 = json['TO_ZONE_NAME'];
+    val7 = json['CONFIRMED'];
     param1 = json['DOC_NO'];
     param2 = json['FROM_ZONE_NAME'];
     param3 = json['TO_ZONE_NAME'];
