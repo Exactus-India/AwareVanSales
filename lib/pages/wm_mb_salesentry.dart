@@ -198,7 +198,8 @@ class _SalesEntryState extends State<SalesEntry> {
                 onTap: () {
                   setState(() {
                     if (doc_no.text.isNotEmpty) {
-                      if (net_amt.text.isEmpty || qty.text.isEmpty) updateHdr();
+                      if (net_amt.text.isEmpty || qty.text.isEmpty)
+                        updateHdr(true);
                       if (net_amt.text != null && qty.text.isNotEmpty)
                         prod_update == false
                             ? productInsert()
@@ -211,7 +212,7 @@ class _SalesEntryState extends State<SalesEntry> {
                   });
                 },
                 child: Icon(Icons.save)),
-          SizedBox(width: 20.0),
+          SizedBox(width: 15.0),
           if (editing == true && newEntry == false)
             GestureDetector(
                 onTap: () {
@@ -224,7 +225,7 @@ class _SalesEntryState extends State<SalesEntry> {
                   });
                 },
                 child: Icon(Icons.add)),
-          SizedBox(width: 20.0),
+          SizedBox(width: 15.0),
           if (editing == true && newEntry == false)
             GestureDetector(
                 onTap: () {
@@ -244,7 +245,6 @@ class _SalesEntryState extends State<SalesEntry> {
                     });
                 },
                 child: Icon(Icons.delete)),
-          SizedBox(width: 20.0),
           PopupMenuButton<String>(
             onSelected: choiceAction,
             itemBuilder: (BuildContext context) {
@@ -570,14 +570,14 @@ class _SalesEntryState extends State<SalesEntry> {
     );
   }
 
-  updateHdr() async {
+  updateHdr(_res) async {
     print(printed_y);
     if (ref_no.text.isNotEmpty) {
       var resp = await dn_hdrUpdate(doc_no.text, selectedtype, ref_no.text,
           remarks.text, serial_no, printed_y);
       if (resp == 1) {
         setState(() {
-          showToast('updated Succesfully');
+          if (_res == true) showToast('updated Succesfully');
         });
       } else {
         alert(this.context, resp.toString(), Colors.green);
@@ -726,8 +726,9 @@ class _SalesEntryState extends State<SalesEntry> {
       return alert(this.context, 'Fields are ' + _msg, Colors.red);
     } else {
       // ---------------------Login Success--------------------------
+      updateHdr(false);
       getHDR(doc_no.text);
-      updateHdr();
+      updateHdr(false);
       fields_calculate();
       amt.text = numberWithCommas(amt.text);
       net_amt.text = numberWithCommas(net_amt.text);
@@ -788,7 +789,7 @@ class _SalesEntryState extends State<SalesEntry> {
       vat.text = numberWithCommas(vat.text);
       net_amt.text = numberWithCommas(net_amt.text);
       if (luom.text.isEmpty) luom.text = '0';
-      updateHdr();
+      updateHdr(false);
       var resp = await product_updation(
         list_serial_no,
         doc_no.text,
@@ -1010,7 +1011,7 @@ class _SalesEntryState extends State<SalesEntry> {
       if (printed_y == "N")
         setState(() {
           printed_y = "Y";
-          updateHdr();
+          updateHdr(false);
         });
     }
   }

@@ -45,12 +45,12 @@ class _HomePageState extends State<HomePage> {
           //padding: EdgeInsets.all(13.0),
           children: <Widget>[
             //--------------------------SALE-------------------------
-            card("SALE", CustomerList(), Colors.blue[800], this.context,
-                'sale.png'),
+            card("SALE", CustomerList(toPage: '/SalesList'), Colors.blue[800],
+                this.context, 'sale.png'),
 
             //--------------------------RETURNS-------------------------
-            card("RETURNS", SaleRetunCustomerList(), Colors.blue[800],
-                this.context, 'sale_returns.jpg'),
+            card("RETURNS", CustomerList(toPage: '/SalesReturnList'),
+                Colors.blue[800], this.context, 'sale_returns.jpg'),
 
             //--------------------------RECEIPT-------------------------
             card("RECEIPT", ReceiptList(), Colors.blue[800], this.context,
