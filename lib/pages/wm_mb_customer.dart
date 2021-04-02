@@ -87,6 +87,7 @@ class _CustomerListState extends State<CustomerList> {
         datasForDisplay[index].val3 is num
             ? val3 = getNumberFormat(datasForDisplay[index].val3)
             : val3 = datasForDisplay[index].val3;
+        if (val3 == null) val3 = " ";
         return Card(
           color: Colors.green[200],
           child: ListTile(
@@ -95,8 +96,7 @@ class _CustomerListState extends State<CustomerList> {
                 if (datasForDisplay[index].val1 != null)
                   align(Alignment.centerLeft,
                       datasForDisplay[index].val1.toString(), 14.0),
-                if (datasForDisplay[index].val2 != null &&
-                    datasForDisplay[index].val3 != null)
+                if (datasForDisplay[index].val2 != null)
                   rowData_2(datasForDisplay[index].val2.toString(),
                       val3.toString(), 14.0),
                 if (datasForDisplay[index].val4 != null)
