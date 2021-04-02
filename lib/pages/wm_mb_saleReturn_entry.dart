@@ -105,7 +105,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
       customer.text = widget.ac_name;
       selectedtype = salestypes[0];
       serial_no = 1;
-      saleslist(widget.ac_code).then((value) {
+      srReflist(widget.ac_code).then((value) {
         setState(() {
           print("saleslistref" + widget.ac_code);
           search_ref_datas.addAll(value);
@@ -176,7 +176,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
                 });
               },
               child: Icon(Icons.save)),
-          SizedBox(width: 20.0),
+          SizedBox(width: 15.0),
           GestureDetector(
               onTap: () {
                 setState(() {
@@ -185,7 +185,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
                 });
               },
               child: Icon(Icons.add)),
-          SizedBox(width: 20.0),
+          SizedBox(width: 15.0),
           GestureDetector(
               onTap: () {
                 if (product_name.text != null && details_list == true)
@@ -202,7 +202,6 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
                   });
               },
               child: Icon(Icons.delete_forever)),
-          SizedBox(width: 20.0),
           PopupMenuButton<String>(
             onSelected: choiceAction,
             itemBuilder: (BuildContext context) {
