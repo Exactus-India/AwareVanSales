@@ -164,7 +164,8 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
               onTap: () {
                 setState(() {
                   if (doc_no.text.isNotEmpty) {
-                    if (net_amt.text.isEmpty || qty.text.isEmpty) updateHdr();
+                    if (net_amt.text.isEmpty || qty.text.isEmpty)
+                      updateHdr(true);
                     if (net_amt.text.isNotEmpty && qty.text.isNotEmpty)
                       prod_update == false
                           ? productInsert()
@@ -615,13 +616,13 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
     }
   }
 
-  updateHdr() async {
+  updateHdr(_res) async {
     if (remarks.text.isNotEmpty || selectedtype != null) {
       var resp = await sr_hdr_update(doc_no.text, ref_no.text, selectedtype,
           doc_type.text, ref_doc_no.text, serial_no, remarks.text);
       if (resp == 1) {
         setState(() {
-          showToast('updated Succesfully');
+          if (_res == true) showToast('updated Succesfully');
         });
       } else {
         alert(this.context, resp.toString(), Colors.green);
@@ -727,12 +728,13 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
       return alert(this.context, 'Fields are ' + _msg, Colors.red);
     } else {
       // ---------------------Login Success--------------------------
+      updateHdr(false);
+      getHDR(doc_no.text);
+      updateHdr(false);
       amt.text = numberWithCommas(amt.text);
       vat.text = numberWithCommas(vat.text);
       net_amt.text = numberWithCommas(net_amt.text);
       if (luom.text.isEmpty) luom.text = '0';
-      getHDR(doc_no.text);
-      updateHdr();
       fields_calculate();
       var resp = await sr_product_insertion(
           doc_no.text,
