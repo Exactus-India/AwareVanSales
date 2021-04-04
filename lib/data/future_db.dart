@@ -574,9 +574,9 @@ Future<List<Customer>> customersalesReturnlist() async {
   return datas;
 }
 
-Future<List<Sales>> srReflist(ac_code) async {
+Future<List<Sales>> srReflist(ac_code, salestype) async {
   var url =
-      '${ip_port}/sales/customerList/salesReturnRef/$gs_dndoc_type/$ac_code/$gs_currentUser_empid';
+      '${ip_port}/sales/customerList/salesReturnRef/$gs_dndoc_type/$ac_code/$gs_currentUser_empid/$salestype';
   var response = await http.get(url);
   var datas = List<Sales>();
   if (response.statusCode == 200) {
