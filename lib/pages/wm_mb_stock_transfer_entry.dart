@@ -75,6 +75,7 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
         zone_list.addAll(value);
         if (widget.doc_no == null) {
           serial_no = 1;
+          det_serial_no = serial_no;
         } else if (widget.doc_no != null) {
           doc_no.text = widget.doc_no;
           getHDR(widget.doc_no);
@@ -169,7 +170,8 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
                   onTap: () {
                     setState(() {
                       if (doc_no.text.isNotEmpty) {
-                        if (quantity.text.isEmpty) updateHdr(det_serial_no);
+                        if (quantity.text.isEmpty)
+                          updateHdr(true, det_serial_no);
                         if (prod_name.text != null && quantity.text.isNotEmpty)
                           prod_update == false
                               ? productInsert()
@@ -546,13 +548,13 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
     bal_stock.clear();
   }
 
-  updateHdr(det_serialno) async {
+  updateHdr(_res, det_serialno) async {
     if (selectedZonefrom != null && selectedZoneto != null) {
       var resp = await st_HDR_update(doc_no.text, remarks.text,
           selectedZonefrom, selectedZoneto, det_serialno);
       if (resp == 1) {
         setState(() {
-          showToast('updated Succesfully');
+          if (_res == true) showToast('updated Succesfully');
         });
       } else {
         alert(this.context, resp.toString(), Colors.green);
@@ -634,7 +636,7 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
       if (resp == 1) {
         setState(() {
           det_serial_no = serial_no;
-          updateHdr(serial_no);
+          updateHdr(false, serial_no);
           clearFields();
           serial_no = serial_no + 1;
           fetch_EntryDetails(doc_no.text);
