@@ -175,6 +175,8 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
                   Navigator.push(context,
                           MaterialPageRoute(builder: (context) => HomePage()))
                       .then((value) {
+                    selectedUser = null;
+                    selectedRoute = null;
                     drop();
                     _password.clear();
                   });

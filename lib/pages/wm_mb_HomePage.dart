@@ -26,6 +26,7 @@ class _HomePageState extends State<HomePage> {
       gl_ac_cash = value[0]['CASH_AC'];
       print("CASH_AC " + gl_ac_cash);
     });
+    getContext(this.context);
     super.initState();
   }
 
