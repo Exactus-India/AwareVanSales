@@ -105,15 +105,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
       customer.text = widget.ac_name;
       selectedtype = salestypes[0];
       serial_no = 1;
-      srReflist(widget.ac_code).then((value) {
-        setState(() {
-          print("saleslistref" + widget.ac_code);
-          search_ref_datas.addAll(value);
-          list_length = search_ref_datas.length;
-          print(list_length.toString() + '....');
-          print(widget.ac_code + '....' + widget.party_address);
-        });
-      });
+      reflist(widget.ac_code, selectedtype);
     }
     if (widget.doc_no != null) {
       getHDR(widget.doc_no);
@@ -122,6 +114,19 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
     print(widget.party_address + "..> ");
 
     super.initState();
+  }
+
+  reflist(accode, selectsale_type) {
+    return srReflist(accode, selectsale_type).then((value) {
+      setState(() {
+        search_ref_datas.clear();
+        print("saleslistref" + widget.ac_code);
+        search_ref_datas.addAll(value);
+        list_length = search_ref_datas.length;
+        print(list_length.toString() + '....');
+        print(widget.ac_code + '....' + widget.party_address);
+      });
+    });
   }
 
   getHDR(docno) {
@@ -299,6 +304,8 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
                                 search_ref_datas[gs_list_index].val2.toString();
                             ref_no.text =
                                 search_ref_datas[gs_list_index].val4.toString();
+                            selectedtype =
+                                search_ref_datas[gs_list_index].val3.toString();
                             print("Accordingly");
                             fetch_products();
                           }
@@ -372,6 +379,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
   }
 
   refNolist() {
+    reflist(widget.ac_code, selectedtype);
     list_length = search_ref_datas.length;
     return AlertDialog(
       content: Container(
