@@ -27,18 +27,7 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
   @override
   void initState() {
     _password.clear();
-    getAllUserName().then((value) {
-      setState(() {
-        user_list.addAll(value);
-        user_list.sort((a, b) => a['RPT_NAME'].compareTo(b['RPT_NAME']));
-      });
-      getAllRouteName().then((value) {
-        setState(() {
-          route_list.addAll(value);
-          route_list.sort((a, b) => a['ROUTE_NAME'].compareTo(b['ROUTE_NAME']));
-        });
-      });
-    });
+    drop();
     super.initState();
   }
 
@@ -66,6 +55,7 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
         value: selectedRoute,
         hint: Text('Select Route'),
         items: route_list.map((list) {
+          print(list.length);
           return DropdownMenuItem(
               child: Text(list['ROUTE_NAME']),
               value: list['ROUTE_NAME'].toString());
@@ -76,6 +66,23 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
           });
           print(selectedRoute);
         });
+  }
+
+  drop() {
+    getAllUserName().then((value) {
+      setState(() {
+        user_list.clear();
+        user_list.addAll(value);
+        user_list.sort((a, b) => a['RPT_NAME'].compareTo(b['RPT_NAME']));
+      });
+      getAllRouteName().then((value) {
+        setState(() {
+          route_list.clear();
+          route_list.addAll(value);
+          route_list.sort((a, b) => a['ROUTE_NAME'].compareTo(b['ROUTE_NAME']));
+        });
+      });
+    });
   }
 
   @override
@@ -113,7 +120,7 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
                     loginButton(),
                     textTitle(
                         '\u00a9 1998-2020 Exactus Inc',
-                        'ver 21.04.03.01',
+                        'ver 21.04.04.01',
                         Colors.black,
                         Colors.black,
                         11.0,
@@ -168,9 +175,8 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
                   Navigator.push(context,
                           MaterialPageRoute(builder: (context) => HomePage()))
                       .then((value) {
+                    drop();
                     _password.clear();
-                    user_list.clear();
-                    route_list.clear();
                   });
                 } else if (resp == 0) {
                   setState(() {
@@ -182,6 +188,7 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
                 else if (resp == 2) {
                   setState(() {
                     message = 'User id or Password Incorrect';
+                    drop();
                   });
                   alert(context, message, Colors.red);
                 }
