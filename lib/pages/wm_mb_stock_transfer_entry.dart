@@ -255,38 +255,37 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
       child: Column(
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Flexible(
-                  flex: 3,
+                  flex: 2,
                   child:
                       textField("Doc No", doc_no, false, true, TextAlign.left)),
-              // if (doc_generate != true) SizedBox(width: 4.0),
               if (doc_generate != true)
                 Flexible(
+                    flex: 1,
                     child: Padding(
-                        padding: EdgeInsets.only(left: 5.0, right: 35),
+                        padding: EdgeInsets.only(left: 20.0),
                         child: generate_ST_docno())),
-              if (doc_generate == true && editing == true)
-                SizedBox(width: 10.0),
               if (doc_generate == true && editing == true)
                 Flexible(
                     flex: 1,
-                    child: RaisedButton(
-                        onPressed: () {
-                          st_pro(doc_no.text).then((value) {
-                            if (value == true) {
-                              editing = false;
-                              showToast('Confirmed Succesfully');
-                            }
-                            if (value != true) showToast('Failed');
-                          });
-                        },
-                        color: Colors.green,
-                        child: Text(
-                          "CONFIRM",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ))),
+                    child: Padding(
+                        padding: EdgeInsets.only(left: 15.0),
+                        child: RaisedButton(
+                            onPressed: () {
+                              st_pro(doc_no.text).then((value) {
+                                if (value == true) {
+                                  editing = false;
+                                  showToast('Confirmed Succesfully');
+                                }
+                                if (value != true) showToast('Failed');
+                              });
+                            },
+                            color: Colors.green,
+                            child: Text(
+                              "CONFIRM",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            )))),
             ],
           ),
           SizedBox(height: 4),
