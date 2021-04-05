@@ -199,14 +199,7 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
                   if (gs_Route == 'null') gs_Route = 'All';
                   print(gs_Route + '.....');
                   log_details(_geoLocation, brand, model, ipAddress);
-                  print("location " +
-                      _geoLocation +
-                      " " +
-                      brand +
-                      " " +
-                      model.split("_")[0] +
-                      " " +
-                      ipAddress);
+                  print("location " + _geoLocation + " " + brand + " " + model);
 
                   Navigator.push(context,
                           MaterialPageRoute(builder: (context) => HomePage()))
