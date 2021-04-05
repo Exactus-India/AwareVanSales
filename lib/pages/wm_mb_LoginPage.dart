@@ -1,8 +1,15 @@
+import 'dart:io';
+
 import 'package:aware_van_sales/data/future_db.dart';
 import 'package:aware_van_sales/pages/wm_mb_HomePage.dart';
 import 'package:aware_van_sales/wigdets/alert.dart';
+import 'package:aware_van_sales/wigdets/device_info.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
+import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:get_ip/get_ip.dart';
 
 class Wm_mb_LoginPage extends StatefulWidget {
   @override
@@ -18,14 +25,21 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
   List user_list = List();
   List route_list = List();
-
+  final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
+  Map<String, dynamic> _deviceData = <String, dynamic>{};
   TextEditingController _password = new TextEditingController();
   String selectedUser;
   String selectedRoute;
+  String _geoLocation = "";
+  String brand = "";
+  String model = "";
+  String ipAddress = "";
 
   bool _validatePassword = false;
   @override
   void initState() {
+    _getCurrentLocation();
+    initPlatformState();
     _password.clear();
     drop();
     super.initState();
@@ -120,7 +134,7 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
                     loginButton(),
                     textTitle(
                         '\u00a9 1998-2020 Exactus Inc',
-                        'ver 21.04.04.01',
+                        'ver 21.04.05.01',
                         Colors.black,
                         Colors.black,
                         11.0,
@@ -135,6 +149,16 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
             ),
           )),
     );
+  }
+
+  void _getCurrentLocation() async {
+    final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    print(position);
+
+    setState(() {
+      _geoLocation = "${position.latitude},${position.longitude}";
+    });
   }
 
   loginButton() {
@@ -163,20 +187,35 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
                 var resp =
                     await loginCheck(selectedUser.toString(), _password.text);
                 if (resp == 1) {
-                  setState(() {
-                    message = "Login Success";
-                  });
+                  ipAddress = await GetIp.ipAddress;
+                  print("IP" + ipAddress);
+                  Platform.isAndroid
+                      ? brand = _deviceData['brand']
+                      : brand = _deviceData['name'];
+                  model = _deviceData['model'];
                   gs_currentUser = selectedUser.toString();
                   gs_currentUser_empid = _password.text;
                   gs_Route = selectedRoute.toString();
                   if (gs_Route == 'null') gs_Route = 'All';
                   print(gs_Route + '.....');
+                  log_details(_geoLocation, brand, model, ipAddress);
+                  print("location " +
+                      _geoLocation +
+                      " " +
+                      brand +
+                      " " +
+                      model.split("_")[0] +
+                      " " +
+                      ipAddress);
 
                   Navigator.push(context,
                           MaterialPageRoute(builder: (context) => HomePage()))
                       .then((value) {
                     selectedUser = null;
                     selectedRoute = null;
+                    gs_currentUser = "";
+                    gs_currentUser_empid = "";
+                    gs_Route = "null";
                     drop();
                     _password.clear();
                   });
@@ -196,5 +235,27 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
                 }
               }
             }));
+  }
+
+  Future<void> initPlatformState() async {
+    Map<String, dynamic> deviceData;
+
+    try {
+      if (Platform.isAndroid) {
+        deviceData = readAndroidBuildData(await deviceInfoPlugin.androidInfo);
+      } else if (Platform.isIOS) {
+        deviceData = readIosDeviceInfo(await deviceInfoPlugin.iosInfo);
+      }
+    } on PlatformException {
+      deviceData = <String, dynamic>{
+        'Error:': 'Failed to get platform version.'
+      };
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _deviceData = deviceData;
+    });
   }
 }

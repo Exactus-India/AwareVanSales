@@ -1292,3 +1292,32 @@ Future rec_ac_hdr_insert(
     return responseerror(response);
   }
 }
+
+Future log_details(
+  geo_loc,
+  device,
+  model_no,
+  ip_addr,
+) async {
+  Map data = {
+    "COMPANY_CODE": gs_company_code,
+    "LOGIN_USER": gs_currentUser,
+    "GEO_LOCATION": geo_loc,
+    "DEVICE": device,
+    "MODEL_NO": model_no,
+    "IP_ADDR": ip_addr,
+  };
+  var value = json.encode(data);
+  var url = '${ip_port}/user/logdetails/insert';
+  var response = await http.post(url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+      body: value);
+
+  if (response.statusCode == 200) {
+    return 1;
+  } else {
+    return null;
+  }
+}
