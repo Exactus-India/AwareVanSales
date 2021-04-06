@@ -33,7 +33,8 @@ dependencies:
   printing: ^3.7.1
   open_file: ^2.1.1
   permission_handler: ^4.4.0
-  geolocator: ^6.1.13
+  geolocator: ^6.1.14
+  geocoding: ^1.0.5
   get_ip: ^0.4.0
   device_info: ^1.0.0
 

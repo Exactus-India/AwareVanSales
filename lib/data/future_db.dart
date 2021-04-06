@@ -1293,12 +1293,8 @@ Future rec_ac_hdr_insert(
   }
 }
 
-Future log_details(
-  geo_loc,
-  device,
-  model_no,
-  ip_addr,
-) async {
+Future log_details(geo_loc, device, model_no, ip_addr, loc_addr) async {
+  print(loc_addr);
   Map data = {
     "COMPANY_CODE": gs_company_code,
     "LOGIN_USER": gs_currentUser,
@@ -1306,6 +1302,7 @@ Future log_details(
     "DEVICE": device,
     "MODEL_NO": model_no,
     "IP_ADDR": ip_addr,
+    "LOC_ADDR": loc_addr,
   };
   var value = json.encode(data);
   var url = '${ip_port}/user/logdetails/insert';

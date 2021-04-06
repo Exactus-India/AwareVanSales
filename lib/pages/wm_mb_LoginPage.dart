@@ -8,6 +8,7 @@ import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_ip/get_ip.dart';
 
@@ -34,6 +35,9 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
   String brand = "";
   String model = "";
   String ipAddress = "";
+
+  Position _currentPosition;
+  String _currentAddress;
 
   bool _validatePassword = false;
   @override
@@ -151,16 +155,6 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
     );
   }
 
-  void _getCurrentLocation() async {
-    final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
-    print(position);
-
-    setState(() {
-      _geoLocation = "${position.latitude},${position.longitude}";
-    });
-  }
-
   loginButton() {
     return ButtonTheme(
         minWidth: 105.0,
@@ -198,8 +192,10 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
                   gs_Route = selectedRoute.toString();
                   if (gs_Route == 'null') gs_Route = 'All';
                   print(gs_Route + '.....');
-                  log_details(_geoLocation, brand, model, ipAddress);
+                  log_details(_geoLocation, brand, model.split('_')[0],
+                      ipAddress, _currentAddress);
                   print("location " + _geoLocation + " " + brand + " " + model);
+                  print(_currentAddress);
 
                   Navigator.push(context,
                           MaterialPageRoute(builder: (context) => HomePage()))
@@ -228,6 +224,35 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
                 }
               }
             }));
+  }
+
+  void _getCurrentLocation() async {
+    final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    print(position);
+
+    setState(() {
+      _currentPosition = position;
+      _geoLocation = "${position.latitude},${position.longitude}";
+      _getAddressFromLatLng();
+    });
+  }
+
+  _getAddressFromLatLng() async {
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+          _currentPosition.latitude, _currentPosition.longitude);
+
+      Placemark place = placemarks[0];
+
+      setState(() {
+        _currentAddress = "${place.locality}, ${place.country}";
+        // "${place.locality}, ${place.postalCode}, ${place.country}";
+      });
+      print(_currentAddress);
+    } catch (e) {
+      print(e);
+    }
   }
 
   Future<void> initPlatformState() async {
