@@ -7,7 +7,6 @@ import 'package:aware_van_sales/wigdets/alert.dart';
 import 'package:custom_datatable/custom_datatable.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:open_file/open_file.dart';
 import 'package:pdf/pdf.dart';
 
 import 'package:printing/printing.dart';
