@@ -45,6 +45,26 @@ textField1(_text, _controller, _validate, read, align) {
   );
 }
 
+textArea(_text, _controller, _validate, read, maxlength, max) {
+  bool obs = false;
+  if (_text == 'Password') obs = true;
+  return TextField(
+    maxLength: maxlength,
+    maxLines: max,
+    keyboardType: TextInputType.multiline,
+    readOnly: read,
+    obscureText: obs,
+    decoration: InputDecoration(
+        labelText: _text,
+        border: const OutlineInputBorder(),
+        contentPadding: EdgeInsets.all(10),
+        errorText: _validate ? 'Value Can\'t Be Empty' : null,
+        focusColor: Colors.blue,
+        labelStyle: TextStyle(color: Colors.black54)),
+    controller: _controller,
+  );
+}
+
 Widget text(_text, clr) {
   return Text(
     _text,
