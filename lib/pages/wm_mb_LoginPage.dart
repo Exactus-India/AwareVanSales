@@ -24,8 +24,8 @@ String gs_currentUser_empid;
 
 class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
-  List user_list = List();
-  List route_list = List();
+  List user_list = [];
+  List route_list = [];
   final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
   Map<String, dynamic> _deviceData = <String, dynamic>{};
   TextEditingController _password = new TextEditingController();
