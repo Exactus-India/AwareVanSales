@@ -1,7 +1,11 @@
 import 'package:aware_van_sales/data/future_db.dart';
+import 'package:aware_van_sales/data/user_alert.dart';
+import 'package:aware_van_sales/pages/wm_mb_LoginPage.dart';
+import 'package:aware_van_sales/pages/wm_mb_addalert.dart';
 import 'package:aware_van_sales/pages/wm_mb_customer.dart';
 import 'package:aware_van_sales/pages/wm_mb_os_summary.dart';
 import 'package:aware_van_sales/wigdets/card.dart';
+import 'package:aware_van_sales/wigdets/widget_rowData.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:aware_van_sales/wigdets/willpopup.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +21,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final List<UserAlert> userAlert = [];
   @override
   void initState() {
     get_user_zonecode().then((value) {
@@ -25,6 +30,12 @@ class _HomePageState extends State<HomePage> {
       gl_ac_cash = value[0]['CASH_AC'];
       print("CASH_AC " + gl_ac_cash);
     });
+    // getUserAlert().then((value) {
+    //   setState(() {
+    //     userAlert.clear();
+    //     userAlert.addAll(value);
+    //   });
+    // });
     getContext(this.context);
     super.initState();
   }
@@ -33,12 +44,64 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false,
         title: text("Menu", Colors.white),
-        centerTitle: true,
         elevation: .1,
         backgroundColor: Color.fromRGBO(59, 87, 110, 1.0),
+        // actions: <Widget>[
+        //   // Using Stack to show Notification Badge
+        //   new Stack(
+        //     children: <Widget>[
+        //       new IconButton(
+        //           iconSize: 30.0,
+        //           icon: Icon(Icons.notifications),
+        //           onPressed: () {
+        //             setState(() {
+        //               alert_list(context);
+        //             });
+        //           }),
+        //       userAlert.length != 0 ? notify_count() : new Container(),
+        //     ],
+        //   ),
+        // ]
       ),
+      drawer: new Drawer(
+          elevation: 10.0,
+          child: new ListView(
+            children: <Widget>[
+              DrawerHeader(
+                  decoration: BoxDecoration(color: Colors.grey.shade500),
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        CircleAvatar(
+                          child: Text(gs_currentUser[0],
+                              style: TextStyle(fontSize: 35)),
+                          radius: 40.0,
+                        ),
+                        Text(
+                          gs_currentUser,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              fontSize: 25.0),
+                        ),
+                      ])),
+              listTile(CustomerList(toPage: '/SalesList'), context, 'sale.png',
+                  'SALE'),
+              listTile(CustomerList(toPage: '/SalesReturnList'), context,
+                  'sale_returns.jpg', 'RETURNS'),
+              listTile(ReceiptList(), context, 'receipt.png', 'RECEIPT'),
+              listTile(
+                  SalesSummary(), context, 'sales_summary.png', 'SALE SUMMARY'),
+              listTile(Stocktransfer(), context, 'stock_transfer.png',
+                  'STOCK TRANSFER'),
+              listTile(OsSummary(), context, 'os_ageing.png', 'O/S AGEING'),
+              listTile(StockSummary(), context, 'stock_summary.png',
+                  'STOCK SUMMARY'),
+              new Divider(),
+              listTile(null, context, 'about.png', 'ABOUT'),
+            ],
+          )),
       body: WillPopScope(
         onWillPop: onWillPop,
         child: Container(
@@ -76,10 +139,73 @@ class _HomePageState extends State<HomePage> {
                   this.context, 'stock_summary.png'),
 
               //--------------------------DAILY ACTIVITY-------------------------
-              // card("DAILY ACTIVITY", null, Colors.blue[800], this.context,
-              //     'daily_activity.png')
+              card("ALERT", AddAlert(), Colors.blue[800], this.context,
+                  'daily_activity.png')
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  void alert_list(context) {
+    showModalBottomSheet(
+        backgroundColor: Color.fromRGBO(59, 87, 110, 1.0),
+        context: context,
+        builder: (_) {
+          return ListView.builder(
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: const EdgeInsets.only(top: 5.0),
+                child: Card(
+                    elevation: 4.0,
+                    child: GestureDetector(
+                      onTap: () {},
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            rowData_2(userAlert[index].val4,
+                                userAlert[index].val7, 14.0),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 8.0),
+                              child: textData(
+                                  userAlert[index].val5, Colors.red, 20.0),
+                            )
+                          ],
+                        ),
+                      ),
+                    )),
+              );
+            },
+            itemCount: userAlert.length,
+          );
+        });
+  }
+
+  notify_count() {
+    return new Positioned(
+      right: 8,
+      top: 8,
+      child: new Container(
+        padding: EdgeInsets.all(2),
+        decoration: new BoxDecoration(
+          color: Colors.red,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        constraints: BoxConstraints(
+          minWidth: 15,
+          minHeight: 15,
+        ),
+        child: Text(
+          userAlert.length.toString(),
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 14,
+          ),
+          textAlign: TextAlign.center,
         ),
       ),
     );
