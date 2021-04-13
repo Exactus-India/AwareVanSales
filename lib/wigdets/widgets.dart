@@ -209,7 +209,8 @@ listTile(page, context, image, text) {
     onTap: () => {
       page != null
           ? Navigator.push(
-              context, MaterialPageRoute(builder: (context) => page))
+                  context, MaterialPageRoute(builder: (context) => page))
+              .then((value) => Navigator.pop(context))
           : null
     },
   );

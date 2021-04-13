@@ -70,7 +70,7 @@ class _HomePageState extends State<HomePage> {
             children: <Widget>[
               DrawerHeader(
                   decoration: BoxDecoration(color: Colors.grey.shade500),
-                  child: Row(
+                  child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
                         CircleAvatar(
@@ -83,7 +83,7 @@ class _HomePageState extends State<HomePage> {
                           style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
-                              fontSize: 25.0),
+                              fontSize: 20.0),
                         ),
                       ])),
               listTile(CustomerList(toPage: '/SalesList'), context, 'sale.png',
@@ -98,7 +98,6 @@ class _HomePageState extends State<HomePage> {
               listTile(OsSummary(), context, 'os_ageing.png', 'O/S AGEING'),
               listTile(StockSummary(), context, 'stock_summary.png',
                   'STOCK SUMMARY'),
-              new Divider(),
               listTile(null, context, 'about.png', 'ABOUT'),
             ],
           )),
