@@ -241,7 +241,8 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
   _getAddressFromLatLng() async {
     try {
       List<Placemark> placemarks = await placemarkFromCoordinates(
-          _currentPosition.latitude, _currentPosition.longitude);
+          _currentPosition.latitude, _currentPosition.longitude,
+          localeIdentifier: "en");
 
       Placemark place = placemarks[0];
 
