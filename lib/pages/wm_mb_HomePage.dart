@@ -30,40 +30,44 @@ class _HomePageState extends State<HomePage> {
       gl_ac_cash = value[0]['CASH_AC'];
       print("CASH_AC " + gl_ac_cash);
     });
-    // getUserAlert().then((value) {
-    //   setState(() {
-    //     userAlert.clear();
-    //     userAlert.addAll(value);
-    //   });
-    // });
+    alert_list_();
     getContext(this.context);
     super.initState();
+  }
+
+  alert_list_() {
+    return getUserAlert(gs_currentUser).then((value) {
+      setState(() {
+        userAlert.clear();
+        userAlert.addAll(value);
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: text("Menu", Colors.white),
-        elevation: .1,
-        backgroundColor: Color.fromRGBO(59, 87, 110, 1.0),
-        // actions: <Widget>[
-        //   // Using Stack to show Notification Badge
-        //   new Stack(
-        //     children: <Widget>[
-        //       new IconButton(
-        //           iconSize: 30.0,
-        //           icon: Icon(Icons.notifications),
-        //           onPressed: () {
-        //             setState(() {
-        //               alert_list(context);
-        //             });
-        //           }),
-        //       userAlert.length != 0 ? notify_count() : new Container(),
-        //     ],
-        //   ),
-        // ]
-      ),
+          title: text("Menu", Colors.white),
+          elevation: .1,
+          backgroundColor: Color.fromRGBO(59, 87, 110, 1.0),
+          actions: <Widget>[
+            // Using Stack to show Notification Badge
+            new Stack(
+              children: <Widget>[
+                new IconButton(
+                    iconSize: 30.0,
+                    icon: Icon(Icons.notifications),
+                    onPressed: () {
+                      alert_list_();
+                      setState(() {
+                        alert_list(context);
+                      });
+                    }),
+                userAlert.length != 0 ? notify_count() : new Container(),
+              ],
+            ),
+          ]),
       drawer: new Drawer(
           elevation: 10.0,
           child: new ListView(
@@ -148,18 +152,21 @@ class _HomePageState extends State<HomePage> {
   }
 
   void alert_list(context) {
+    // Color color;
     showModalBottomSheet(
         backgroundColor: Color.fromRGBO(59, 87, 110, 1.0),
         context: context,
         builder: (_) {
           return ListView.builder(
             itemBuilder: (context, index) {
+              // if (userAlert[index].msg_r == 'N') color = Colors.grey[400];
+              // if (userAlert[index].msg_r == 'Y') color = Colors.white;
               return Padding(
                 padding: const EdgeInsets.only(top: 5.0),
                 child: Card(
+                    color: Colors.white,
                     elevation: 4.0,
                     child: GestureDetector(
-                      onTap: () {},
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Column(
@@ -176,6 +183,15 @@ class _HomePageState extends State<HomePage> {
                           ],
                         ),
                       ),
+                      onTap: () {
+                        alert_read_update(userAlert[index].val3).then((value) {
+                          print(value);
+                          setState(() {
+                            alert_list_();
+                            Navigator.pop(context);
+                          });
+                        });
+                      },
                     )),
               );
             },

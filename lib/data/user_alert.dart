@@ -6,6 +6,7 @@ class UserAlert {
   var val5;
   var val6;
   var val7;
+  var msg_r;
 
   UserAlert.fromJson(Map<String, dynamic> json) {
     val1 = json['COMPANY_CODE'];
@@ -15,5 +16,6 @@ class UserAlert {
     val5 = json['ALERT_MSG'];
     val6 = json['USER_DT'];
     val7 = json['USER_ID'];
+    msg_r = json['MSG_READ'];
   }
 }

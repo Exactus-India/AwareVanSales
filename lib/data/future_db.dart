@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
+import 'package:aware_van_sales/data/user_alert.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:http/http.dart' as http;
 
@@ -26,6 +27,7 @@ String gs_dndoc_type = 'DN90';
 String gs_srdoc_type = 'SR90';
 String gs_strdoc_type = 'STR';
 String gs_recdoc_type = 'CR';
+String gs_alert_doc_type = 'MGA';
 String gs_company_code = 'BSG';
 String gs_curr = 'AED';
 String gs_dept_code = 'DC';
@@ -54,6 +56,8 @@ var gs_sys_date = DateFormat("dd-MMM-yyyy").format(DateTime.now());
 var gs_date_login = DateFormat("yy.MMM.dd").format(DateTime.now());
 var gs_date_to =
     DateFormat("dd-MMM-yyyy").format(DateTime.now().add(Duration(days: 1)));
+
+// ssl !!
 
 responseerror(response) {
   String str = response.body;
@@ -1316,5 +1320,90 @@ Future log_details(geo_loc, device, model_no, ip_addr, loc_addr) async {
     return 1;
   } else {
     return null;
+  }
+}
+
+Future<List<UserAlert>> getUserAlert(userid) async {
+  var url = '${ip_port}/user/alert/list/$userid';
+  var response = await http.get(url);
+  List<UserAlert> datas = [];
+  if (response.statusCode == 200) {
+    Object datasJson = json.decode(response.body.substring(0));
+    for (var dataJson in datasJson) {
+      datas.add(UserAlert.fromJson(dataJson));
+    }
+  }
+  return datas;
+}
+
+Future<List<UserAlert>> getUserAlertListing(userid) async {
+  var url = '${ip_port}/alert/list/$userid';
+  var response = await http.get(url);
+  var datas = List<UserAlert>();
+  if (response.statusCode == 200) {
+    Object datasJson = json.decode(response.body.substring(0));
+    for (var dataJson in datasJson) {
+      datas.add(UserAlert.fromJson(dataJson));
+    }
+  }
+  return datas;
+}
+
+Future alert_user_insertion(
+    company_code, doc_type, doc_no, alert_msg, user_id, remarks) async {
+  // print(unit_price);
+  Map data = {
+    "DOC_NO": doc_no,
+    "DOC_TYPE": gs_alert_doc_type,
+    "COMPANY_CODE": gs_company_code,
+    "ALERT_MSG": alert_msg,
+    "USER_ID": gs_currentUser,
+    "REMARKS": remarks,
+  };
+  var value = json.encode(data);
+  var url = '${ip_port}/user/alert/insert';
+  // var url = '${ip_port}/user/alert/insert';
+  var response = await http.post(url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+      body: value);
+
+  if (response.statusCode == 200) {
+    return 1;
+  } else {
+    return responseerror(response);
+  }
+}
+
+Future<int> max_alert() async {
+  var url = '${ip_port}/user/alert/max/docno';
+  var response = await http.get(url);
+  var jsonBody = response.body;
+  var jsonData = json.decode(jsonBody.substring(0));
+  print(jsonData[0]['DOC_NO'].toString() + "last dnno");
+
+  return jsonData[0]['DOC_NO'];
+}
+
+Future alert_read_update(doc_no) async {
+  Map data = {
+    "COMPANY_CODE": gs_company_code,
+    "DOC_NO": doc_no,
+    "DOC_TYPE": gs_alert_doc_type,
+    "USER_NAME": gs_currentUser,
+  };
+  var value = json.encode(data);
+  var url = '${ip_port}/user/alert/read/update';
+  var response = await http.put(url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+      body: value);
+
+  if (response.statusCode == 200) {
+    return 1;
+  } else {
+    return responseerror(response);
   }
 }
