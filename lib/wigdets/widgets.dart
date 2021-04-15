@@ -201,17 +201,3 @@ String newDocNo() {
   doc_no = ls_mth_code.toString() + "0001";
   return doc_no;
 }
-
-listTile(page, context, image, text) {
-  return new ListTile(
-    leading: Image.asset('assets/icons/$image', width: 55, height: 40),
-    title: new Text(text),
-    onTap: () => {
-      page != null
-          ? Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => page))
-              .then((value) => Navigator.pop(context))
-          : null
-    },
-  );
-}

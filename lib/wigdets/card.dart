@@ -27,3 +27,16 @@ card(text, page, color, context, image) {
     ),
   );
 }
+
+listTile(page, context, image, text) {
+  return new ListTile(
+    leading: Image.asset('assets/icons/$image', width: 55, height: 40),
+    title: new Text(text),
+    onTap: () => {
+      page != null
+          ? Navigator.push(
+              context, MaterialPageRoute(builder: (context) => page))
+          : null
+    },
+  );
+}

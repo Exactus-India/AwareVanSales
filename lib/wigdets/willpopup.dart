@@ -13,11 +13,11 @@ Future<bool> onWillPop() async {
           title: new Text('Are you sure?'),
           content: new Text('Do you want to Sign Out?'),
           actions: <Widget>[
-            new FlatButton(
+            new ElevatedButton(
               onPressed: () => Navigator.of(context).pop(false),
               child: new Text('No'),
             ),
-            new FlatButton(
+            new ElevatedButton(
               onPressed: () => Navigator.of(context).pop(true),
               // onPressed: () => Navigator.push(context,
               //     MaterialPageRoute(builder: (context) => LoginPage())),
