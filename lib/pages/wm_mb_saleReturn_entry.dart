@@ -9,6 +9,8 @@ import 'package:aware_van_sales/wigdets/listing_Builder.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:custom_datatable/custom_datatable.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 import 'package:pdf/pdf.dart';
@@ -48,6 +50,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
   TextEditingController vat = new TextEditingController();
   TextEditingController net_amt = new TextEditingController();
   TextEditingController sal_ty = new TextEditingController();
+  File _image;
   List salestypes = ['CASH', 'CREDIT'];
   String selectedtype;
   bool middle_view = false;
@@ -236,6 +239,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
           ),
         )),
       ),
+      floatingActionButton: _getOptionInFloatingButton(),
     );
   }
 
@@ -263,7 +267,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
 
   head() {
     return Container(
-      child: Column(children: [
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         textField("Customer", customer, false, true, TextAlign.left),
         SizedBox(height: 4),
         Row(children: <Widget>[
@@ -324,6 +328,38 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
           Flexible(flex: 1, child: dropDown_salestype()),
           SizedBox(width: 20.0),
         ]),
+        _image == null
+            ? Container(
+                padding: EdgeInsets.all(8.0),
+                color: Colors.red,
+                child: text(
+                  'Image not selected',
+                  Colors.white,
+                ),
+              )
+            : Row(
+                children: [
+                  Container(
+                    child: Image.file(_image),
+                  ),
+                  // ElevatedButton(
+                  //   onPressed: () {},
+                  //   child: Container(
+                  //     padding: EdgeInsets.all(8.0),
+                  //     child: Icon(
+                  //       Icons.upload_file,
+                  //       color: Colors.white,
+                  //       size: 30.0,
+                  //     ),
+                  //   ),
+                  //   style: ElevatedButton.styleFrom(
+                  //       shape: CircleBorder(), primary: Colors.green),
+                  // ),
+                ],
+              ),
+        SizedBox(
+          height: 4,
+        ),
         textField("Remarks", remarks, false,
             remarks.text == null ? true : false, TextAlign.left),
       ]),
@@ -491,13 +527,11 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
                       //sno
                       if (index != numItems - 1)
                         DataCell(Text(rowList[index].val1.toString())),
-                      if (index == numItems - 1)
-                        DataCell(textBold("TOTAL")),
+                      if (index == numItems - 1) DataCell(textBold("TOTAL")),
                       //product code
                       if (index != numItems - 1)
                         DataCell(Text(rowList[index].val2.toString())),
-                      if (index == numItems - 1)
-                        DataCell(Text("")),
+                      if (index == numItems - 1) DataCell(Text("")),
                       //qty
                       if (index != numItems - 1)
                         DataCell(Text(rowList[index].val5.toString())),
@@ -514,8 +548,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
                       //prod name
                       if (index != numItems - 1)
                         DataCell(Text(rowList[index].val3.toString())),
-                      if (index == numItems - 1)
-                        DataCell(Text("")),
+                      if (index == numItems - 1) DataCell(Text("")),
                       //qtypuom
 
                       if (index != numItems - 1)
@@ -745,30 +778,35 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
       if (luom.text.isEmpty) luom.text = '0';
       fields_calculate();
       var resp = await sr_product_insertion(
-          doc_no.text,
-          serial_no,
-          product.text,
-          product_name.text,
-          _puom,
-          puom.text,
-          _luom,
-          luom.text,
-          uppp,
-          qty.text,
-          unit_price_amt,
-          disc_price,
-          net_price,
-          net_amt.text,
-          amt.text,
-          cost_rate,
-          lcur_amt,
-          tx_id_no,
-          lcur_amt_disc,
-          tx_cmpt_perc,
-          tx_cmpt_amt,
-          tx_cmpt_lcur_amt,
-          doc_type.text,
-          ref_doc_no.text);
+              doc_no.text,
+              serial_no,
+              product.text,
+              product_name.text,
+              _puom,
+              puom.text,
+              _luom,
+              luom.text,
+              uppp,
+              qty.text,
+              unit_price_amt,
+              disc_price,
+              net_price,
+              net_amt.text,
+              amt.text,
+              cost_rate,
+              lcur_amt,
+              tx_id_no,
+              lcur_amt_disc,
+              tx_cmpt_perc,
+              tx_cmpt_amt,
+              tx_cmpt_lcur_amt,
+              doc_type.text,
+              ref_doc_no.text)
+          .then((value) {
+        image_sequence().then((value) => nextvalue = value).then((value) {
+          imageUpload(context, _image);
+        });
+      });
       if (resp == 1) {
         setState(() {
           clearFields();
@@ -1033,6 +1071,65 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
       _generatePdfAndView(choice);
     } else {
       _generatePdfAndView(choice);
+    }
+  }
+
+  Widget _getOptionInFloatingButton() {
+    return SpeedDial(
+      icon: Icons.camera_alt,
+      // animatedIcon: AnimatedIcons.add_event,
+      animatedIconTheme: IconThemeData(size: 30),
+      backgroundColor: Color(0xFF801E48),
+      visible: true,
+      curve: Curves.bounceIn,
+      children: [
+        // FAB 1
+        SpeedDialChild(
+            child: Icon(Icons.camera),
+            backgroundColor: Color(0xFF801E48),
+            onTap: () {
+              getimage('Camera');
+            },
+            label: 'Camera',
+            labelStyle: TextStyle(
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
+                fontSize: 16.0),
+            labelBackgroundColor: Color(0xFF801E48)),
+        // FAB 2
+        SpeedDialChild(
+            child: Icon(Icons.photo_album),
+            backgroundColor: Color(0xFF801E48),
+            onTap: () {
+              getimage('Gallery');
+            },
+            label: 'Gallery',
+            labelStyle: TextStyle(
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
+                fontSize: 16.0),
+            labelBackgroundColor: Color(0xFF801E48))
+      ],
+    );
+  }
+
+  Future getimage(option) async {
+    if (option == 'Gallery') {
+      final image = await ImagePicker().getImage(
+        source: ImageSource.gallery,
+        maxHeight: 100.0,
+      );
+      setState(() {
+        _image = image as File;
+      });
+    } else {
+      final image = await ImagePicker().getImage(
+        source: ImageSource.gallery,
+        maxHeight: 100.0,
+      );
+      setState(() {
+        _image = image as File;
+      });
     }
   }
 }

@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
+import 'package:async/async.dart';
 import 'package:aware_van_sales/data/user_alert.dart';
+import 'package:aware_van_sales/wigdets/alert.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import 'Rec_inv_list.dart';
@@ -23,6 +26,12 @@ import 'stock_sum_data.dart';
 import 'stocktransfer.dart';
 
 String ip_port = "http://exactusnet.dyndns.org:4005/api";
+var ls_mth_code;
+String org_filename;
+var description;
+var docno;
+int nextvalue;
+
 String gs_dndoc_type = 'DN90';
 String gs_srdoc_type = 'SR90';
 String gs_strdoc_type = 'STR';
@@ -1406,4 +1415,92 @@ Future alert_read_update(doc_no) async {
   } else {
     return responseerror(response);
   }
+}
+
+Future<int> image_sequence() async {
+  var url = '${ip_port}/user/image_sequence';
+  var response = await http.get(url);
+  var jsonBody = response.body;
+  var jsonData = json.decode(jsonBody.substring(0));
+  print(jsonData[0]['NEXTVAL'].toString() + "last dnno");
+
+  return jsonData[0]['NEXTVAL'];
+}
+
+Future img_detail_insert(doc_no) async {
+  Map data = {
+    "COMPANY_CODE": 'BSG',
+    "DOC_TYPE": 'MID',
+    "DOC_NO": doc_no,
+    "USERID": 'KRISH'
+  };
+  var value = json.encode(data);
+  var url = '${ip_port}/user/img/insert';
+  print(url);
+  var response = await http.post(url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+      body: value);
+
+  if (response.statusCode == 200) {
+    return 1;
+  } else {
+    return responseerror(response);
+  }
+}
+
+Future imageUpload(context, File imageFile) async {
+  // open a bytestream
+
+  var stream =
+      // ignore: deprecated_member_use
+      new http.ByteStream(DelegatingStream.typed(imageFile.openRead()));
+  // get file length
+  var length = await imageFile.length();
+
+  // string to uri
+  var uri = Uri.parse("${ip_port}/images");
+
+  // create multipart request
+  var request = new http.MultipartRequest("POST", uri);
+  var ls_date = DateFormat("dd/MM/yyyy").format(DateTime.now()).toString();
+  ls_mth_code = ls_date[8] +
+      ls_date[9] +
+      ls_date[3] +
+      ls_date[4] +
+      ls_date[0] +
+      ls_date[1];
+  // multipart that takes file
+  var multipartFile = new http.MultipartFile('image', stream, length,
+      filename:
+          '${ls_mth_code}' + '${nextvalue}' + imageFile.path.split('/').last);
+  print(nextvalue);
+  org_filename = imageFile.path.split('/').last;
+  print(org_filename);
+  description = org_filename.split('_').first;
+  print(description + "des");
+  docno = '${ls_mth_code}' + '${nextvalue}';
+
+  print(docno);
+
+  // add file to multipart
+  request.files.add(multipartFile);
+
+  // send
+  var response = await request.send();
+  print(response.statusCode);
+
+  // listen for response
+  response.stream.transform(utf8.decoder).listen((value) {
+    if (value == 'upload')
+      img_detail_insert(docno).then((value) {
+        if (value == 1) {
+          alert(context, "success", Colors.green);
+        }
+      });
+    print(value);
+  });
+
+  // _image = null;
 }

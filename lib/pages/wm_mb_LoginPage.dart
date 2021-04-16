@@ -42,10 +42,10 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
   bool _validatePassword = false;
   @override
   void initState() {
+    drop();
     _getCurrentLocation();
     initPlatformState();
     _password.clear();
-    drop();
     super.initState();
   }
 
