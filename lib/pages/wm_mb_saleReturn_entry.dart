@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:file_picker/file_picker.dart';
 
 import 'package:pdf/pdf.dart';
 
@@ -51,6 +52,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
   TextEditingController net_amt = new TextEditingController();
   TextEditingController sal_ty = new TextEditingController();
   File _image;
+  List<File> files = [];
   List salestypes = ['CASH', 'CREDIT'];
   String selectedtype;
   bool middle_view = false;
@@ -267,7 +269,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
 
   head() {
     return Container(
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      child: Column(children: [
         textField("Customer", customer, false, true, TextAlign.left),
         SizedBox(height: 4),
         Row(children: <Widget>[
@@ -328,38 +330,6 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
           Flexible(flex: 1, child: dropDown_salestype()),
           SizedBox(width: 20.0),
         ]),
-        _image == null
-            ? Container(
-                padding: EdgeInsets.all(8.0),
-                color: Colors.red,
-                child: text(
-                  'Image not selected',
-                  Colors.white,
-                ),
-              )
-            : Row(
-                children: [
-                  Container(
-                    child: Image.file(_image),
-                  ),
-                  // ElevatedButton(
-                  //   onPressed: () {},
-                  //   child: Container(
-                  //     padding: EdgeInsets.all(8.0),
-                  //     child: Icon(
-                  //       Icons.upload_file,
-                  //       color: Colors.white,
-                  //       size: 30.0,
-                  //     ),
-                  //   ),
-                  //   style: ElevatedButton.styleFrom(
-                  //       shape: CircleBorder(), primary: Colors.green),
-                  // ),
-                ],
-              ),
-        SizedBox(
-          height: 4,
-        ),
         textField("Remarks", remarks, false,
             remarks.text == null ? true : false, TextAlign.left),
       ]),
@@ -367,9 +337,44 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
   }
 
   middle() {
-    return Column(children: [
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       product_row("Product", product),
       textField("", product_name, false, true, TextAlign.left),
+      SizedBox(
+        height: 4,
+      ),
+      _image == null
+          ? Container(
+              padding: EdgeInsets.all(8.0),
+              color: Colors.red,
+              child: text(
+                'Image not selected',
+                Colors.white,
+              ),
+            )
+          : Row(
+              children: [
+                Container(
+                  child: Image.file(_image),
+                ),
+                // ElevatedButton(
+                //   onPressed: () {},
+                //   child: Container(
+                //     padding: EdgeInsets.all(8.0),
+                //     child: Icon(
+                //       Icons.upload_file,
+                //       color: Colors.white,
+                //       size: 30.0,
+                //     ),
+                //   ),
+                //   style: ElevatedButton.styleFrom(
+                //       shape: CircleBorder(), primary: Colors.green),
+                // ),
+              ],
+            ),
+      SizedBox(
+        height: 4,
+      ),
       Row(children: <Widget>[
         Flexible(child: textData(_puom.toString(), Colors.purple, 13.0)),
         SizedBox(width: 10.0),
@@ -778,41 +783,42 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
       if (luom.text.isEmpty) luom.text = '0';
       fields_calculate();
       var resp = await sr_product_insertion(
-              doc_no.text,
-              serial_no,
-              product.text,
-              product_name.text,
-              _puom,
-              puom.text,
-              _luom,
-              luom.text,
-              uppp,
-              qty.text,
-              unit_price_amt,
-              disc_price,
-              net_price,
-              net_amt.text,
-              amt.text,
-              cost_rate,
-              lcur_amt,
-              tx_id_no,
-              lcur_amt_disc,
-              tx_cmpt_perc,
-              tx_cmpt_amt,
-              tx_cmpt_lcur_amt,
-              doc_type.text,
-              ref_doc_no.text)
-          .then((value) {
-        image_sequence().then((value) => nextvalue = value).then((value) {
-          imageUpload(context, _image);
-        });
-      });
+          doc_no.text,
+          serial_no,
+          product.text,
+          product_name.text,
+          _puom,
+          puom.text,
+          _luom,
+          luom.text,
+          uppp,
+          qty.text,
+          unit_price_amt,
+          disc_price,
+          net_price,
+          net_amt.text,
+          amt.text,
+          cost_rate,
+          lcur_amt,
+          tx_id_no,
+          lcur_amt_disc,
+          tx_cmpt_perc,
+          tx_cmpt_amt,
+          tx_cmpt_lcur_amt,
+          doc_type.text,
+          ref_doc_no.text);
+
       if (resp == 1) {
-        setState(() {
-          clearFields();
-          fetch_EntryDetails(doc_no.text);
-          showToast('Created Succesfully');
-        });
+        // image_sequence().then((value) {
+        //   nextvalue = value;
+        //   imageUpload(context, _image, doc_no.text).then((value) {
+        //     setState(() {
+        //       clearFields();
+        //       fetch_EntryDetails(doc_no.text);
+        showToast('Inserted Succesfully');
+        //     });
+        //   });
+        // });
       } else {
         showToast('error');
       }
@@ -915,7 +921,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
     // ignore: deprecated_member_use
     final PdfImage assetImage = await pdfImageFromImageProvider(
       pdf: pdf.document,
-      image: const AssetImage('assets/exactus_logo.png'),
+      image: const AssetImage('assets/BMK.png'),
     );
 
     // final image = pdfLib.MemoryImage(
@@ -940,13 +946,14 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
                 crossAxisAlignment: pdfLib.CrossAxisAlignment.start,
                 children: [
                   pdfLib.Text(
-                    "BMK",
+                    "Island Valley Electronics L.L.C",
                     style: pdfLib.TextStyle(
                         fontSize: 18.0, fontWeight: pdfLib.FontWeight.bold),
                   ),
-                  pdfLib.Text("Address :" + widget.party_address),
-                  pdfLib.Text("Phn"),
-                  pdfLib.Text("tr_no"),
+                  pdfLib.Text("Address :" +
+                      "Office No.306,\nAl Habtoor Naif Building\nBaniyas Square\nDubai U.A.E"),
+                  pdfLib.Text("Tel : " + " 04-2324747"),
+                  pdfLib.Text("TRN_NO : " + "100299579100003"),
                 ])
           ]);
         },
@@ -1036,7 +1043,8 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
                 pdfLib.Row(
                     mainAxisAlignment: pdfLib.MainAxisAlignment.spaceBetween,
                     children: [
-                      pdfLib.Text("Issued by: " + "BMK"),
+                      pdfLib.Text(
+                          "Issued by: " + "Island Valley Electronics L.L.C"),
                       pdfLib.Text("Received By: " + widget.ac_name),
                     ]),
                 pdfLib.Text("Salesman name: " + gs_currentUser),
@@ -1088,7 +1096,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
             child: Icon(Icons.camera),
             backgroundColor: Color(0xFF801E48),
             onTap: () {
-              getimage('Camera');
+              getimage();
             },
             label: 'Camera',
             labelStyle: TextStyle(
@@ -1101,7 +1109,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
             child: Icon(Icons.photo_album),
             backgroundColor: Color(0xFF801E48),
             onTap: () {
-              getimage('Gallery');
+              getimage();
             },
             label: 'Gallery',
             labelStyle: TextStyle(
@@ -1113,23 +1121,36 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
     );
   }
 
-  Future getimage(option) async {
-    if (option == 'Gallery') {
-      final image = await ImagePicker().getImage(
-        source: ImageSource.gallery,
-        maxHeight: 100.0,
-      );
+  Future getimage() async {
+    FilePickerResult result =
+        await FilePicker.platform.pickFiles(allowMultiple: true);
+
+    if (result != null) {
       setState(() {
-        _image = image as File;
+        files += result.paths.map((path) => File(path)).toList();
       });
     } else {
-      final image = await ImagePicker().getImage(
-        source: ImageSource.gallery,
-        maxHeight: 100.0,
-      );
-      setState(() {
-        _image = image as File;
-      });
+      // User canceled the picker
     }
   }
+
+  // Future getimage(option) async {
+  //   if (option == 'Gallery') {
+  //     final image = await ImagePicker.pickImage(
+  //       source: ImageSource.gallery,
+  //       maxHeight: 100.0,
+  //     );
+  //     setState(() {
+  //       _image = image as File;
+  //     });
+  //   } else {
+  //     final image = await ImagePicker.pickImage(
+  //       source: ImageSource.camera,
+  //       maxHeight: 100.0,
+  //     );
+  //     setState(() {
+  //       _image = image;
+  //     });
+  //   }
+  // }
 }

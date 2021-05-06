@@ -247,8 +247,7 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
                             if (index != itemCount - 1)
                               DataCell(Text(rowList[index].val3.toString(),
                                   style: TextStyle(fontSize: 12))),
-                            if (index == itemCount - 1)
-                              DataCell(textBold(" ")),
+                            if (index == itemCount - 1) DataCell(textBold(" ")),
                             // amt
                             if (index != itemCount - 1)
                               DataCell(Align(
@@ -429,7 +428,7 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
     // ignore: deprecated_member_use
     final PdfImage assetImage = await pdfImageFromImageProvider(
       pdf: pdf.document,
-      image: const AssetImage('assets/exactus_logo.png'),
+      image: const AssetImage('assets/BMK.png'),
     );
     pdf.addPage(
       pdfLib.MultiPage(
@@ -446,13 +445,14 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
                 crossAxisAlignment: pdfLib.CrossAxisAlignment.start,
                 children: [
                   pdfLib.Text(
-                    "BMK",
+                    "Island Valley Electronics L.L.C",
                     style: pdfLib.TextStyle(
                         fontSize: 18.0, fontWeight: pdfLib.FontWeight.bold),
                   ),
-                  // pdfLib.Text("Address :" + widget.party_address),
-                  pdfLib.Text("Phn"),
-                  pdfLib.Text("tr_no"),
+                  pdfLib.Text("Address :" +
+                      "Office No.306,\nAl Habtoor Naif Building\nBaniyas Square\nDubai U.A.E"),
+                  pdfLib.Text("Tel : " + " 04-2324747"),
+                  pdfLib.Text("TRN_NO : " + "100299579100003"),
                 ])
           ]);
         },
@@ -544,7 +544,8 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
                 pdfLib.Row(
                     mainAxisAlignment: pdfLib.MainAxisAlignment.spaceBetween,
                     children: [
-                      pdfLib.Text("Issued by: " + "BMK"),
+                      pdfLib.Text(
+                          "Issued by: " + "Island Valley Electronics L.L.C"),
                       pdfLib.Text("Received By: " + widget.ac_name),
                     ]),
                 pdfLib.Text("Salesman name: " + gs_currentUser),

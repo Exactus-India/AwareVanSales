@@ -418,18 +418,15 @@ class _SalesEntryState extends State<SalesEntry> {
                 //sno
                 if (index != numItems - 1)
                   DataCell(Text(rowList[index].val1.toString())),
-                if (index == numItems - 1)
-                  DataCell(textBold("TOTAL")),
+                if (index == numItems - 1) DataCell(textBold("TOTAL")),
                 //product code
                 if (index != numItems - 1)
                   DataCell(Text(rowList[index].val2.toString())),
-                if (index == numItems - 1)
-                  DataCell(Text("")),
+                if (index == numItems - 1) DataCell(Text("")),
                 //qty
                 if (index != numItems - 1)
                   DataCell(Text(rowList[index].val5.toString())),
-                if (index == numItems - 1)
-                  DataCell(textBold(_pqty.toString())),
+                if (index == numItems - 1) DataCell(textBold(_pqty.toString())),
                 //total
                 if (index != numItems - 1)
                   DataCell(Align(
@@ -441,23 +438,20 @@ class _SalesEntryState extends State<SalesEntry> {
                 //prod name
                 if (index != numItems - 1)
                   DataCell(Text(rowList[index].val3.toString())),
-                if (index == numItems - 1)
-                  DataCell(Text("")),
+                if (index == numItems - 1) DataCell(Text("")),
                 //qtypuom
 
                 if (index != numItems - 1)
                   DataCell(Text(rowList[index].val5.toString() +
                       " " +
                       rowList[index].val4.toString())),
-                if (index == numItems - 1)
-                  DataCell(textBold(_pqty.toString())),
+                if (index == numItems - 1) DataCell(textBold(_pqty.toString())),
                 //qty_luom
                 if (index != numItems - 1)
                   DataCell(Text(rowList[index].val7.toString() +
                       " " +
                       rowList[index].val6.toString())),
-                if (index == numItems - 1)
-                  DataCell(textBold(_lqty.toString())),
+                if (index == numItems - 1) DataCell(textBold(_lqty.toString())),
                 //amt
                 if (index != numItems - 1)
                   DataCell(Align(
@@ -871,7 +865,7 @@ class _SalesEntryState extends State<SalesEntry> {
     // ignore: deprecated_member_use
     final PdfImage assetImage = await pdfImageFromImageProvider(
       pdf: pdf.document,
-      image: const AssetImage('assets/exactus_logo.png'),
+      image: const AssetImage('assets/BMK.png'),
     );
 
     pdf.addPage(
@@ -889,13 +883,14 @@ class _SalesEntryState extends State<SalesEntry> {
                 crossAxisAlignment: pdfLib.CrossAxisAlignment.start,
                 children: [
                   pdfLib.Text(
-                    "BMK",
+                    "Island Valley Electronics L.L.C",
                     style: pdfLib.TextStyle(
                         fontSize: 18.0, fontWeight: pdfLib.FontWeight.bold),
                   ),
-                  pdfLib.Text("Address :" + widget.party_address),
-                  pdfLib.Text("Phn"),
-                  pdfLib.Text("tr_no"),
+                  pdfLib.Text("Address :" +
+                      "Office No.306,\nAl Habtoor Naif Building\nBaniyas Square\nDubai U.A.E"),
+                  pdfLib.Text("Tel : " + " 04-2324747"),
+                  pdfLib.Text("TRN_NO : " + "100299579100003"),
                 ])
           ]);
         },
@@ -985,7 +980,8 @@ class _SalesEntryState extends State<SalesEntry> {
                 pdfLib.Row(
                     mainAxisAlignment: pdfLib.MainAxisAlignment.spaceBetween,
                     children: [
-                      pdfLib.Text("Issued by: " + "BMK"),
+                      pdfLib.Text(
+                          "Issued by: " + "Island Valley Electronics L.L.C"),
                       pdfLib.Text("Received By: " + widget.ac_name),
                     ]),
                 pdfLib.Text("Salesman name: " + gs_currentUser),

@@ -229,7 +229,7 @@ class _SalesSummaryState extends State<SalesSummary> {
     // ignore: deprecated_member_use
     final PdfImage assetImage = await pdfImageFromImageProvider(
       pdf: pdf.document,
-      image: const AssetImage('assets/exactus_logo.png'),
+      image: const AssetImage('assets/BMK.png'),
     );
     pdf.addPage(
       pdfLib.MultiPage(
@@ -246,12 +246,14 @@ class _SalesSummaryState extends State<SalesSummary> {
                 crossAxisAlignment: pdfLib.CrossAxisAlignment.start,
                 children: [
                   pdfLib.Text(
-                    "BMK",
+                    "Island Valley Electronics L.L.C",
                     style: pdfLib.TextStyle(
                         fontSize: 18.0, fontWeight: pdfLib.FontWeight.bold),
                   ),
-                  pdfLib.Text("Phn"),
-                  pdfLib.Text("tr_no"),
+                  pdfLib.Text("Address :" +
+                      "Office No.306,\nAl Habtoor Naif Building\nBaniyas Square\nDubai U.A.E"),
+                  pdfLib.Text("Tel : " + " 04-2324747"),
+                  pdfLib.Text("TRN_NO : " + "100299579100003"),
                 ])
           ]);
         },

@@ -138,7 +138,7 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
                     loginButton(),
                     textTitle(
                         '\u00a9 1998-2020 Exactus Inc',
-                        'ver 21.04.05.01',
+                        'ver 21.06.05.01',
                         Colors.black,
                         Colors.black,
                         11.0,
@@ -241,14 +241,14 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
   _getAddressFromLatLng() async {
     try {
       List<Placemark> placemarks = await placemarkFromCoordinates(
-          _currentPosition.latitude, _currentPosition.longitude,
-          localeIdentifier: "en");
+          _currentPosition.latitude, _currentPosition.longitude);
 
       Placemark place = placemarks[0];
 
       setState(() {
-        _currentAddress = "${place.locality}, ${place.country}";
-        // "${place.locality}, ${place.postalCode}, ${place.country}";
+        // _currentAddress = "${place.locality}, ${place.country}";
+        _currentAddress =
+            "${place.locality}, ${place.postalCode}, ${place.country}";
       });
       print(_currentAddress);
     } catch (e) {
