@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:aware_van_sales/components/number_to_text.dart';
 import 'package:aware_van_sales/data/constants.dart';
 import 'package:aware_van_sales/pages/wm_mb_LoginPage.dart';
 import 'package:aware_van_sales/wigdets/alert.dart';
@@ -35,6 +36,7 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
   TextEditingController customer = new TextEditingController();
   TextEditingController doc_no = new TextEditingController();
   TextEditingController ref_no = new TextEditingController();
+  String _translatedValue = '';
   bool doc_generate = false;
   bool second_insert = false;
   bool third_insert = false;
@@ -530,6 +532,23 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
                         getNumberFormat(pdf_orgtot).toString(),
                     style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
                   ),
+                  pdfLib.FittedBox(
+                      child: pdfLib.Row(
+                          mainAxisAlignment: pdfLib.MainAxisAlignment.end,
+                          children: [
+                        pdfLib.Text(
+                          "Amount(VAT Inclusive) In words : ",
+                          style: pdfLib.TextStyle(
+                            fontWeight: pdfLib.FontWeight.bold,
+                          ),
+                        ),
+                        pdfLib.Text(
+                          _translatedValue,
+                          style: pdfLib.TextStyle(
+                              fontWeight: pdfLib.FontWeight.bold,
+                              fontSize: 9.0),
+                        ),
+                      ])),
                 ]),
           ),
 
@@ -577,8 +596,18 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
 
   void choiceAction(String choice) {
     if (choice == Constants.ViewPdf) {
+      String _translated =
+          NumberToText().convert(value: double.parse(pdf_orgtot.toString()));
+      setState(() {
+        _translatedValue = _translated;
+      });
       _generatePdfAndView(choice);
     } else {
+      String _translated =
+          NumberToText().convert(value: double.parse(pdf_orgtot.toString()));
+      setState(() {
+        _translatedValue = _translated;
+      });
       _generatePdfAndView(choice);
     }
   }

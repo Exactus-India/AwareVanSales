@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:aware_van_sales/components/number_to_text.dart';
 import 'package:aware_van_sales/data/constants.dart';
 import 'package:aware_van_sales/data/future_db.dart';
 import 'package:aware_van_sales/wigdets/alert.dart';
@@ -47,6 +48,7 @@ class _SalesEntryState extends State<SalesEntry> {
   TextEditingController vat = new TextEditingController();
   TextEditingController net_amt = new TextEditingController();
   TextEditingController sal_ty = new TextEditingController();
+  String _translatedValue = '';
   List salestypes = ['CASH', 'CREDIT'];
   String selectedtype;
   bool middle_view = false;
@@ -601,6 +603,11 @@ class _SalesEntryState extends State<SalesEntry> {
             _vat += salesdetails[i].val9.toDouble();
             _tot += salesdetails[i].val10.toDouble();
           }
+          String _translated =
+              NumberToText().convert(value: double.parse(_tot.toString()));
+          setState(() {
+            _translatedValue = _translated;
+          });
         }
 
         print(_tot.toString() + 'total');
@@ -966,6 +973,24 @@ class _SalesEntryState extends State<SalesEntry> {
                         getNumberFormat(_tot).toString(),
                     style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
                   ),
+                  pdfLib.FittedBox(
+                      child: pdfLib.Row(
+                          crossAxisAlignment: pdfLib.CrossAxisAlignment.end,
+                          mainAxisAlignment: pdfLib.MainAxisAlignment.end,
+                          children: [
+                        pdfLib.Text(
+                          "Amount(VAT Inclusive) In words : ",
+                          style: pdfLib.TextStyle(
+                            fontWeight: pdfLib.FontWeight.bold,
+                          ),
+                        ),
+                        pdfLib.Text(
+                          _translatedValue,
+                          style: pdfLib.TextStyle(
+                              fontWeight: pdfLib.FontWeight.bold,
+                              fontSize: 9.0),
+                        ),
+                      ]))
                 ]),
           ),
 

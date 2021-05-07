@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:aware_van_sales/components/number_to_text.dart';
 import 'package:aware_van_sales/data/constants.dart';
 import 'package:aware_van_sales/data/future_db.dart';
 import 'package:aware_van_sales/pages/wm_mb_LoginPage.dart';
@@ -51,6 +52,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
   TextEditingController vat = new TextEditingController();
   TextEditingController net_amt = new TextEditingController();
   TextEditingController sal_ty = new TextEditingController();
+  String _translatedValue = '';
   File _image;
   List<File> files = [];
   List salestypes = ['CASH', 'CREDIT'];
@@ -477,6 +479,11 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
             ll_vat += salesdetails[i].val9.toDouble();
             ll_tot += salesdetails[i].val10.toDouble();
           }
+          String _translated =
+              NumberToText().convert(value: double.parse(ll_tot.toString()));
+          setState(() {
+            _translatedValue = _translated;
+          });
         }
       });
     });
@@ -1029,6 +1036,23 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
                         getNumberFormat(ll_tot).toString(),
                     style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
                   ),
+                  pdfLib.FittedBox(
+                      child: pdfLib.Row(
+                          mainAxisAlignment: pdfLib.MainAxisAlignment.end,
+                          children: [
+                        pdfLib.Text(
+                          "Amount(VAT Inclusive) In words : ",
+                          style: pdfLib.TextStyle(
+                            fontWeight: pdfLib.FontWeight.bold,
+                          ),
+                        ),
+                        pdfLib.Text(
+                          _translatedValue,
+                          style: pdfLib.TextStyle(
+                              fontWeight: pdfLib.FontWeight.bold,
+                              fontSize: 9.0),
+                        ),
+                      ])),
                 ]),
           ),
 
