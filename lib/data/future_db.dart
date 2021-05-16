@@ -25,7 +25,7 @@ import 'receipt_data.dart';
 import 'stock_sum_data.dart';
 import 'stocktransfer.dart';
 
-String ip_port = "http://exactusnet.dyndns.org:4005/api";
+String ip_port = "http://exactusnet.dyndns.org:4006/api";
 var ls_mth_code;
 String org_filename;
 var description;

@@ -10,10 +10,10 @@ import 'package:aware_van_sales/wigdets/listing_Builder.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:custom_datatable/custom_datatable.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:image_picker/image_picker.dart';
+// import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+// import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:file_picker/file_picker.dart';
+// import 'package:file_picker/file_picker.dart';
 
 import 'package:pdf/pdf.dart';
 
@@ -243,7 +243,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
           ),
         )),
       ),
-      floatingActionButton: _getOptionInFloatingButton(),
+      // floatingActionButton: _getOptionInFloatingButton(),
     );
   }
 
@@ -345,35 +345,35 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
       SizedBox(
         height: 4,
       ),
-      _image == null
-          ? Container(
-              padding: EdgeInsets.all(8.0),
-              color: Colors.red,
-              child: text(
-                'Image not selected',
-                Colors.white,
-              ),
-            )
-          : Row(
-              children: [
-                Container(
-                  child: Image.file(_image),
-                ),
-                // ElevatedButton(
-                //   onPressed: () {},
-                //   child: Container(
-                //     padding: EdgeInsets.all(8.0),
-                //     child: Icon(
-                //       Icons.upload_file,
-                //       color: Colors.white,
-                //       size: 30.0,
-                //     ),
-                //   ),
-                //   style: ElevatedButton.styleFrom(
-                //       shape: CircleBorder(), primary: Colors.green),
-                // ),
-              ],
-            ),
+      // _image == null
+      //     ? Container(
+      //         padding: EdgeInsets.all(8.0),
+      //         color: Colors.red,
+      //         child: text(
+      //           'Image not selected',
+      //           Colors.white,
+      //         ),
+      //       )
+      //     : Row(
+      //         children: [
+      //           Container(
+      //             child: Image.file(_image),
+      //           ),
+      // ElevatedButton(
+      //   onPressed: () {},
+      //   child: Container(
+      //     padding: EdgeInsets.all(8.0),
+      //     child: Icon(
+      //       Icons.upload_file,
+      //       color: Colors.white,
+      //       size: 30.0,
+      //     ),
+      //   ),
+      //   style: ElevatedButton.styleFrom(
+      //       shape: CircleBorder(), primary: Colors.green),
+      // ),
+      //   ],
+      // ),
       SizedBox(
         height: 4,
       ),
@@ -1024,15 +1024,17 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
                     children: [
                   pdfLib.Text(
                     "Amount(VAT Exclusive) :" +
+                        "AED " +
                         getNumberFormat(ll_amt).toString(),
                     style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
                   ),
                   pdfLib.Text(
-                    "VAT:   " + getNumberFormat(ll_vat).toString(),
+                    "VAT:   " + "AED " + getNumberFormat(ll_vat).toString(),
                     style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
                   ),
                   pdfLib.Text(
                     "Amount(VAT Inclusive) :" +
+                        "AED " +
                         getNumberFormat(ll_tot).toString(),
                     style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
                   ),
@@ -1106,57 +1108,57 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
     }
   }
 
-  Widget _getOptionInFloatingButton() {
-    return SpeedDial(
-      icon: Icons.camera_alt,
-      // animatedIcon: AnimatedIcons.add_event,
-      animatedIconTheme: IconThemeData(size: 30),
-      backgroundColor: Color(0xFF801E48),
-      visible: true,
-      curve: Curves.bounceIn,
-      children: [
-        // FAB 1
-        SpeedDialChild(
-            child: Icon(Icons.camera),
-            backgroundColor: Color(0xFF801E48),
-            onTap: () {
-              getimage();
-            },
-            label: 'Camera',
-            labelStyle: TextStyle(
-                fontWeight: FontWeight.w500,
-                color: Colors.white,
-                fontSize: 16.0),
-            labelBackgroundColor: Color(0xFF801E48)),
-        // FAB 2
-        SpeedDialChild(
-            child: Icon(Icons.photo_album),
-            backgroundColor: Color(0xFF801E48),
-            onTap: () {
-              getimage();
-            },
-            label: 'Gallery',
-            labelStyle: TextStyle(
-                fontWeight: FontWeight.w500,
-                color: Colors.white,
-                fontSize: 16.0),
-            labelBackgroundColor: Color(0xFF801E48))
-      ],
-    );
-  }
+  // Widget _getOptionInFloatingButton() {
+  //   return SpeedDial(
+  //     icon: Icons.camera_alt,
+  //     // animatedIcon: AnimatedIcons.add_event,
+  //     animatedIconTheme: IconThemeData(size: 30),
+  //     backgroundColor: Color(0xFF801E48),
+  //     visible: true,
+  //     curve: Curves.bounceIn,
+  //     children: [
+  //       // FAB 1
+  //       SpeedDialChild(
+  //           child: Icon(Icons.camera),
+  //           backgroundColor: Color(0xFF801E48),
+  //           onTap: () {
+  //             getimage();
+  //           },
+  //           label: 'Camera',
+  //           labelStyle: TextStyle(
+  //               fontWeight: FontWeight.w500,
+  //               color: Colors.white,
+  //               fontSize: 16.0),
+  //           labelBackgroundColor: Color(0xFF801E48)),
+  //       // FAB 2
+  //       SpeedDialChild(
+  //           child: Icon(Icons.photo_album),
+  //           backgroundColor: Color(0xFF801E48),
+  //           onTap: () {
+  //             getimage();
+  //           },
+  //           label: 'Gallery',
+  //           labelStyle: TextStyle(
+  //               fontWeight: FontWeight.w500,
+  //               color: Colors.white,
+  //               fontSize: 16.0),
+  //           labelBackgroundColor: Color(0xFF801E48))
+  //     ],
+  //   );
+  // }
 
-  Future getimage() async {
-    FilePickerResult result =
-        await FilePicker.platform.pickFiles(allowMultiple: true);
+  // Future getimage() async {
+  //   FilePickerResult result =
+  //       await FilePicker.platform.pickFiles(allowMultiple: true);
 
-    if (result != null) {
-      setState(() {
-        files += result.paths.map((path) => File(path)).toList();
-      });
-    } else {
-      // User canceled the picker
-    }
-  }
+  //   if (result != null) {
+  //     setState(() {
+  //       files += result.paths.map((path) => File(path)).toList();
+  //     });
+  //   } else {
+  //     // User canceled the picker
+  //   }
+  // }
 
   // Future getimage(option) async {
   //   if (option == 'Gallery') {

@@ -38,40 +38,28 @@ class NumberToText {
         int _val = int.parse((_TEMPLATE[0] + _TEMPLATE[1] + _TEMPLATE[2]));
         if (_val == 1) {
           _CONVERTED_NUMBER += ' TRILLION' +
-              (NextNumbers().getTrillion(template: _TEMPLATE) > 0
-                  ? ' AND '
-                  : '');
+              (NextNumbers().getTrillion(template: _TEMPLATE) > 0 ? '  ' : '');
         } else if (_val > 1) {
           _CONVERTED_NUMBER += ' TRILLION' +
-              (NextNumbers().getTrillion(template: _TEMPLATE) > 0
-                  ? ' AND '
-                  : '');
+              (NextNumbers().getTrillion(template: _TEMPLATE) > 0 ? '  ' : ' ');
         }
-      } else if (k == 3 && _CONVERTED_NUMBER != '') {
+      } else if (k == 3 && _CONVERTED_NUMBER != ' ') {
         int _val = int.parse((_TEMPLATE[3] + _TEMPLATE[4] + _TEMPLATE[5]));
         if (_val == 1) {
           _CONVERTED_NUMBER += ' BILLION' +
-              (NextNumbers().getBillion(template: _TEMPLATE) > 0
-                  ? ' AND '
-                  : '');
+              (NextNumbers().getBillion(template: _TEMPLATE) > 0 ? '  ' : ' ');
         } else if (_val > 1) {
           _CONVERTED_NUMBER += ' BILLION' +
-              (NextNumbers().getBillion(template: _TEMPLATE) > 0
-                  ? ' AND '
-                  : '');
+              (NextNumbers().getBillion(template: _TEMPLATE) > 0 ? '  ' : ' ');
         }
       } else if (k == 6 && _CONVERTED_NUMBER != '') {
         int _val = int.parse((_TEMPLATE[6] + _TEMPLATE[7] + _TEMPLATE[8]));
         if (_val == 1) {
           _CONVERTED_NUMBER += ' MILLION' +
-              (NextNumbers().getMillion(template: _TEMPLATE) > 0
-                  ? ' AND '
-                  : '');
+              (NextNumbers().getMillion(template: _TEMPLATE) > 0 ? '  ' : ' ');
         } else if (_val > 1) {
           _CONVERTED_NUMBER += ' MILLION' +
-              (NextNumbers().getMillion(template: _TEMPLATE) > 0
-                  ? ' AND '
-                  : '');
+              (NextNumbers().getMillion(template: _TEMPLATE) > 0 ? '  ' : ' ');
         }
       } else if (k == 9 && _CONVERTED_NUMBER != '') {
         int _val = int.parse((_TEMPLATE[9] + _TEMPLATE[10] + _TEMPLATE[11]));
@@ -79,13 +67,13 @@ class NumberToText {
           if (_CONVERTED_NUMBER.toUpperCase().contains('ONE')) {
             _CONVERTED_NUMBER = 'ONE THOUSAND' +
                 (NextNumbers().getThousand(template: _TEMPLATE) > 0
-                    ? ' AND '
-                    : '');
+                    ? ' '
+                    : ' ');
           } else {
             _CONVERTED_NUMBER += ' THOUSAND' +
                 (NextNumbers().getThousand(template: _TEMPLATE) > 0
-                    ? ' AND '
-                    : '');
+                    ? ' '
+                    : ' ');
           }
         }
       } else if (k == 12) {
@@ -97,9 +85,9 @@ class NumberToText {
       } else if (k == 15) {
         int _val = int.parse((_TEMPLATE[16] + _TEMPLATE[17]));
         if (_val == 1) {
-          _CONVERTED_NUMBER += ' CENT';
+          _CONVERTED_NUMBER += ' FILS';
         } else if (_val > 1) {
-          _CONVERTED_NUMBER += ' CENTS';
+          _CONVERTED_NUMBER += ' FILS';
         }
       }
     }

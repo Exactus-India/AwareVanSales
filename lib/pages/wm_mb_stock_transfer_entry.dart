@@ -266,26 +266,26 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
                     child: Padding(
                         padding: EdgeInsets.only(left: 20.0),
                         child: generate_ST_docno())),
-              if (doc_generate == true && editing == true)
-                Flexible(
-                    flex: 1,
-                    child: Padding(
-                        padding: EdgeInsets.only(left: 15.0),
-                        child: RaisedButton(
-                            onPressed: () {
-                              st_pro(doc_no.text).then((value) {
-                                if (value == true) {
-                                  editing = false;
-                                  showToast('Confirmed Succesfully');
-                                }
-                                if (value != true) showToast('Failed');
-                              });
-                            },
-                            color: Colors.green,
-                            child: Text(
-                              "CONFIRM",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            )))),
+              // if (doc_generate == true && editing == true)
+              //   Flexible(
+              //       flex: 1,
+              //       child: Padding(
+              //           padding: EdgeInsets.only(left: 15.0),
+              //           child: RaisedButton(
+              //               onPressed: () {
+              //                 st_pro(doc_no.text).then((value) {
+              //                   if (value == true) {
+              //                     editing = false;
+              //                     showToast('Confirmed Succesfully');
+              //                   }
+              //                   if (value != true) showToast('Failed');
+              //                 });
+              //               },
+              //               color: Colors.green,
+              //               child: Text(
+              //                 "CONFIRM",
+              //                 style: TextStyle(fontWeight: FontWeight.bold),
+              //               )))),
             ],
           ),
           SizedBox(height: 4),

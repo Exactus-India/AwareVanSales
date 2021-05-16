@@ -31,6 +31,8 @@ class SalesEntry extends StatefulWidget {
   _SalesEntryState createState() => _SalesEntryState();
 }
 
+String _gscurrencycode = 'AED';
+
 class _SalesEntryState extends State<SalesEntry> {
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
   TextEditingController customer = new TextEditingController();
@@ -49,6 +51,7 @@ class _SalesEntryState extends State<SalesEntry> {
   TextEditingController net_amt = new TextEditingController();
   TextEditingController sal_ty = new TextEditingController();
   String _translatedValue = '';
+
   List salestypes = ['CASH', 'CREDIT'];
   String selectedtype;
   bool middle_view = false;
@@ -513,12 +516,14 @@ class _SalesEntryState extends State<SalesEntry> {
   prodlist() {
     list_length = productList.length;
     return AlertDialog(
-        title: Text('Products'),
-        content: Container(
-            height: 400.0,
-            width: 300.0,
-            child: ListBuilderCommon(
-                datas: productList, head: false, toPage: null, popBack: true)));
+      title: Text('Products'),
+      content: Container(
+        height: 400.0,
+        width: 300.0,
+        child: ListBuilderCommon(
+            datas: productList, head: false, toPage: null, popBack: true),
+      ),
+    );
   }
 
   textField(_text, _controller, _validate, read, align) {
@@ -529,10 +534,8 @@ class _SalesEntryState extends State<SalesEntry> {
         readOnly: read,
         onChanged: (value) {
           setState(() {
-            if (_text == 'Unit rate') {
-              rate.text = value;
-              if (qty.text.isNotEmpty) productCalculate();
-            }
+            if (qty.text.isNotEmpty) productCalculate();
+
             if (_text == 'QTY PUOM') {
               if (luom.text.isEmpty) luom.text = '0';
               if (puom.text.isEmpty) puom.text = '0';
@@ -961,15 +964,22 @@ class _SalesEntryState extends State<SalesEntry> {
                     children: [
                   pdfLib.Text(
                     "Amount(VAT Exclusive) :" +
+                        _gscurrencycode +
+                        " " +
                         getNumberFormat(_amt).toString(),
                     style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
                   ),
                   pdfLib.Text(
-                    "VAT:   " + getNumberFormat(_vat).toString(),
+                    "VAT:   " +
+                        _gscurrencycode +
+                        " " +
+                        getNumberFormat(_vat).toString(),
                     style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
                   ),
                   pdfLib.Text(
                     "Amount(VAT Inclusive) :" +
+                        _gscurrencycode +
+                        " " +
                         getNumberFormat(_tot).toString(),
                     style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
                   ),

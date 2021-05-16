@@ -48,26 +48,27 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: text("Menu", Colors.white),
-          elevation: .1,
-          backgroundColor: Color.fromRGBO(59, 87, 110, 1.0),
-          actions: <Widget>[
-            // Using Stack to show Notification Badge
-            new Stack(
-              children: <Widget>[
-                new IconButton(
-                    iconSize: 30.0,
-                    icon: Icon(Icons.notifications),
-                    onPressed: () {
-                      alert_list_();
-                      setState(() {
-                        alert_list(context);
-                      });
-                    }),
-                userAlert.length != 0 ? notify_count() : new Container(),
-              ],
-            ),
-          ]),
+        title: text("Menu", Colors.white),
+        elevation: .1,
+        backgroundColor: Color.fromRGBO(59, 87, 110, 1.0),
+        // actions: <Widget>[
+        //   // Using Stack to show Notification Badge
+        //   new Stack(
+        //     children: <Widget>[
+        //       new IconButton(
+        //           iconSize: 30.0,
+        //           icon: Icon(Icons.notifications),
+        //           onPressed: () {
+        //             alert_list_();
+        //             setState(() {
+        //               alert_list(context);
+        //             });
+        //           }),
+        //       userAlert.length != 0 ? notify_count() : new Container(),
+        //     ],
+        //   ),
+        // ],
+      ),
       drawer: new Drawer(
           elevation: 10.0,
           child: new ListView(
@@ -102,7 +103,7 @@ class _HomePageState extends State<HomePage> {
               listTile(OsSummary(), context, 'os_ageing.png', 'O/S AGEING'),
               listTile(StockSummary(), context, 'stock_summary.png',
                   'STOCK SUMMARY'),
-              listTile(null, context, 'about.png', 'ABOUT'),
+              // listTile(null, context, 'about.png', 'ABOUT'),
             ],
           )),
       body: WillPopScope(
@@ -142,8 +143,8 @@ class _HomePageState extends State<HomePage> {
                   this.context, 'stock_summary.png'),
 
               //--------------------------DAILY ACTIVITY-------------------------
-              card("ALERT", AddAlert(), Colors.blue[800], this.context,
-                  'daily_activity.png')
+              // card("ALERT", AddAlert(), Colors.blue[800], this.context,
+              //     'daily_activity.png')
             ],
           ),
         ),

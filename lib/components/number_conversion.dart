@@ -58,53 +58,53 @@ String numberConverter({@required double value}) {
 
   if (b == 1) {
     if (c == 0) {
-      _AGGREGATER += ((a > 0) ? ' AND ' : '') + 'TEN';
+      _AGGREGATER += ((a > 0) ? '  ' : '') + 'TEN';
     }
     if (c == 1) {
-      _AGGREGATER += ((a > 0) ? ' AND ' : '') + 'ELEVEN';
+      _AGGREGATER += ((a > 0) ? '  ' : '') + 'ELEVEN';
     }
     if (c == 2) {
-      _AGGREGATER += ((a > 0) ? ' AND ' : '') + 'TWELVE';
+      _AGGREGATER += ((a > 0) ? '  ' : '') + 'TWELVE';
     }
     if (c == 3) {
-      _AGGREGATER += ((a > 0) ? ' AND ' : '') + 'THIRTEEN';
+      _AGGREGATER += ((a > 0) ? '  ' : '') + 'THIRTEEN';
     }
     if (c == 4) {
-      _AGGREGATER += ((a > 0) ? ' AND ' : '') + 'FOURTEEN';
+      _AGGREGATER += ((a > 0) ? '  ' : '') + 'FOURTEEN';
     }
     if (c == 5) {
-      _AGGREGATER += ((a > 0) ? ' AND ' : '') + 'FIFTEEN';
+      _AGGREGATER += ((a > 0) ? '  ' : '') + 'FIFTEEN';
     }
     if (c == 6) {
-      _AGGREGATER += ((a > 0) ? ' AND ' : '') + 'SIXTEEN';
+      _AGGREGATER += ((a > 0) ? '  ' : '') + 'SIXTEEN';
     }
     if (c == 7) {
-      _AGGREGATER += ((a > 0) ? ' AND ' : '') + 'SEVENTEEN';
+      _AGGREGATER += ((a > 0) ? '  ' : '') + 'SEVENTEEN';
     }
     if (c == 8) {
-      _AGGREGATER += ((a > 0) ? ' AND ' : '') + 'EIGHTEEN';
+      _AGGREGATER += ((a > 0) ? '  ' : '') + 'EIGHTEEN';
     }
     if (c == 9) {
-      _AGGREGATER += ((a > 0) ? ' AND ' : '') + 'NINETEEN';
+      _AGGREGATER += ((a > 0) ? '  ' : '') + 'NINETEEN';
     }
   } else if (b == 2) {
-    _AGGREGATER += ((a > 0 ? ' AND ' : '') + 'TWENTY');
+    _AGGREGATER += ((a > 0 ? '  ' : '') + 'TWENTY');
   } else if (b == 3) {
-    _AGGREGATER += ((a > 0 ? ' AND ' : '') + 'THIRTY');
+    _AGGREGATER += ((a > 0 ? '  ' : '') + 'THIRTY');
   } else if (b == 3) {
-    _AGGREGATER += ((a > 0 ? ' AND ' : '') + 'THIRTY');
+    _AGGREGATER += ((a > 0 ? '  ' : '') + 'THIRTY');
   } else if (b == 4) {
-    _AGGREGATER += ((a > 0 ? ' AND ' : '') + 'FOURTY');
+    _AGGREGATER += ((a > 0 ? '  ' : '') + 'FOURTY');
   } else if (b == 5) {
-    _AGGREGATER += ((a > 0 ? ' AND ' : '') + 'FIFTY');
+    _AGGREGATER += ((a > 0 ? '  ' : '') + 'FIFTY');
   } else if (b == 6) {
-    _AGGREGATER += ((a > 0 ? ' AND ' : '') + 'SIXTY');
+    _AGGREGATER += ((a > 0 ? '  ' : '') + 'SIXTY');
   } else if (b == 7) {
-    _AGGREGATER += ((a > 0 ? ' AND ' : '') + 'SEVENTY');
+    _AGGREGATER += ((a > 0 ? '  ' : '') + 'SEVENTY');
   } else if (b == 8) {
-    _AGGREGATER += ((a > 0 ? ' AND ' : '') + 'EIGHTY');
+    _AGGREGATER += ((a > 0 ? '  ' : '') + 'EIGHTY');
   } else if (b == 9) {
-    _AGGREGATER += ((a > 0 ? ' AND ' : '') + 'NINETY');
+    _AGGREGATER += ((a > 0 ? '  ' : '') + 'NINETY');
   }
 
   if (b != 1 && c != 0 && _AGGREGATER != '') {

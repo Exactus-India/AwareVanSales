@@ -520,15 +520,20 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
                     // mainAxisAlignment: pdfLib.MainAxisAlignment.end,
                     children: [
                   pdfLib.Text(
-                    "Total Amount " + getNumberFormat(pdf_tot_amt).toString(),
+                    "Total Amount " +
+                        "AED " +
+                        getNumberFormat(pdf_tot_amt).toString(),
                     style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
                   ),
                   pdfLib.Text(
-                    "Total Balance  " + getNumberFormat(pdf_baltot).toString(),
+                    "Total Balance  " +
+                        "AED " +
+                        getNumberFormat(pdf_baltot).toString(),
                     style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
                   ),
                   pdfLib.Text(
                     "Total Orgin Amount " +
+                        "AED " +
                         getNumberFormat(pdf_orgtot).toString(),
                     style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
                   ),
