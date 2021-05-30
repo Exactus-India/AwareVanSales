@@ -665,6 +665,7 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
         setState(() {
           clearFields();
           fetch_EntryDetails(doc_no.text);
+          // updateHdr(false, list_serial_no);
           showToast('Updated Succesfully');
         });
       } else {
@@ -733,7 +734,9 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
             'SNo',
             'PRODUCT',
             'OTY PUOM',
-            'QTY LUOM'
+            'QTY LUOM',
+            'ZONE FROM',
+            'ZONE TO',
           ],
               // cellAlignment: pdfLib.Alignment.centerRight,
               data: <List<dynamic>>[
@@ -742,6 +745,8 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
                       item.val2.toString() + "\n" + item.val3.toString(),
                       item.val5.toString() + "\t" + item.val4.toString(),
                       item.val7.toString() + "\t" + item.val6.toString(),
+                      item.val8.toString(),
+                      item.val9.toString(),
                     ])
               ]),
           pdfLib.SizedBox(height: 10.0),

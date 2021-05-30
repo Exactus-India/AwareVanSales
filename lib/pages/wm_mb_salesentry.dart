@@ -355,7 +355,7 @@ class _SalesEntryState extends State<SalesEntry> {
       ]),
       Row(children: <Widget>[
         Flexible(
-          child: textField("Quantity", qty, false, true, TextAlign.end),
+          child: textFields("Quantity", qty, false, true, TextAlign.end),
         ),
         SizedBox(width: 10.0),
         Flexible(child: labelWidget(Colors.red[500], bal_stk, 13.0)),
@@ -535,6 +535,51 @@ class _SalesEntryState extends State<SalesEntry> {
         onChanged: (value) {
           setState(() {
             if (qty.text.isNotEmpty) productCalculate();
+            if (rate.text.isNotEmpty) productCalculate();
+
+            if (_text == 'QTY PUOM') {
+              if (luom.text.isEmpty) luom.text = '0';
+              if (puom.text.isEmpty) puom.text = '0';
+              var _qty_ = int.parse(puom.text) + int.parse(luom.text);
+              if (prod_update == true) productCalculate();
+              if (prod_update == false) {
+                if (int.parse(avl_qty) >= _qty_) productCalculate();
+                if (int.parse(avl_qty) < _qty_) {
+                  alert(
+                      context, "Available Quantity " + avl_qty, Colors.orange);
+                  amt.clear();
+                  puom.clear();
+                  vat.clear();
+                  net_amt.clear();
+                }
+              }
+            }
+          });
+        },
+        style: TextStyle(fontSize: 13),
+        decoration: InputDecoration(
+            labelText: _text,
+            border: const OutlineInputBorder(),
+            contentPadding: EdgeInsets.all(10),
+            errorText: _validate ? 'Value Can\'t Be Empty' : null,
+            focusColor: Colors.blue,
+            labelStyle: TextStyle(color: Colors.black54)),
+        controller: _controller,
+      ),
+    );
+  }
+
+  textFields(_text, _controller, _validate, read, align) {
+    return Container(
+      height: 40.0,
+      child: TextField(
+        textAlign: align,
+        readOnly: read,
+        onChanged: (value) {
+          setState(() {
+            discount();
+            // if (qty.text.isNotEmpty) productCalculate();
+            // if (rate.text.isNotEmpty) productCalculate();
 
             if (_text == 'QTY PUOM') {
               if (luom.text.isEmpty) luom.text = '0';
@@ -667,18 +712,33 @@ class _SalesEntryState extends State<SalesEntry> {
     if (stk_luom == null) stk_luom = 0;
     avl_qty = (stk_puom + stk_luom).toString();
     bal_stk.text = 'Bal: ' + stk_puom.toString() + ' ' + _puom;
-    discount_product(product.text, avl_qty).then((value) {
-      if (value.toInt() != 0)
-        rate.text = value.toString();
-      else
-        rate.text = productList[gs_list_index].val9.toString();
-    });
+    rate.text = productList[gs_list_index].val9.toString();
+    // discount_product(product.text, avl_qty).then((value) {
+    //   if (value.toInt() != 0)
+    //     rate.text = value.toString();
+    //   else
+    //     rate.text = productList[gs_list_index].val9.toString();
+    // });
     amt.clear();
     vat.clear();
     net_amt.clear();
     qty.clear();
     puom.clear();
     luom.clear();
+  }
+
+  discount() {
+    return discount_product(product.text, qty.text).then((value) {
+      print("discount krish");
+      print(value);
+      if (value.toInt() != 0) {
+        rate.text = value.toString();
+        productCalculate();
+      } else {
+        rate.text = productList[gs_list_index].val9.toString();
+        productCalculate();
+      }
+    });
   }
 
   productCalculate() {
@@ -690,6 +750,7 @@ class _SalesEntryState extends State<SalesEntry> {
     qty.text = _qty.toString();
     if (qty.text.isNotEmpty) {
       setState(() {
+        // discount();
         double _rate = double.parse(rate.text);
         var _amt = _qty * _rate;
         amount = _qty * _rate;

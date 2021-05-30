@@ -31,7 +31,6 @@ String org_filename;
 var description;
 var docno;
 int nextvalue;
-
 String gs_dndoc_type = 'DN90';
 String gs_srdoc_type = 'SR90';
 String gs_strdoc_type = 'STR';
@@ -105,7 +104,7 @@ Future<List> get_ST_zone() async {
   return jsonData;
 }
 
-Future<List> getAllRouteName() async {
+Future<List> getAllRouteName(selected_user) async {
   var url = '${ip_port}/routes';
   try {
     var response = await http.get(url);
@@ -431,15 +430,6 @@ Future<List> getAllSalesEntryDetails(doc_no) async {
   }
   return datas;
 }
-
-// Future<List> getAllSalesEntryDetails_1(doc_no) async {
-//   var url =
-//       '${ip_port}/sales/customerList/salesDN/DetailList/$gs_dndoc_type/$gs_company_code/$doc_no';
-//   var response = await http.get(url);
-//   var jsonBody = response.body;
-//   var jsonData = json.decode(jsonBody.substring(0));
-//   return jsonData;
-// }
 
 Future<List> getAllSalesHDR(doc_no) async {
   var url =

@@ -6,6 +6,8 @@ class ST_detail_list {
   var val5;
   var val6;
   var val7;
+  var val8;
+  var val9;
 
   ST_detail_list.fromJson(Map<String, dynamic> json) {
     val1 = json['SERIAL_NO'];
@@ -15,6 +17,8 @@ class ST_detail_list {
     val5 = json['QTY_PUOM'];
     val6 = json['L_UOM'];
     val7 = json['QTY_LUOM'];
+    val8 = json['FROM_ZONE_CODE'];
+    val9 = json['TO_ZONE_CODE'];
   }
 }
 
