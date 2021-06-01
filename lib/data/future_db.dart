@@ -616,7 +616,7 @@ Future<List<Sales>> salesReturnlist(ac_code) async {
 }
 
 Future srno_insert(party_name, doc_no, sales_type, ref_no, ref_docno,
-    ref_doctype, party_address, ac_code) async {
+    ref_doctype, party_address, ac_code, selected_return_type) async {
   Map data = {
     "COMPANY_CODE": gs_company_code,
     "DOC_TYPE": gs_srdoc_type,
@@ -631,6 +631,7 @@ Future srno_insert(party_name, doc_no, sales_type, ref_no, ref_docno,
     "CURR_CODE": gs_curr,
     "ref_doc_no": ref_docno,
     "ref_doc_type": ref_doctype,
+    "RETURN_TYPE": selected_return_type,
   };
   var value = json.encode(data);
   var url = '${ip_port}/sales/customerList/salesSR/doc_no_insert';
@@ -690,31 +691,31 @@ Future<List> rec_inv_Table(accode) async {
 }
 
 Future sr_product_insertion(
-  doc_no,
-  serial_no,
-  prod_code,
-  prod_name,
-  p_uom,
-  qty_puom,
-  l_uom,
-  qty_luom,
-  uppp,
-  qty,
-  unit_rate,
-  disc_price,
-  unit_rate_net,
-  net_amt,
-  amt,
-  cost_rate,
-  lcur_amt,
-  tx_id_no,
-  lcur_amt_disc,
-  tx_cmpnt_perc,
-  tx_cmpnt_amt_1,
-  tx_cmpnt_lcur_amt,
-  ref_doctype,
-  ref_docno,
-) async {
+    doc_no,
+    serial_no,
+    prod_code,
+    prod_name,
+    p_uom,
+    qty_puom,
+    l_uom,
+    qty_luom,
+    uppp,
+    qty,
+    unit_rate,
+    disc_price,
+    unit_rate_net,
+    net_amt,
+    amt,
+    cost_rate,
+    lcur_amt,
+    tx_id_no,
+    lcur_amt_disc,
+    tx_cmpnt_perc,
+    tx_cmpnt_amt_1,
+    tx_cmpnt_lcur_amt,
+    ref_doctype,
+    ref_docno,
+    selected_return_type) async {
   Map data = {
     "COMPANY_CODE": gs_company_code,
     "DOC_TYPE": gs_srdoc_type,
@@ -754,6 +755,7 @@ Future sr_product_insertion(
     "TX_COMPNT_LCUR_AMT_1": tx_cmpnt_lcur_amt,
     "ref_doc_type": ref_doctype,
     "ref_doc_no": ref_docno,
+    "RETURN_TYPE": selected_return_type,
   };
   var value = json.encode(data);
   var url = '${ip_port}/sales/customerList/salesSR/insert';
@@ -784,7 +786,8 @@ Future sr_product_updation(
     lcur_amt_disc,
     tx_cmpt_perc,
     tx_cmpt_amt,
-    tx_cmpt_lcur_amt) async {
+    tx_cmpt_lcur_amt,
+    selected_return_type) async {
   Map data = {
     "COMPANY_CODE": gs_company_code,
     "DOC_TYPE": gs_srdoc_type,
@@ -801,7 +804,8 @@ Future sr_product_updation(
     "LCUR_AMT_DISC": lcur_amt_disc,
     "TAX_CMPNT_PERC_1": tx_cmpt_perc,
     "TX_COMPNT_AMT_1": tx_cmpt_amt,
-    "TX_COMPNT_LCUR_AMT_1": tx_cmpt_lcur_amt
+    "TX_COMPNT_LCUR_AMT_1": tx_cmpt_lcur_amt,
+    "RETURN_TYPE": selected_return_type
   };
   var value = json.encode(data);
   var url = '${ip_port}/sales/customerList/salesSR/prod_update';
@@ -819,7 +823,7 @@ Future sr_product_updation(
 }
 
 Future sr_hdr_update(doc_no, ref_no, salestype, ref_doctype, ref_docno,
-    lst_dtl_serial_no, remarks) async {
+    lst_dtl_serial_no, remarks, selected_return_type) async {
   Map data = {
     "DOC_NO": doc_no,
     "DOC_TYPE": gs_srdoc_type,
@@ -829,7 +833,8 @@ Future sr_hdr_update(doc_no, ref_no, salestype, ref_doctype, ref_docno,
     "LAST_DTL_SERIAL_NO": lst_dtl_serial_no,
     "REMARKS": remarks,
     "SALE_TYPE": salestype,
-    "REF_NO": ref_no
+    "REF_NO": ref_no,
+    "RETURN_TYPE": selected_return_type
   };
   var value = json.encode(data);
   var url = '${ip_port}/sales_return/customerList/salesSR/sr_hdr/update';

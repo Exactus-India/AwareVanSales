@@ -56,7 +56,14 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
   File _image;
   List<File> files = [];
   List salestypes = ['CASH', 'CREDIT'];
+  List salesreturntypes = [
+    'DAMAGE',
+    'WARRANTY/REPAIR',
+    'DEAD ON ARRIVAL',
+    'STOCK NOT MOVING'
+  ];
   String selectedtype;
+  String selected_return_type;
   bool middle_view = false;
   bool sales_delete = false;
   List hDR = List();
@@ -111,6 +118,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
     if (widget.doc_no == null) {
       customer.text = widget.ac_name;
       selectedtype = salestypes[0];
+      selected_return_type = salesreturntypes[0];
       serial_no = 1;
       reflist(widget.ac_code, selectedtype);
     }
@@ -143,6 +151,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
         srHDR.addAll(value);
         if (srHDR[0]['SALE_TYPE'] != null)
           selectedtype = srHDR[0]['SALE_TYPE'].toString();
+        selected_return_type = srHDR[0]['RETURN_TYPE'].toString();
         customer.text = srHDR[0]['PARTY_NAME'].toString();
         ref_doc_no.text = srHDR[0]['REF_DOC_NO'].toString();
         doc_type.text = srHDR[0]['REF_DOC_TYPE'].toString();
@@ -269,6 +278,28 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
     );
   }
 
+  dropDown_returntype() {
+    return Padding(
+      padding: new EdgeInsets.only(left: 10.0),
+      child: new DropdownButton(
+        isExpanded: true,
+        value: selected_return_type,
+        onChanged: (newValue) {
+          setState(() {
+            selected_return_type = newValue;
+          });
+          print(selected_return_type);
+        },
+        items: salesreturntypes.map((valueItem) {
+          return DropdownMenuItem(
+            value: valueItem,
+            child: Text(valueItem),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
   head() {
     return Container(
       child: Column(children: [
@@ -314,6 +345,8 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
                                 search_ref_datas[gs_list_index].val4.toString();
                             selectedtype =
                                 search_ref_datas[gs_list_index].val3.toString();
+                            // selected_return_type =
+                            //     search_ref_datas[gs_list_index].val3.toString();
                             print("Accordingly");
                             fetch_products();
                           }
@@ -330,6 +363,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
         ]),
         Row(children: <Widget>[
           Flexible(flex: 1, child: dropDown_salestype()),
+          Flexible(flex: 1, child: dropDown_returntype()),
           SizedBox(width: 20.0),
         ]),
         textField("Remarks", remarks, false,
@@ -671,8 +705,15 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
 
   updateHdr(_res) async {
     if (remarks.text.isNotEmpty || selectedtype != null) {
-      var resp = await sr_hdr_update(doc_no.text, ref_no.text, selectedtype,
-          doc_type.text, ref_doc_no.text, serial_no, remarks.text);
+      var resp = await sr_hdr_update(
+          doc_no.text,
+          ref_no.text,
+          selectedtype,
+          doc_type.text,
+          ref_doc_no.text,
+          serial_no,
+          remarks.text,
+          selected_return_type);
       if (resp == 1) {
         setState(() {
           if (_res == true) showToast('updated Succesfully');
@@ -703,7 +744,8 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
                       ref_doc_no.text,
                       doc_type.text,
                       widget.party_address,
-                      widget.ac_code)
+                      widget.ac_code,
+                      selected_return_type)
                   .then((value) {
                 middle_view = true;
               });
@@ -813,7 +855,8 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
           tx_cmpt_amt,
           tx_cmpt_lcur_amt,
           doc_type.text,
-          ref_doc_no.text);
+          ref_doc_no.text,
+          selected_return_type);
 
       if (resp == 1) {
         // image_sequence().then((value) {
@@ -856,7 +899,8 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
           lcur_amt_disc,
           tx_cmpt_perc,
           tx_cmpt_amt,
-          tx_cmpt_lcur_amt);
+          tx_cmpt_lcur_amt,
+          selected_return_type);
       if (resp == 1) {
         setState(() {
           clearFields();
@@ -995,6 +1039,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
                     children: [
                       pdfLib.Text("Customer: " + customer.text),
                       pdfLib.Text("Sale Tyoe: " + selectedtype),
+                      pdfLib.Text("Return Tyoe: " + selected_return_type),
                     ]),
                 pdfLib.Text("Salesman Name: " + gs_currentUser),
               ]),

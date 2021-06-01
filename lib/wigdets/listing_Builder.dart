@@ -60,7 +60,8 @@ class _ListBuilderCommonState extends State<ListBuilderCommon> {
         widget.head == true && gs_sales_param1 != null
             ? sales_head()
             : SizedBox(height: 5.0),
-        if (_timer_ == true) if (list_length == 0) noValue(),
+        if (_timer_ == true)
+          if (list_length == 0) noValue(),
         if (_timer_ == true)
           Expanded(
             child: listView(_datasForDisplay, widget.toPage),

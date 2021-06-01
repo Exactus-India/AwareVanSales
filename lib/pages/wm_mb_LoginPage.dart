@@ -138,7 +138,7 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
                     loginButton(),
                     textTitle(
                         '\u00a9 1998-2020 Exactus Inc',
-                        'ver 21.05.24.01',
+                        'ver 21.05.31.01',
                         Colors.black,
                         Colors.black,
                         11.0,
