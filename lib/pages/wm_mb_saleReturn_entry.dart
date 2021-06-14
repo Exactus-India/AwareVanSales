@@ -5,8 +5,10 @@ import 'package:aware_van_sales/components/number_to_text.dart';
 import 'package:aware_van_sales/data/constants.dart';
 import 'package:aware_van_sales/data/future_db.dart';
 import 'package:aware_van_sales/pages/wm_mb_LoginPage.dart';
+import 'package:aware_van_sales/pages/wm_mb_salesentry.dart';
 import 'package:aware_van_sales/wigdets/alert.dart';
 import 'package:aware_van_sales/wigdets/listing_Builder.dart';
+import 'package:aware_van_sales/wigdets/salesreturnListBuilder.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:custom_datatable/custom_datatable.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +23,9 @@ import 'package:printing/printing.dart';
 import 'package:pdf/widgets.dart' as pdfLib;
 import 'package:ext_storage/ext_storage.dart';
 
+import '../wigdets/widget_rowData.dart';
+import 'wm_mb_saleReturnList.dart';
+
 class SalesEntryComman extends StatefulWidget {
   final doc_no;
   final ac_code;
@@ -32,6 +37,28 @@ class SalesEntryComman extends StatefulWidget {
       : super(key: key);
   @override
   _SalesEntryCommanState createState() => _SalesEntryCommanState();
+}
+
+var gs_sr_doc_no;
+var gs_sr_doc_salestype;
+var gs_sr_doc_date;
+var gs_sr_doc_refno;
+
+class VatAmounts {
+  String name;
+  String amt;
+  VatAmounts(this.name, this.amt);
+}
+
+class Amounts {
+  String perc;
+  String asses;
+  String tax;
+  // String gross;
+  // String vat;
+  // String net;
+  Amounts(this.perc, this.asses, this.tax);
+  // , this.gross, this.vat, this.net);
 }
 
 class _SalesEntryCommanState extends State<SalesEntryComman> {
@@ -54,16 +81,20 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
   TextEditingController sal_ty = new TextEditingController();
   String _translatedValue = '';
   File _image;
+  String _gscurrencycode = 'AED';
   List<File> files = [];
   List salestypes = ['CASH', 'CREDIT'];
+  List _datas = List();
+
+  List _datasForDisplay = List();
   List salesreturntypes = [
     'DAMAGE',
     'WARRANTY/REPAIR',
     'DEAD ON ARRIVAL',
     'STOCK NOT MOVING'
   ];
-  String selectedtype;
-  String selected_return_type;
+  String selectedtype = 'CASH';
+  String selected_return_type = 'DAMAGE';
   bool middle_view = false;
   bool sales_delete = false;
   List hDR = List();
@@ -79,6 +110,8 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
   var _puom;
   var _luom;
   var amount;
+  var stk_luom;
+  var stk_puom;
   var doc_date;
   var net_price;
   var disc_price;
@@ -335,22 +368,19 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
                               context: context,
                               builder: (BuildContext context) => refNolist())
                           .then((value) {
-                        setState(() {
-                          if (gs_list_index != null) {
-                            doc_type.text =
-                                search_ref_datas[gs_list_index].val7.toString();
-                            ref_doc_no.text =
-                                search_ref_datas[gs_list_index].val2.toString();
-                            ref_no.text =
-                                search_ref_datas[gs_list_index].val4.toString();
-                            selectedtype =
-                                search_ref_datas[gs_list_index].val3.toString();
-                            // selected_return_type =
-                            //     search_ref_datas[gs_list_index].val3.toString();
-                            print("Accordingly");
-                            fetch_products();
-                          }
-                        });
+                        // setState(() {
+                        // if (gs_list_index != null) {
+                        doc_type.text = 'DN90';
+                        ref_doc_no.text = gs_sr_doc_no.toString();
+                        ref_no.text = gs_sr_doc_refno.toString();
+                        selectedtype = gs_sr_doc_salestype;
+
+                        // selected_return_type =
+                        //     search_ref_datas[gs_list_index].val3.toString();
+                        print("Accordingly");
+                        fetch_products();
+                        // }
+                        // });
                       });
                     })),
           if (doc_no.text.isEmpty && ref_doc_no.text.isNotEmpty)
@@ -455,6 +485,109 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
     ]);
   }
 
+  ///=============================================================================
+// dialogbox(){
+//    return Column(
+//       children: <Widget>[
+//         Container(
+//             margin: EdgeInsets.only(top: 10.0, left: 10.0),
+//             child: align(Alignment.centerLeft, gs_currentUser, 20.0)),
+//         _searchBar(),
+//         sales_head(),
+
+//           if (list_length == 0) noValue(),
+
+//           Expanded(
+//             child: listView(_datasForDisplay),
+//           ),
+//       ],
+//     );
+// }
+
+// _searchBar() {
+//     return Padding(
+//       padding: const EdgeInsets.all(8.0),
+//       child: TextField(
+//         decoration: InputDecoration(hintText: 'Search...'),
+//         style: TextStyle(fontFamily: 'Montserrat', fontWeight: FontWeight.bold),
+//         onChanged: (text) {
+//           text = text.toUpperCase();
+//           setState(() {
+//             // _datasForDisplay.clear();
+//             _datasForDisplay = _datas.where((data) {
+//               var search = data.search.toString().toUpperCase();
+//               return search.contains(text);
+//             }).toList();
+//           });
+//         },
+//       ),
+//     );
+//   }
+
+//   sales_head() {
+//     return Container(
+//         margin: EdgeInsets.only(left: 20.0, right: 20.0, bottom: 10.0),
+//         child: align(Alignment.centerLeft, gs_sales_param2, 18.0));
+//   }
+
+//   listView(List datasForDisplay) {
+//     return ListView.builder(
+//       itemBuilder: (context, index) {
+//         var val3;
+//         datasForDisplay[index].val3 is num
+//             ? val3 = getNumberFormat(datasForDisplay[index].val3)
+//             : val3 = datasForDisplay[index].val3;
+//         return Card(
+//           color: Colors.green[200],
+//           child: ListTile(
+//             subtitle: Column(
+//               children: <Widget>[
+//                 if (datasForDisplay[index].val1 != null)
+//                   align(Alignment.centerLeft,
+//                       datasForDisplay[index].val1.toString(), 14.0),
+//                 if (datasForDisplay[index].val2 != null &&
+//                     datasForDisplay[index].val3 != null)
+//                   rowData_2(datasForDisplay[index].val2.toString(),
+//                       val3.toString(), 14.0),
+//                 if (datasForDisplay[index].val4 != null)
+//                   align(Alignment.centerLeft,
+//                       datasForDisplay[index].val4.toString(), 14.0),
+//                 if (datasForDisplay[index].val5 != null)
+//                   align(Alignment.centerLeft,
+//                       datasForDisplay[index].val5.toString(), 14.0),
+//                 if (datasForDisplay[index].val6 != null)
+//                   align(Alignment.centerLeft,
+//                       datasForDisplay[index].val6.toString(), 14.0),
+//               ],
+//             ),
+//             onTap: () {
+//                  gs_list_index = index;
+//                 print(index.toString());
+//                 print(gs_list_index.toString());
+//                 doc_no = _datasForDisplay[index].val2;
+//                 gs_prod_name = _datasForDisplay[index].val1;
+//                 gs_puom = _datasForDisplay[index].val8;
+//                 gs_stk_puom = _datasForDisplay[index].val7;
+//                 gs_luom = _datasForDisplay[index].luom;
+//                 gs_stk_luom = _datasForDisplay[index].stk_luom;
+//                 gs_uppp = _datasForDisplay[index].uppp;
+//                 gs_rate = _datasForDisplay[index].val9.toString();
+//                 gs_cost_rate = _datasForDisplay[index].cost_rate;
+//                 print(gs_prod_code);
+//                 print(gs_rate);
+//                 Navigator.of(context).pop(true);
+//                 // alert(context, gs_list_index.toString(), Colors.red);
+
+//             },
+//           ),
+//         );
+//       },
+//       itemCount: datasForDisplay.length,
+//     );
+//   }
+// }
+
+///////=============================================================
   refNolist() {
     reflist(widget.ac_code, selectedtype);
     list_length = search_ref_datas.length;
@@ -462,7 +595,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
       content: Container(
         height: 400.0,
         width: 300.0,
-        child: ListBuilderCommon(
+        child: SalesReturnListingBuilder(
             datas: search_ref_datas, toPage: null, head: false, popBack: true),
       ),
     );
@@ -649,15 +782,14 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
                         context: context,
                         builder: (BuildContext context) => prodlist())
                     .then((value) {
-                  setState(() {
-                    if (gs_list_index != null) {
-                      prod_update = false;
-                      print(serial_no.toString() + "in new");
-                      print("update");
-                      print(prod_update);
-                      productClick();
-                    }
-                  });
+                  // setState(() {
+                  //   if (gs_list_index != null) {
+                  prod_update = false;
+                  productClick();
+                  print(serial_no.toString() + "in new");
+                  print(prod_update);
+                  //   }
+                  // });
                 });
               },
               icon: Icon(Icons.search, color: Colors.green)),
@@ -670,19 +802,27 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
     amt.clear();
     vat.clear();
     net_amt.clear();
-    _puom = salesproduct[gs_list_index].puom.toString();
-    _luom = salesproduct[gs_list_index].luom.toString();
+    qty.clear();
+    puom.clear();
+    luom.clear();
+    rate.clear();
+
+    // _puom = salesproduct[gs_list_index].puom.toString();
+    // _luom = salesproduct[gs_list_index].luom.toString();
     // stk_puom = salesproduct[gs_list_index].stk_puom.toString();
     // stk_luom = salesproduct[gs_list_index].stk_luom.toString();
-    product.text = salesproduct[gs_list_index].val2.toString();
-    product_name.text = salesproduct[gs_list_index].val1.toString();
-    uppp = salesproduct[gs_list_index].uppp;
-    rate.text = salesproduct[gs_list_index].val9.toString();
-    cost_rate = salesproduct[gs_list_index].cost_rate.toString();
-    avl_qty = salesproduct[gs_list_index].val7.toString();
+    _puom = gs_puom;
+    _luom = gs_luom;
+    stk_puom = gs_stk_puom;
+    stk_luom = gs_stk_luom;
+    product.text = gs_prod_code;
+    product_name.text = gs_prod_name;
+    uppp = gs_uppp;
+    cost_rate = gs_cost_rate;
+    avl_qty = (stk_puom + stk_luom).toString();
     bal_stk.text = "Available Qty " + avl_qty;
     // puom.text = salesproduct[gs_list_index].qty_puom.toString();
-    luom.text = salesproduct[gs_list_index].qty_luom.toString();
+    luom.text = gs_luom;
   }
 
   productCalculate() {
@@ -800,7 +940,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
     serial_no.toString().length == 1
         ? serial_no_zero = '0000'
         : serial_no_zero = '000';
-    unit_price_amt = int.parse(rate.text);
+    unit_price_amt = double.parse(rate.text);
     net_price = unit_price_amt - 0; // disc_hdr_price=0
     disc_price = ((unit_price_amt * gl_disc_perct) / 100);
     lcur_amt = amount.toDouble() * gl_EX_rate;
@@ -968,6 +1108,28 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
 
   _generatePdfAndView(String choice) async {
     final pdf = pdfLib.Document();
+    final head = ['VAT %', "Assesable Amt", "Tax Amt"];
+    final headvat = ['Gross Total', getNumberFormat(ll_amt).toString()];
+    final amounts = [
+      Amounts("5.00", getNumberFormat(ll_amt).toString(),
+          getNumberFormat(ll_vat).toString()),
+      // getNumberFormat(_amt).toString(),
+      // getNumberFormat(_vat).toString(),
+      // getNumberFormat(_tot).toString(),
+      Amounts("Total", getNumberFormat(ll_amt).toString(),
+          getNumberFormat(ll_vat).toString())
+    ];
+    final dat =
+        amounts.map((amnt) => [amnt.perc, amnt.asses, amnt.tax]).toList();
+    final valamounts = [
+      // VatAmounts(" ", " "),
+      VatAmounts("VAT ", getNumberFormat(ll_vat).toString()),
+      // VatAmounts(" ", " "),
+      VatAmounts("Net Amount", getNumberFormat(ll_tot).toString())
+    ];
+    final vatdat =
+        valamounts.map((vatamnt) => [vatamnt.name, vatamnt.amt]).toList();
+
     String now = DateFormat("dd-MM-yyyy hh:mm:ss").format(DateTime.now());
     // ignore: deprecated_member_use
     final PdfImage assetImage = await pdfImageFromImageProvider(
@@ -1024,84 +1186,158 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
                 ]),
           ),
           pdfLib.SizedBox(height: 10.0),
-          pdfLib.Column(
-              crossAxisAlignment: pdfLib.CrossAxisAlignment.start,
-              children: [
-                pdfLib.Text("Doc No: " + doc_no.text),
-                pdfLib.Row(
-                    mainAxisAlignment: pdfLib.MainAxisAlignment.spaceBetween,
-                    children: [
-                      pdfLib.Text("Doc Date: " + doc_date),
-                      pdfLib.Text("Ref No " + ref_no.text),
-                    ]),
-                pdfLib.Row(
-                    mainAxisAlignment: pdfLib.MainAxisAlignment.spaceBetween,
-                    children: [
-                      pdfLib.Text("Customer: " + customer.text),
-                      pdfLib.Text("Sale Tyoe: " + selectedtype),
-                      pdfLib.Text("Return Tyoe: " + selected_return_type),
-                    ]),
-                pdfLib.Text("Salesman Name: " + gs_currentUser),
-              ]),
-          pdfLib.SizedBox(height: 20.0),
-          pdfLib.Table.fromTextArray(context: context, data: <List<dynamic>>[
-            <String>['SNo', 'Product', 'Quantity', 'Rate', 'Amount'],
-            ...salesdetails.map((item) => [
-                  item.val1.toString(),
-                  item.val2.toString() + "\n" + item.val3.toString(),
-                  item.val5.toString() +
-                      " " +
-                      item.val4.toString() +
-                      " " +
-                      item.val7.toString() +
-                      " " +
-                      item.val6.toString(),
-                  getNumberFormat(item.val11).toString(),
-                  getNumberFormat(item.val10).toString(),
-                ])
-          ]),
-          pdfLib.SizedBox(height: 10.0),
           pdfLib.Container(
-            width: double.infinity,
-            child:
-                pdfLib.Column(crossAxisAlignment: pdfLib.CrossAxisAlignment.end,
-                    // mainAxisAlignment: pdfLib.MainAxisAlignment.end,
-                    children: [
-                  pdfLib.Text(
-                    "Amount(VAT Exclusive) :" +
-                        "AED " +
-                        getNumberFormat(ll_amt).toString(),
-                    style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
-                  ),
-                  pdfLib.Text(
-                    "VAT:   " + "AED " + getNumberFormat(ll_vat).toString(),
-                    style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
-                  ),
-                  pdfLib.Text(
-                    "Amount(VAT Inclusive) :" +
-                        "AED " +
-                        getNumberFormat(ll_tot).toString(),
-                    style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
-                  ),
-                  pdfLib.FittedBox(
-                      child: pdfLib.Row(
-                          mainAxisAlignment: pdfLib.MainAxisAlignment.end,
+            margin: pdfLib.EdgeInsets.all(5.0),
+            padding: pdfLib.EdgeInsets.all(55.0),
+            decoration: pdfLib.BoxDecoration(
+                border: pdfLib.Border.all(color: PdfColors.black)),
+            child: pdfLib.Column(
+                crossAxisAlignment: pdfLib.CrossAxisAlignment.start,
+                children: [
+                  pdfLib.Text("Invoice No: " + doc_no.text),
+                  pdfLib.Row(
+                      mainAxisAlignment: pdfLib.MainAxisAlignment.spaceBetween,
+                      children: [
+                        pdfLib.Text("Invoice Date: " + doc_date),
+                        pdfLib.Text("Ref No " + ref_no.text),
+                      ]),
+                  pdfLib.Row(
+                      mainAxisAlignment: pdfLib.MainAxisAlignment.spaceBetween,
+                      children: [
+                        pdfLib.Text("Customer: " + customer.text),
+                        pdfLib.Text("Sale Type: " + selectedtype),
+                      ]),
+
+                  pdfLib.Row(
+                      mainAxisAlignment: pdfLib.MainAxisAlignment.spaceBetween,
+                      children: [
+                        pdfLib.Text("Salesman Name: " + gs_currentUser),
+                        pdfLib.Text("Return Type: " + selected_return_type),
+                      ]),
+
+                  pdfLib.SizedBox(height: 20.0),
+                  pdfLib.Table.fromTextArray(
+                      context: context,
+                      border: null,
+                      // border: pdfLib.TableBorder.symmetric(
+                      //     outside: pdfLib.BorderSide(
+                      //         width: 1, style: pdfLib.BorderStyle.solid)),
+                      headerStyle:
+                          pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
+                      headerDecoration:
+                          pdfLib.BoxDecoration(color: PdfColors.grey300),
+                      data: <List<dynamic>>[
+                        <String>[
+                          'SNo',
+                          'Product',
+                          'Quantity',
+                          'Rate',
+                          'Amount'
+                        ],
+                        ...salesdetails.map((item) => [
+                              item.val1.toString(),
+                              item.val2.toString() +
+                                  "\n" +
+                                  item.val3.toString(),
+                              item.val5.toString() + " " + item.val4.toString(),
+                              // +
+                              // " " +
+                              // item.val7.toString() +
+                              // " " +
+                              // item.val6.toString(),
+                              getNumberFormat(item.val11).toString(),
+                              getNumberFormat(item.val10).toString(),
+                            ])
+                      ]),
+                  // pdfLib.SizedBox(height: 10.0),
+                  // pdfLib.Container(
+                  //   width: double.infinity,
+                  //   child:
+                  //       pdfLib.Column(crossAxisAlignment: pdfLib.CrossAxisAlignment.end,
+                  //           // mainAxisAlignment: pdfLib.MainAxisAlignment.end,
+                  //           children: [
+                  //         pdfLib.Text(
+                  //           "Amount(VAT Exclusive) :" +
+                  //               "AED " +
+                  //               getNumberFormat(ll_amt).toString(),
+                  //           style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
+                  //         ),
+                  //         pdfLib.Text(
+                  //           "VAT:   " + "AED " + getNumberFormat(ll_vat).toString(),
+                  //           style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
+                  //         ),
+                  //         pdfLib.Text(
+                  //           "Amount(VAT Inclusive) :" +
+                  //               "AED " +
+                  //               getNumberFormat(ll_tot).toString(),
+                  //           style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
+                  //         ),
+                  //         pdfLib.FittedBox(
+                  //             child: pdfLib.Row(
+                  //                 mainAxisAlignment: pdfLib.MainAxisAlignment.end,
+                  //                 children: [
+                  //               pdfLib.Text(
+                  //                 "Amount(VAT Inclusive) In words : ",
+                  //                 style: pdfLib.TextStyle(
+                  //                   fontWeight: pdfLib.FontWeight.bold,
+                  //                 ),
+                  //               ),
+                  //               pdfLib.Text(
+                  //                 _translatedValue,
+                  //                 style: pdfLib.TextStyle(
+                  //                     fontWeight: pdfLib.FontWeight.bold,
+                  //                     fontSize: 9.0),
+                  //               ),
+                  //             ])),
+
+                  pdfLib.Row(children: [
+                    pdfLib.SizedBox(height: 180.0),
+                    pdfLib.Table.fromTextArray(
+                      headerStyle:
+                          pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
+                      oddCellStyle:
+                          pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
+                      // defaultColumnWidth: 30,
+                      cellAlignment: pdfLib.Alignment.centerRight,
+                      headers: head,
+                      data: dat,
+                    ),
+                    // pdfLib.SizedBox(width: 50.0),
+                    pdfLib.Table.fromTextArray(
+                      headerStyle:
+                          pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
+                      // defaultColumnWidth: 30,
+                      cellAlignment: pdfLib.Alignment.centerRight,
+                      cellStyle:
+                          pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
+                      headers: headvat,
+                      data: vatdat,
+                    ),
+                  ]),
+                  pdfLib.SizedBox(height: 10.0),
+                  pdfLib.Container(
+                      width: double.infinity,
+                      child: pdfLib.Column(
+                          crossAxisAlignment: pdfLib.CrossAxisAlignment.start,
+                          mainAxisAlignment: pdfLib.MainAxisAlignment.start,
                           children: [
-                        pdfLib.Text(
-                          "Amount(VAT Inclusive) In words : ",
-                          style: pdfLib.TextStyle(
-                            fontWeight: pdfLib.FontWeight.bold,
-                          ),
-                        ),
-                        pdfLib.Text(
-                          _translatedValue,
-                          style: pdfLib.TextStyle(
-                              fontWeight: pdfLib.FontWeight.bold,
-                              fontSize: 9.0),
-                        ),
-                      ])),
+                            pdfLib.Text(
+                              _gscurrencycode +
+                                  " " +
+                                  _translatedValue +
+                                  " ONLY",
+                              style: pdfLib.TextStyle(
+                                  fontWeight: pdfLib.FontWeight.bold,
+                                  fontSize: 9.0),
+                            ),
+                          ])),
                 ]),
           ),
+          // ]),
+          // ),
+
+          // ]),
+          // ),
 
           // pdfLib.SizedBox(height: 320.0),
 

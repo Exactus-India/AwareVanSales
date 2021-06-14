@@ -78,10 +78,21 @@ class _HomePageState extends State<HomePage> {
                   child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
+                        Align(
+                          alignment: Alignment.topRight,
+                          child: IconButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            // color: Colors.grey.shade500,
+                            iconSize: 30,
+                            icon: Icon(Icons.close),
+                          ),
+                        ),
                         CircleAvatar(
                           child: Text(gs_currentUser[0],
-                              style: TextStyle(fontSize: 35)),
-                          radius: 40.0,
+                              style: TextStyle(fontSize: 30)),
+                          radius: 30.0,
                         ),
                         Text(
                           gs_currentUser,
@@ -104,6 +115,7 @@ class _HomePageState extends State<HomePage> {
               listTile(StockSummary(), context, 'stock_summary.png',
                   'STOCK SUMMARY'),
               // listTile(null, context, 'about.png', 'ABOUT'),
+              listTile(Wm_mb_LoginPage(), context, 'sign_out.jpg', 'SIGN OUT'),
             ],
           )),
       body: WillPopScope(
@@ -199,6 +211,28 @@ class _HomePageState extends State<HomePage> {
             itemCount: userAlert.length,
           );
         });
+  }
+
+  signout() {
+    return showDialog(
+      context: context,
+      builder: (context) => new AlertDialog(
+        title: new Text('Are you sure?'),
+        content: new Text('Do you want to Sign Out?'),
+        actions: <Widget>[
+          new ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: new Text('No'),
+          ),
+          new ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            // onPressed: () => Navigator.push(context,
+            //     MaterialPageRoute(builder: (context) => LoginPage())),
+            child: new Text('Yes'),
+          ),
+        ],
+      ),
+    );
   }
 
   notify_count() {

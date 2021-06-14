@@ -25,7 +25,8 @@ import 'receipt_data.dart';
 import 'stock_sum_data.dart';
 import 'stocktransfer.dart';
 
-String ip_port = "http://exactusnet.dyndns.org:4006/api";
+String ip_port = "http://45.114.142.192:4005/api";
+// String ip_port = "http://exactusnet.dyndns.org:4005/api";
 var ls_mth_code;
 String org_filename;
 var description;
@@ -59,6 +60,7 @@ int gl_tx_compt_hdisc_lcur_amt = 0;
 int gl_rec_hdr_sno = 9001;
 int gl_amt_org = 0;
 var gs_date = DateFormat("dd-MMM-yyyy").format(DateTime.now());
+var gs_date_login_page = DateFormat("yy.MM.dd").format(DateTime.now());
 var gs_doc_date = DateFormat("dd-MMM-yyyy").add_jms().format(DateTime.now());
 var gs_sys_date = DateFormat("dd-MMM-yyyy").format(DateTime.now());
 var gs_date_login = DateFormat("yy.MMM.dd").format(DateTime.now());
@@ -84,7 +86,8 @@ Future<List> getAllUserName() async {
     var jsonData = json.decode(jsonBody.substring(0));
     return jsonData;
   } catch (e) {
-    showToast(e.toString());
+    showToast("Connect to the server");
+    // alert(context, "Server down", Colors.red);
   }
 }
 
@@ -455,6 +458,19 @@ Future<List> salesmiddile(docno, serialno) async {
 }
 
 Future<List> getAllProduct() async {
+  var url = '${ip_port}/sales/customerList/salesDN/search_prod/$gs_zonecode';
+  var response = await http.get(url);
+  var datas = List<Productlist>();
+  if (response.statusCode == 200) {
+    Object datasJson = json.decode(response.body.substring(0));
+    for (var dataJson in datasJson) {
+      datas.add(Productlist.fromJson(dataJson));
+    }
+  }
+  return datas;
+}
+
+Future<List> getproductsearch() async {
   var url = '${ip_port}/sales/customerList/salesDN/search_prod/$gs_zonecode';
   var response = await http.get(url);
   var datas = List<Productlist>();

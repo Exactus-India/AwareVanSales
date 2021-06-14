@@ -54,7 +54,8 @@ class _CustomerListState extends State<CustomerList> {
             child: align(Alignment.centerLeft, gs_currentUser, 20.0)),
         _searchBar(),
         SizedBox(height: 5.0),
-        if (_timer_ == true) if (list_length == 0) noValue(),
+        if (_timer_ == true)
+          if (list_length == 0) noValue(),
         if (_timer_ == true)
           Expanded(child: listView(_datasForDisplay, widget.toPage)),
       ]),

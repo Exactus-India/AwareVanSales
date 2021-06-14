@@ -5,6 +5,7 @@ import 'package:aware_van_sales/components/number_to_text.dart';
 import 'package:aware_van_sales/data/constants.dart';
 import 'package:aware_van_sales/data/future_db.dart';
 import 'package:aware_van_sales/wigdets/alert.dart';
+import 'package:aware_van_sales/wigdets/widget_rowData.dart';
 import 'package:custom_datatable/custom_datatable.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -32,6 +33,34 @@ class SalesEntry extends StatefulWidget {
 }
 
 String _gscurrencycode = 'AED';
+var gs_prod_code;
+var gs_prod_name;
+var gs_puom;
+var gs_luom;
+var gs_stk_puom;
+var gs_stk_luom;
+var gs_uppp;
+var gs_cost_rate;
+var gs_avl_qty;
+
+var gs_rate;
+
+class VatAmounts {
+  String name;
+  String amt;
+  VatAmounts(this.name, this.amt);
+}
+
+class Amounts {
+  String perc;
+  String asses;
+  String tax;
+  // String gross;
+  // String vat;
+  // String net;
+  Amounts(this.perc, this.asses, this.tax);
+  // , this.gross, this.vat, this.net);
+}
 
 class _SalesEntryState extends State<SalesEntry> {
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
@@ -60,10 +89,12 @@ class _SalesEntryState extends State<SalesEntry> {
   List salesdetails = List();
   List salesmiddleList = List();
   List productList = List();
+  List productListSearch = List();
   var serial_no;
   var list_serial_no;
   var uppp;
   var _puom;
+  String empty = "";
   var _luom;
   var avl_qty;
   var stk_puom;
@@ -81,6 +112,8 @@ class _SalesEntryState extends State<SalesEntry> {
   var tx_cmpt_amt;
   var tx_cmpt_lcur_amt;
   var doc_date;
+  var doc_dt;
+
   int _pqty = 0;
   int _lqty = 0;
   double _amt = 0;
@@ -126,8 +159,10 @@ class _SalesEntryState extends State<SalesEntry> {
       setState(() {
         productList.clear();
         productList.addAll(value);
+        // productList = _datas;
       });
     });
+
     print(doc_no.text + ' doc no');
     super.initState();
   }
@@ -148,7 +183,8 @@ class _SalesEntryState extends State<SalesEntry> {
         doc_date = date.toString().split('T')[0];
         print(doc_date + " doc_date");
         var ref = salesHDR[0]['REF_NO'];
-        doc_date = salesHDR[0]['REF_NO'];
+        doc_date = salesHDR[0]['DOC_DATE'].toString().split('T')[0];
+
         var sn_no = salesHDR[0]['LAST_DTL_SERIAL_NO'];
         if (sn_no == null || sn_no == 0) sn_no = 0;
         serial_no = sn_no + 1;
@@ -289,28 +325,28 @@ class _SalesEntryState extends State<SalesEntry> {
             flex: 2,
             child: textField("Customer", customer, false, true, TextAlign.left),
           ),
-          if (editing == true && newEntry == false && salesdetails.length > 0)
-            Flexible(
-              flex: 1,
-              child: Padding(
-                padding: EdgeInsets.only(left: 10.0),
-                child: RaisedButton(
-                    onPressed: () {
-                      dnConfirmDirect(doc_no.text).then((value) {
-                        if (value == true) {
-                          getHDR(doc_no.text);
-                          showToast('Confirmed Succesfully');
-                        }
-                        if (value != true) showToast('Failed');
-                      });
-                    },
-                    color: Colors.green,
-                    child: Text(
-                      "CONFIRM",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    )),
-              ),
-            ),
+          // if (editing == true && newEntry == false && salesdetails.length > 0)
+          //   Flexible(
+          //     flex: 1,
+          //     child: Padding(
+          //       padding: EdgeInsets.only(left: 10.0),
+          //       child: RaisedButton(
+          //           onPressed: () {
+          //             dnConfirmDirect(doc_no.text).then((value) {
+          //               if (value == true) {
+          //                 getHDR(doc_no.text);
+          //                 showToast('Confirmed Succesfully');
+          //               }
+          //               if (value != true) showToast('Failed');
+          //             });
+          //           },
+          //           color: Colors.green,
+          //           child: Text(
+          //             "CONFIRM",
+          //             style: TextStyle(fontWeight: FontWeight.bold),
+          //           )),
+          //     ),
+          //   ),
         ]),
         SizedBox(height: 4),
         Row(children: <Widget>[
@@ -362,7 +398,7 @@ class _SalesEntryState extends State<SalesEntry> {
       ]),
       Row(children: <Widget>[
         Flexible(
-            child: textField("Unit rate", rate, false, false, TextAlign.end)),
+            child: textField("Unit Rate", rate, false, false, TextAlign.end)),
         SizedBox(width: 10.0),
         Flexible(
             child: textField('Amount', amt, false,
@@ -497,14 +533,14 @@ class _SalesEntryState extends State<SalesEntry> {
                             context: context,
                             builder: (BuildContext context) => prodlist())
                         .then((value) {
-                      setState(() {
-                        if (gs_list_index != null) {
-                          prod_update = false;
-                          print(serial_no.toString() + "in new");
-                          print(prod_update);
-                          productClick();
-                        }
-                      });
+                      // setState(() {
+                      // if (gs_list_index != null) {
+                      prod_update = false;
+                      productClick();
+                      print(serial_no.toString() + "in new");
+                      print(prod_update);
+                      // }
+                      // });
                     });
                   },
                   icon: Icon(Icons.search, color: Colors.green),
@@ -701,30 +737,41 @@ class _SalesEntryState extends State<SalesEntry> {
   }
 
   productClick() {
-    _puom = productList[gs_list_index].puom.toString();
-    _luom = productList[gs_list_index].luom.toString();
-    stk_puom = productList[gs_list_index].stk_puom;
-    stk_luom = productList[gs_list_index].stk_luom;
-    product.text = productList[gs_list_index].val2.toString();
-    product_name.text = productList[gs_list_index].val1.toString();
-    uppp = productList[gs_list_index].uppp;
-    cost_rate = productList[gs_list_index].cost_rate.toString();
-    if (stk_luom == null) stk_luom = 0;
-    avl_qty = (stk_puom + stk_luom).toString();
-    bal_stk.text = 'Bal: ' + stk_puom.toString() + ' ' + _puom;
-    rate.text = productList[gs_list_index].val9.toString();
-    // discount_product(product.text, avl_qty).then((value) {
-    //   if (value.toInt() != 0)
-    //     rate.text = value.toString();
-    //   else
-    //     rate.text = productList[gs_list_index].val9.toString();
-    // });
     amt.clear();
     vat.clear();
     net_amt.clear();
     qty.clear();
     puom.clear();
     luom.clear();
+    rate.clear();
+    print("SEARCHLIST");
+    print(gs_rate);
+    _puom = gs_puom;
+    _luom = gs_luom;
+    stk_puom = gs_stk_puom;
+    stk_luom = gs_stk_luom;
+    product.text = gs_prod_code;
+    product_name.text = gs_prod_name;
+    uppp = gs_uppp;
+    cost_rate = gs_cost_rate;
+    if (stk_luom == null) stk_luom = 0;
+    avl_qty = (stk_puom + stk_luom).toString();
+    bal_stk.text = 'Bal: ' + stk_puom.toString() + ' ' + _puom;
+    if (gs_rate == ' ' || gs_rate == null || gs_rate == '0')
+      rate.text = empty;
+    else
+      rate.text = gs_rate.toString();
+    // qty = ;
+    print(rate.text);
+    // if (productList[gs_list_index].val9 == null)
+    //   rate = 0 as TextEditingController;
+    // else
+    // discount_product(product.text, avl_qty).then((value) {
+    //   if (value.toInt() != 0)
+    //     rate.text = value.toString();
+    //   else
+    //     rate.text = productList[gs_list_index].val9.toString();
+    // });
   }
 
   discount() {
@@ -767,7 +814,7 @@ class _SalesEntryState extends State<SalesEntry> {
     serial_no.toString().length == 1
         ? serial_no_zero = '0000'
         : serial_no_zero = '000';
-    unit_price_amt = int.parse(rate.text);
+    unit_price_amt = double.parse(rate.text);
     net_price = unit_price_amt - 0; // disc_hdr_price=0
     disc_price = ((unit_price_amt * gl_disc_perct) / 100);
     lcur_amt = amount.toDouble() * gl_EX_rate;
@@ -797,7 +844,7 @@ class _SalesEntryState extends State<SalesEntry> {
       amt.text = numberWithCommas(amt.text);
       net_amt.text = numberWithCommas(net_amt.text);
       if (luom.text.isEmpty) luom.text = '0';
-
+      print("insertion");
       var resp = await product_insertion(
           doc_no.text,
           serial_no.toString(),
@@ -932,6 +979,28 @@ class _SalesEntryState extends State<SalesEntry> {
 
   _generatePdfAndView(String choice) async {
     final pdf = pdfLib.Document();
+
+    final head = ['VAT %', "Assesable Amt", "Tax Amt"];
+    final headvat = ['Gross Total', getNumberFormat(_amt).toString()];
+    final amounts = [
+      Amounts("5.00", getNumberFormat(_amt).toString(),
+          getNumberFormat(_vat).toString()),
+      // getNumberFormat(_amt).toString(),
+      // getNumberFormat(_vat).toString(),
+      // getNumberFormat(_tot).toString(),
+      Amounts("Total", getNumberFormat(_amt).toString(),
+          getNumberFormat(_vat).toString())
+    ];
+    final valamounts = [
+      // VatAmounts(" ", " "),
+      VatAmounts("VAT ", getNumberFormat(_vat).toString()),
+      // VatAmounts(" ", " "),
+      VatAmounts("Net Amount", getNumberFormat(_tot).toString())
+    ];
+    final dat =
+        amounts.map((amnt) => [amnt.perc, amnt.asses, amnt.tax]).toList();
+    final vatdat =
+        valamounts.map((vatamnt) => [vatamnt.name, vatamnt.amt]).toList();
     String now = DateFormat("dd-MM-yyyy hh:mm:ss").format(DateTime.now());
     // ignore: deprecated_member_use
     final PdfImage assetImage = await pdfImageFromImageProvider(
@@ -948,21 +1017,26 @@ class _SalesEntryState extends State<SalesEntry> {
                 child: pdfLib.Container(
                     // ignore: deprecated_member_use
                     child: pdfLib.Image(assetImage),
-                    width: 150)),
+                    width: 100)),
             pdfLib.SizedBox(width: 15.0),
-            pdfLib.Column(
-                crossAxisAlignment: pdfLib.CrossAxisAlignment.start,
-                children: [
-                  pdfLib.Text(
-                    "Island Valley Electronics L.L.C",
-                    style: pdfLib.TextStyle(
-                        fontSize: 18.0, fontWeight: pdfLib.FontWeight.bold),
-                  ),
-                  pdfLib.Text("Address :" +
-                      "Office No.306,\nAl Habtoor Naif Building\nBaniyas Square\nDubai U.A.E"),
-                  pdfLib.Text("Tel : " + " 04-2324747"),
-                  pdfLib.Text("TRN_NO : " + "100299579100003"),
-                ])
+            pdfLib.Container(
+              // alignment: pdfLib.Alignment.center,
+              child: pdfLib.Column(
+                  crossAxisAlignment: pdfLib.CrossAxisAlignment.start,
+                  children: [
+                    pdfLib.Text(
+                      "Island Valley Electronics L.L.C",
+                      style: pdfLib.TextStyle(
+                          fontSize: 18.0, fontWeight: pdfLib.FontWeight.bold),
+                    ),
+                    pdfLib.Text(
+                      "Address :" +
+                          "Office No.306,\nAl Habtoor Naif Building\nBaniyas Square\nDubai U.A.E",
+                    ),
+                    pdfLib.Text("Tel : " + " 04-2324747"),
+                    pdfLib.Text("TRN_NO : " + "100299579100003"),
+                  ]),
+            ),
           ]);
         },
         build: (context) => [
@@ -981,87 +1055,165 @@ class _SalesEntryState extends State<SalesEntry> {
                 ]),
           ),
           pdfLib.SizedBox(height: 10.0),
-          pdfLib.Column(
-              crossAxisAlignment: pdfLib.CrossAxisAlignment.start,
-              children: [
-                pdfLib.Text("Doc No: " + doc_no.text),
-                pdfLib.Row(
-                    mainAxisAlignment: pdfLib.MainAxisAlignment.spaceBetween,
-                    children: [
-                      pdfLib.Text("Doc Date: " + doc_date),
-                      pdfLib.Text("Ref No " + ref_no.text),
-                    ]),
-                pdfLib.Row(
-                    mainAxisAlignment: pdfLib.MainAxisAlignment.spaceBetween,
-                    children: [
-                      pdfLib.Text("Customer: " + customer.text),
-                      pdfLib.Text("Sale Type: " + selectedtype),
-                    ]),
-                pdfLib.Text("Salesman Name: " + gs_currentUser),
-              ]),
-          pdfLib.SizedBox(height: 20.0),
-          pdfLib.Table.fromTextArray(context: context, data: <List<dynamic>>[
-            <String>['SNo', 'Product', 'Quantity', 'Rate', 'Amount'],
-            ...salesdetails.map((item) => [
-                  item.val1.toString(),
-                  item.val2.toString() + "\n" + item.val3.toString(),
-                  item.val5.toString() +
-                      " " +
-                      item.val4.toString() +
-                      " " +
-                      item.val7.toString() +
-                      " " +
-                      item.val6.toString(),
-                  getNumberFormat(item.val11).toString(),
-                  getNumberFormat(item.val10).toString(),
-                ])
-          ]),
-          pdfLib.SizedBox(height: 10.0),
           pdfLib.Container(
-            width: double.infinity,
-            child:
-                pdfLib.Column(crossAxisAlignment: pdfLib.CrossAxisAlignment.end,
-                    // mainAxisAlignment: pdfLib.MainAxisAlignment.end,
-                    children: [
-                  pdfLib.Text(
-                    "Amount(VAT Exclusive) :" +
-                        _gscurrencycode +
-                        " " +
-                        getNumberFormat(_amt).toString(),
-                    style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
+            margin: pdfLib.EdgeInsets.all(5.0),
+            padding: pdfLib.EdgeInsets.all(55.0),
+            decoration: pdfLib.BoxDecoration(
+                border: pdfLib.Border.all(color: PdfColors.black)),
+            child: pdfLib.Column(
+                crossAxisAlignment: pdfLib.CrossAxisAlignment.start,
+                children: [
+                  pdfLib.Text("Invoice No: " + doc_no.text),
+                  pdfLib.Row(
+                      mainAxisAlignment: pdfLib.MainAxisAlignment.spaceBetween,
+                      children: [
+                        pdfLib.Text("Invoice Date: " + doc_date),
+                        pdfLib.Text("Ref No " + ref_no.text),
+                      ]),
+                  pdfLib.Row(
+                      mainAxisAlignment: pdfLib.MainAxisAlignment.spaceBetween,
+                      children: [
+                        pdfLib.Text("Customer: " + customer.text),
+                        pdfLib.Text("Sale Type: " + selectedtype),
+                      ]),
+                  pdfLib.Text("Salesman Name: " + gs_currentUser),
+                  pdfLib.SizedBox(height: 20.0),
+                  pdfLib.Container(
+                    // margin: pdfLib.EdgeInsets.all(15.0),
+                    // padding: pdfLib.EdgeInsets.all(3.0),
+
+                    height: 500,
+                    child: pdfLib.Table.fromTextArray(
+                        context: context,
+                        border: null,
+                        // border: pdfLib.TableBorder.symmetric(
+                        //     outside: pdfLib.BorderSide(
+                        //         width: 1, style: pdfLib.BorderStyle.solid)),
+                        headerStyle: pdfLib.TextStyle(
+                            fontWeight: pdfLib.FontWeight.bold),
+                        headerDecoration:
+                            pdfLib.BoxDecoration(color: PdfColors.grey300),
+                        // cellHeight: 100,
+                        // defaultColumnWidth:30,
+                        cellAlignment: pdfLib.Alignment.center,
+                        // cellAlignments:Map<int,alignments
+                        data: <List<dynamic>>[
+                          <String>[
+                            'SNo',
+                            'Product',
+                            'Quantity',
+                            'Rate',
+                            ' Amount ',
+                            "VAT\n(5%)",
+                            "Amt\nIncl.VAT"
+                          ],
+                          ...salesdetails.map((item) => [
+                                item.val1.toString(),
+                                item.val2.toString() +
+                                    "\n" +
+                                    item.val3.toString(),
+                                item.val5.toString() +
+                                    " " +
+                                    item.val4.toString(),
+                                //  +
+                                // " " +
+                                // item.val7.toString() +
+                                // " " +
+                                // item.val6.toString(),
+                                getNumberFormat(item.val11).toString(),
+                                getNumberFormat(item.val11).toString(),
+
+                                getNumberFormat(item.val9).toString(),
+                                getNumberFormat(item.val10).toString(),
+                              ]),
+                        ]),
                   ),
-                  pdfLib.Text(
-                    "VAT:   " +
-                        _gscurrencycode +
-                        " " +
-                        getNumberFormat(_vat).toString(),
-                    style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
-                  ),
-                  pdfLib.Text(
-                    "Amount(VAT Inclusive) :" +
-                        _gscurrencycode +
-                        " " +
-                        getNumberFormat(_tot).toString(),
-                    style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
-                  ),
-                  pdfLib.FittedBox(
-                      child: pdfLib.Row(
-                          crossAxisAlignment: pdfLib.CrossAxisAlignment.end,
-                          mainAxisAlignment: pdfLib.MainAxisAlignment.end,
-                          children: [
-                        pdfLib.Text(
-                          "Amount(VAT Inclusive) In words : ",
-                          style: pdfLib.TextStyle(
-                            fontWeight: pdfLib.FontWeight.bold,
+
+                  pdfLib.Container(
+                    // width: 800,
+                    child: pdfLib.Row(
+                        mainAxisAlignment: pdfLib.MainAxisAlignment.start,
+                        crossAxisAlignment: pdfLib.CrossAxisAlignment.stretch,
+                        children: [
+                          pdfLib.SizedBox(height: 180.0),
+                          pdfLib.Table.fromTextArray(
+                            border: pdfLib.TableBorder.all(),
+                            headerStyle: pdfLib.TextStyle(
+                                fontWeight: pdfLib.FontWeight.bold),
+                            oddCellStyle: pdfLib.TextStyle(
+                                fontWeight: pdfLib.FontWeight.bold),
+                            // defaultColumnWidth: 30,
+                            cellAlignment: pdfLib.Alignment.centerRight,
+                            headers: head,
+                            data: dat,
                           ),
-                        ),
-                        pdfLib.Text(
-                          _translatedValue,
-                          style: pdfLib.TextStyle(
-                              fontWeight: pdfLib.FontWeight.bold,
-                              fontSize: 9.0),
-                        ),
-                      ]))
+                          // pdfLib.SizedBox(width: 50.0),
+                          pdfLib.Table.fromTextArray(
+                            border: pdfLib.TableBorder.all(),
+                            headerStyle: pdfLib.TextStyle(
+                                fontWeight: pdfLib.FontWeight.bold),
+                            // defaultColumnWidth: 30,
+                            cellAlignment: pdfLib.Alignment.centerRight,
+                            cellStyle: pdfLib.TextStyle(
+                                fontWeight: pdfLib.FontWeight.bold),
+                            headers: headvat,
+                            data: vatdat,
+                          ),
+                        ]),
+                  ),
+                  pdfLib.SizedBox(height: 10.0),
+                  pdfLib.Text(
+                    _gscurrencycode + " " + _translatedValue + " ONLY",
+                    style: pdfLib.TextStyle(
+                        fontWeight: pdfLib.FontWeight.bold, fontSize: 9.0),
+                  ),
+                  // pdfLib.Container(
+                  //
+                  //   child: pdfLib.Column(
+                  //       crossAxisAlignment: pdfLib.CrossAxisAlignment.stretch,
+                  //       mainAxisAlignment: pdfLib.MainAxisAlignment.spaceEvenly,
+                  //       children: [
+                  //   pdfLib.Text(
+                  //     "Amount(VAT Exclusive) :" +
+                  //         _gscurrencycode +
+                  //         " " +
+                  //         getNumberFormat(_amt).toString(),
+                  //     style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
+                  //   ),
+                  //   pdfLib.Text(
+                  //     "VAT:   " +
+                  //         _gscurrencycode +
+                  //         " " +
+                  //         getNumberFormat(_vat).toString(),
+                  //     style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
+                  //   ),
+                  //   pdfLib.Text(
+                  //     "Amount(VAT Inclusive) :" +
+                  //         _gscurrencycode +
+                  //         " " +
+                  //         getNumberFormat(_tot).toString(),
+                  //     style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
+                  //   ),
+                  //   pdfLib.FittedBox(
+                  //       child: pdfLib.Row(
+                  //           crossAxisAlignment: pdfLib.CrossAxisAlignment.end,
+                  //           mainAxisAlignment: pdfLib.MainAxisAlignment.end,
+                  //           children: [
+                  //         pdfLib.Text(
+                  //           "Amount(VAT Inclusive) In words : ",
+                  //           style: pdfLib.TextStyle(
+                  //             fontWeight: pdfLib.FontWeight.bold,
+                  //           ),
+                  //         ),
+                  //   pdfLib.Text(
+                  //     _gscurrencycode + " " + _translatedValue + " ONLY",
+                  //     style: pdfLib.TextStyle(
+                  //         fontWeight: pdfLib.FontWeight.bold,
+                  //         fontSize: 9.0),
+                  //   ),
+                  //   // ]))
+                  // ]),
+                  // ),
                 ]),
           ),
 
@@ -1086,6 +1238,7 @@ class _SalesEntryState extends State<SalesEntry> {
         },
       ),
     );
+
     var path = await ExtStorage.getExternalStoragePublicDirectory(
         ExtStorage.DIRECTORY_DOWNLOADS);
     print(path);

@@ -40,9 +40,10 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
   String _currentAddress;
 
   bool _validatePassword = false;
+  bool connected_server = false;
   @override
   void initState() {
-    drop();
+    // drop();
     _getCurrentLocation();
     initPlatformState();
     _password.clear();
@@ -91,7 +92,13 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
       setState(() {
         user_list.clear();
         user_list.addAll(value);
-        user_list.sort((a, b) => a['RPT_NAME'].compareTo(b['RPT_NAME']));
+        if (user_list.isNotEmpty) {
+          showToast("Connected successfully");
+          connected_server = true;
+          user_list.sort((a, b) => a['RPT_NAME'].compareTo(b['RPT_NAME']));
+        } else {
+          showToast("Not Connected ");
+        }
       });
       getAllRouteName(selectedUser).then((value) {
         setState(() {
@@ -135,10 +142,28 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
                       ),
                     ),
                     SizedBox(height: 30.0),
-                    loginButton(),
+                    if (connected_server == false)
+                      ButtonTheme(
+                        minWidth: 100.0,
+                        height: 30.0,
+                        child: RaisedButton(
+                            color: Colors.lightBlue[800],
+                            hoverColor: Colors.lightBlue[900],
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(23.0),
+                            ),
+                            child: Text(
+                              "Connect to server",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            onPressed: () {
+                              drop();
+                            }),
+                      ),
+                    if (connected_server == true) loginButton(),
                     textTitle(
                         '\u00a9 1998-2020 Exactus Inc',
-                        'ver 21.05.31.01',
+                        'ver ${gs_date_login_page}.01',
                         Colors.black,
                         Colors.black,
                         11.0,
@@ -157,8 +182,8 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
 
   loginButton() {
     return ButtonTheme(
-        minWidth: 105.0,
-        height: 45.0,
+        minWidth: 90.0,
+        height: 40.0,
         child: new RaisedButton(
             color: Colors.green,
             hoverColor: Colors.green[900],

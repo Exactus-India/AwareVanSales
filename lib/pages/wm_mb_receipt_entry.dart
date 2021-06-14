@@ -32,6 +32,12 @@ class ReceiptEntry extends StatefulWidget {
   _ReceiptEntryState createState() => _ReceiptEntryState();
 }
 
+class VatAmounts {
+  String name;
+  String amt;
+  VatAmounts(this.name, this.amt);
+}
+
 class _ReceiptEntryState extends State<ReceiptEntry> {
   TextEditingController customer = new TextEditingController();
   TextEditingController doc_no = new TextEditingController();
@@ -46,6 +52,7 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
   var pdf_orgtot;
   var pdf_amt;
   String remarks;
+  String _gscurrencycode = 'AED';
   double bamt = 0;
   double oamt = 0;
   double tot_amt = 0;
@@ -426,6 +433,18 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
 
   _generatePdfAndView(String choice) async {
     final pdf = pdfLib.Document();
+
+    final valamounts = [
+      // VatAmounts(" ", " "),
+      VatAmounts("Total Balance ", getNumberFormat(pdf_baltot).toString()),
+      // VatAmounts(" ", " "),
+      VatAmounts("Total Origin Amount", getNumberFormat(pdf_orgtot).toString())
+    ];
+    final headvat = ['Total Amount', getNumberFormat(pdf_tot_amt).toString()];
+
+    final vatdat =
+        valamounts.map((vatamnt) => [vatamnt.name, vatamnt.amt]).toList();
+
     String now = DateFormat("dd-MM-yyyy hh:mm:ss").format(DateTime.now());
     // ignore: deprecated_member_use
     final PdfImage assetImage = await pdfImageFromImageProvider(
@@ -474,92 +493,145 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
                 ]),
           ),
           pdfLib.SizedBox(height: 10.0),
-          pdfLib.Column(
-              crossAxisAlignment: pdfLib.CrossAxisAlignment.start,
-              children: [
-                pdfLib.Text("Doc No: " + doc_no.text),
-                pdfLib.Row(
-                    mainAxisAlignment: pdfLib.MainAxisAlignment.spaceBetween,
-                    children: [
-                      pdfLib.Text("Doc Date: " + docdate.toString()),
-                      pdfLib.Text("Ref No " + ref_no.text),
-                    ]),
-                pdfLib.Row(
-                    mainAxisAlignment: pdfLib.MainAxisAlignment.spaceBetween,
-                    children: [
-                      pdfLib.Text("Customer: " + customer.text),
-                      // pdfLib.Text("Sale Tyoe: " + selectedtype),
-                    ]),
-                pdfLib.Text("Salesman Name: " + gs_currentUser),
-              ]),
-          pdfLib.SizedBox(height: 20.0),
-          pdfLib.Table.fromTextArray(context: context, headers: <String>[
-            'INVOICE NO',
-            'INVOICE DATE',
-            'AMOUNT',
-            'BALANCE AMOUNT',
-            'ORGIN AMOUNT'
-          ], data: <List<dynamic>>[
-            // for (int i = 0; i < rec_inv_List.length; i++)
-            //   if (_controller[i].text.isNotEmpty)
-            ...pdf_List.asMap().keys.toList().map((index) => [
-                  pdf_List[index].val2.toString(),
-                  pdf_List[index].val3.toString(),
-                  pdf_List[index].val4.toString(),
-                  (pdf_List[index].val5.toDouble() -
-                          pdf_List[index].val4.toDouble())
-                      .toString(),
-                  getNumberFormat(pdf_List[index].val6).toString(),
-                ])
-          ]),
-          pdfLib.SizedBox(height: 10.0),
           pdfLib.Container(
-            width: double.infinity,
-            child:
-                pdfLib.Column(crossAxisAlignment: pdfLib.CrossAxisAlignment.end,
-                    // mainAxisAlignment: pdfLib.MainAxisAlignment.end,
-                    children: [
-                  pdfLib.Text(
-                    "Total Amount " +
-                        "AED " +
-                        getNumberFormat(pdf_tot_amt).toString(),
-                    style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
-                  ),
-                  pdfLib.Text(
-                    "Total Balance  " +
-                        "AED " +
-                        getNumberFormat(pdf_baltot).toString(),
-                    style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
-                  ),
-                  pdfLib.Text(
-                    "Total Orgin Amount " +
-                        "AED " +
-                        getNumberFormat(pdf_orgtot).toString(),
-                    style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
-                  ),
-                  pdfLib.FittedBox(
-                      child: pdfLib.Row(
+            margin: pdfLib.EdgeInsets.all(5.0),
+            padding: pdfLib.EdgeInsets.all(55.0),
+            decoration: pdfLib.BoxDecoration(
+                border: pdfLib.Border.all(color: PdfColors.black)),
+            child: pdfLib.Column(
+                crossAxisAlignment: pdfLib.CrossAxisAlignment.start,
+                children: [
+                  pdfLib.Text("Doc No: " + doc_no.text),
+                  pdfLib.Row(
+                      mainAxisAlignment: pdfLib.MainAxisAlignment.spaceBetween,
+                      children: [
+                        pdfLib.Text("Doc Date: " + docdate.toString()),
+                        pdfLib.Text("Ref No " + ref_no.text),
+                      ]),
+                  pdfLib.Row(
+                      mainAxisAlignment: pdfLib.MainAxisAlignment.spaceBetween,
+                      children: [
+                        pdfLib.Text("Customer: " + customer.text),
+                        // pdfLib.Text("Sale Tyoe: " + selectedtype),
+                      ]),
+                  pdfLib.Text("Salesman Name: " + gs_currentUser),
+
+                  pdfLib.SizedBox(height: 20.0),
+                  pdfLib.Table.fromTextArray(
+                      context: context,
+                      border: null,
+                      // border: pdfLib.TableBorder.symmetric(
+                      //     outside: pdfLib.BorderSide(
+                      //         width: 1, style: pdfLib.BorderStyle.solid)),
+                      headerStyle:
+                          pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
+                      headerDecoration:
+                          pdfLib.BoxDecoration(color: PdfColors.grey300),
+                      headers: <String>[
+                        'INVOICE NO',
+                        'INVOICE DATE',
+                        'AMOUNT',
+                        'BALANCE AMOUNT',
+                        'ORIGIN AMOUNT'
+                      ],
+                      data: <List<dynamic>>[
+                        // for (int i = 0; i < rec_inv_List.length; i++)
+                        //   if (_controller[i].text.isNotEmpty)
+                        ...pdf_List.asMap().keys.toList().map((index) => [
+                              pdf_List[index].val2.toString(),
+                              pdf_List[index].val3.toString(),
+                              pdf_List[index].val4.toString(),
+                              (pdf_List[index].val5.toDouble() -
+                                      pdf_List[index].val4.toDouble())
+                                  .toString(),
+                              getNumberFormat(pdf_List[index].val6).toString(),
+                            ])
+                      ]),
+
+                  // pdfLib.SizedBox(height: 10.0),
+                  // pdfLib.Container(
+                  //   width: double.infinity,
+                  // child:
+                  //     pdfLib.Column(crossAxisAlignment: pdfLib.CrossAxisAlignment.end,
+                  //         // mainAxisAlignment: pdfLib.MainAxisAlignment.end,
+                  //         children: [
+                  //       pdfLib.Text(
+                  //         "Total Amount " +
+                  //             "AED " +
+                  //             getNumberFormat(pdf_tot_amt).toString(),
+                  //         style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
+                  //       ),
+                  //       pdfLib.Text(
+                  //         "Total Balance  " +
+                  //             "AED " +
+                  //             getNumberFormat(pdf_baltot).toString(),
+                  //         style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
+                  //       ),
+                  //       pdfLib.Text(
+                  //         "Total Orgin Amount " +
+                  //             "AED " +
+                  //             getNumberFormat(pdf_orgtot).toString(),
+                  //         style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
+                  //       ),
+                  //       pdfLib.FittedBox(
+                  //           child: pdfLib.Row(
+                  //               mainAxisAlignment: pdfLib.MainAxisAlignment.end,
+                  //               children: [
+                  //             pdfLib.Text(
+                  //               "Amount(VAT Inclusive) In words : ",
+                  //               style: pdfLib.TextStyle(
+                  //                 fontWeight: pdfLib.FontWeight.bold,
+                  //               ),
+                  //             ),
+                  //             pdfLib.Text(
+                  //               _translatedValue,
+                  //               style: pdfLib.TextStyle(
+                  //                   fontWeight: pdfLib.FontWeight.bold,
+                  //                   fontSize: 9.0),
+                  //             ),
+                  //           ])),
+                  //     ]),
+                  // ),
+
+                  // pdfLib.SizedBox(height: 320.0),
+
+                  // pdfLib.Footer()
+
+                  pdfLib.Row(
+                      crossAxisAlignment: pdfLib.CrossAxisAlignment.end,
+                      mainAxisAlignment: pdfLib.MainAxisAlignment.end,
+                      children: [
+                        pdfLib.SizedBox(height: 180.0),
+                        pdfLib.Table.fromTextArray(
+                          headerStyle: pdfLib.TextStyle(
+                              fontWeight: pdfLib.FontWeight.bold),
+                          oddCellStyle: pdfLib.TextStyle(
+                              fontWeight: pdfLib.FontWeight.bold),
+                          // defaultColumnWidth: 30,
+                          cellAlignment: pdfLib.Alignment.centerRight,
+                          headers: headvat,
+                          data: vatdat,
+                        ),
+                      ]),
+                  pdfLib.SizedBox(height: 10.0),
+                  pdfLib.Container(
+                      width: double.infinity,
+                      child: pdfLib.Column(
+                          crossAxisAlignment: pdfLib.CrossAxisAlignment.end,
                           mainAxisAlignment: pdfLib.MainAxisAlignment.end,
                           children: [
-                        pdfLib.Text(
-                          "Amount(VAT Inclusive) In words : ",
-                          style: pdfLib.TextStyle(
-                            fontWeight: pdfLib.FontWeight.bold,
-                          ),
-                        ),
-                        pdfLib.Text(
-                          _translatedValue,
-                          style: pdfLib.TextStyle(
-                              fontWeight: pdfLib.FontWeight.bold,
-                              fontSize: 9.0),
-                        ),
-                      ])),
+                            pdfLib.Text(
+                              _gscurrencycode +
+                                  " " +
+                                  _translatedValue +
+                                  " ONLY",
+                              style: pdfLib.TextStyle(
+                                  fontWeight: pdfLib.FontWeight.bold,
+                                  fontSize: 9.0),
+                            ),
+                          ])),
                 ]),
           ),
-
-          // pdfLib.SizedBox(height: 320.0),
-
-          // pdfLib.Footer()
         ],
         footer: (context) {
           return pdfLib.Column(

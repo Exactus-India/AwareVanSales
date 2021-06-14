@@ -48,8 +48,10 @@ class SR_Productlist {
   var search;
   var luom;
   var puom;
+  var stk_luom;
   var qty_luom;
   var qty_puom;
+  var stk_puom;
   var cost_rate;
   var uppp;
   SR_Productlist.fromJsonSR(Map<String, dynamic> json) {
@@ -68,5 +70,7 @@ class SR_Productlist {
     luom = json['L_UOM'];
     qty_puom = json['QTY_PUOM'];
     qty_luom = json['QTY_LUOM'];
+    stk_luom = qty_luom;
+    stk_puom = qty_puom;
   }
 }
