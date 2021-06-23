@@ -1135,7 +1135,7 @@ class _SalesEntryState extends State<SalesEntry> {
                         mainAxisAlignment: pdfLib.MainAxisAlignment.start,
                         crossAxisAlignment: pdfLib.CrossAxisAlignment.stretch,
                         children: [
-                          pdfLib.SizedBox(height: 180.0),
+                          // pdfLib.SizedBox(height: 180.0),
                           pdfLib.Table.fromTextArray(
                             border: pdfLib.TableBorder.all(),
                             headerStyle: pdfLib.TextStyle(

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:aware_van_sales/data/future_db.dart';
 import 'package:aware_van_sales/pages/wm_mb_stock_transfer_entry.dart';
+import 'package:aware_van_sales/wigdets/spinkitLoading.dart';
 import 'package:aware_van_sales/wigdets/widget_rowData.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +19,7 @@ class _StocktransferState extends State<Stocktransfer> {
   List _datasForDisplay = List();
   int length;
   bool _timer_ = false;
+  bool loading = false;
   @override
   void initState() {
     list();
@@ -38,6 +40,7 @@ class _StocktransferState extends State<Stocktransfer> {
         _datas.clear();
         _datas.addAll(value);
         _datasForDisplay = _datas;
+        loading = true;
         length = 0;
         length = _datas.length;
         print(length);
@@ -69,7 +72,7 @@ class _StocktransferState extends State<Stocktransfer> {
           SizedBox(width: 20.0),
         ],
       ),
-      body: head(),
+      body: (loading == false) ? spinkitLoading() : head(),
     );
   }
 

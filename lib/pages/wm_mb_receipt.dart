@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:aware_van_sales/wigdets/spinkitLoading.dart';
 import 'package:flutter/material.dart';
 
 import 'wm_mb_receipt_entry.dart';
@@ -18,6 +19,7 @@ class _ReceiptListState extends State<ReceiptList> {
   List _datasForDisplay = List();
   int length;
   bool _timer_ = false;
+  bool loading = false;
   @override
   void initState() {
     list();
@@ -37,6 +39,7 @@ class _ReceiptListState extends State<ReceiptList> {
         print("Recipt");
         _datas.clear();
         _datas.addAll(value);
+        loading = true;
         if (_datas.isNotEmpty) {
           _datasForDisplay = _datas;
         }
@@ -54,7 +57,7 @@ class _ReceiptListState extends State<ReceiptList> {
         elevation: .1,
         backgroundColor: Color.fromRGBO(59, 87, 110, 1.0),
       ),
-      body: head(),
+      body: (loading == false) ? spinkitLoading() : head(),
     );
   }
 
@@ -80,7 +83,7 @@ class _ReceiptListState extends State<ReceiptList> {
       itemBuilder: (context, index) {
         var val3;
         datasForDisplay[index].val3 is num
-            ? val3 = getNumberFormat(datasForDisplay[index].val3)
+            ? val3 = getNumberFormatRound(datasForDisplay[index].val3.round())
             : val3 = datasForDisplay[index].val3;
         return Card(
           color: Colors.green[200],
@@ -89,8 +92,7 @@ class _ReceiptListState extends State<ReceiptList> {
               children: <Widget>[
                 align(Alignment.centerLeft,
                     datasForDisplay[index].val1.toString(), 14.0),
-                rowData_2(datasForDisplay[index].val2.toString(),
-                    val3.toString(), 14.0),
+                rowData_2(datasForDisplay[index].val2.toString(), val3, 14.0),
               ],
             ),
             onTap: () {
@@ -117,6 +119,20 @@ class _ReceiptListState extends State<ReceiptList> {
     );
   }
 
+  rowDataRound_2(first, last, size) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        if (first != null || first != 'null')
+          columnRow(first.toString(), CrossAxisAlignment.start,
+              MainAxisAlignment.start, size, TextAlign.left),
+        if (last != null || last != 'null')
+          columnRow(last.round(), CrossAxisAlignment.start,
+              MainAxisAlignment.end, size, TextAlign.right),
+      ],
+    );
+  }
+
   _searchBar() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -127,7 +143,7 @@ class _ReceiptListState extends State<ReceiptList> {
           text = text.toUpperCase();
           setState(() {
             _datasForDisplay = _datas.where((data) {
-              var search = data.search.toString().toUpperCase();
+              var search = data.val2.toString().toUpperCase();
               return search.contains(text);
             }).toList();
           });

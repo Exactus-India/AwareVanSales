@@ -4,6 +4,7 @@ import 'package:aware_van_sales/data/future_db.dart';
 import 'package:aware_van_sales/pages/wm_mb_LoginPage.dart';
 import 'package:aware_van_sales/pages/wm_mb_saleReturn_entry.dart';
 import 'package:aware_van_sales/wigdets/listing_Builder.dart';
+import 'package:aware_van_sales/wigdets/spinkitLoading.dart';
 import 'package:aware_van_sales/wigdets/widget_rowData.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +22,7 @@ class _SalesReturnListState extends State<SalesReturnList> {
   List _datasForDisplay = List();
   int length;
   bool _timer_ = false;
+  bool loading = false;
   @override
   void initState() {
     list();
@@ -39,6 +41,7 @@ class _SalesReturnListState extends State<SalesReturnList> {
       setState(() {
         _datas.clear();
         _datas.addAll(value);
+        loading = true;
         gs_ac_code = gs_sales_param4;
         gs_party_address = gs_sales_param3;
         if (_datas.isNotEmpty) {
@@ -81,7 +84,7 @@ class _SalesReturnListState extends State<SalesReturnList> {
           SizedBox(width: 20.0),
         ],
       ),
-      body: head(),
+      body: (loading == false) ? spinkitLoading() : head(),
     );
   }
 

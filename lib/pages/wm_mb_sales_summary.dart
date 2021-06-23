@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:aware_van_sales/data/constants.dart';
+import 'package:aware_van_sales/wigdets/spinkitLoading.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -29,6 +30,7 @@ class _SalesSummaryState extends State<SalesSummary> {
   int totalCash = 0;
   List salesumm_1 = List();
   List salesumm_2 = List();
+  bool loading = false;
 
   String finalDate = '';
   var _selectedDate;
@@ -55,6 +57,7 @@ class _SalesSummaryState extends State<SalesSummary> {
       sales_sum2().then((value) {
         setState(() {
           salesumm_2.addAll(value);
+          loading = true;
           print(salesumm_2);
           print("summary2 list length " + salesumm_2.length.toString());
         });
@@ -72,6 +75,7 @@ class _SalesSummaryState extends State<SalesSummary> {
       sales_sum1().then((value) {
         setState(() {
           salesumm_1.addAll(value);
+          loading = true;
           _tot_cash = salesumm_1[0].val3;
           _tot_credit = salesumm_1[1].val3;
           _tot_sales = salesumm_1[2].val3;
@@ -81,6 +85,7 @@ class _SalesSummaryState extends State<SalesSummary> {
       sales_sum2().then((value) {
         setState(() {
           salesumm_2.addAll(value);
+          loading = true;
           print(salesumm_2);
           print("summary2 list length " + salesumm_2.length.toString());
         });
@@ -132,6 +137,7 @@ class _SalesSummaryState extends State<SalesSummary> {
               color: Colors.green[400],
               onPressed: () {
                 setState(() {
+                  loading = false;
                   retrive();
                 });
               },
@@ -154,72 +160,74 @@ class _SalesSummaryState extends State<SalesSummary> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Container(
-          child: new Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Column(
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(bottom: 15.0),
-                  child: align(Alignment.topLeft, gs_currentUser, 18.0),
-                ),
-                Form(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Flexible(
-                          flex: 3,
-                          child: Row(
-                            children: <Widget>[
-                              Text(_selectedDate == null
-                                  ? gs_date
-                                  : _selectedDate),
-                              IconButton(
-                                  icon: Icon(
-                                    Icons.calendar_today,
-                                    size: 30.0,
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      _presentDatePicker();
-                                    });
-                                  })
-                            ],
-                          )),
-                      Flexible(
-                          flex: 1,
-                          child: textFieldDate(
-                              "salesmanid", userid, false, false)),
+      body: (loading == false)
+          ? spinkitLoading()
+          : SingleChildScrollView(
+              child: Container(
+                child: new Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(bottom: 15.0),
+                        child: align(Alignment.topLeft, gs_currentUser, 18.0),
+                      ),
+                      Form(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Flexible(
+                                flex: 3,
+                                child: Row(
+                                  children: <Widget>[
+                                    Text(_selectedDate == null
+                                        ? gs_date
+                                        : _selectedDate),
+                                    IconButton(
+                                        icon: Icon(
+                                          Icons.calendar_today,
+                                          size: 30.0,
+                                        ),
+                                        onPressed: () {
+                                          setState(() {
+                                            _presentDatePicker();
+                                          });
+                                        })
+                                  ],
+                                )),
+                            Flexible(
+                                flex: 1,
+                                child: textFieldDate(
+                                    "salesmanid", userid, false, false)),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      if (salesumm_1.isNotEmpty)
+                        Container(
+                            height: 120,
+                            width: 400,
+                            color: Colors.lightBlue[100],
+                            child: listView_row_3_fields(salesumm_1, 40.0)),
+                      SizedBox(
+                        height: 30,
+                      ),
+                      rowData4("Sl.No", "Description ", " Items",
+                          "Amount      ", 14.0),
+                      SizedBox(height: 10),
+                      Container(
+                        height: 400,
+                        width: 560,
+                        color: Colors.lightBlue[100],
+                        child: listView_row_4_fields(salesumm_2),
+                      ),
                     ],
                   ),
                 ),
-                SizedBox(
-                  height: 10,
-                ),
-                if (salesumm_1.isNotEmpty)
-                  Container(
-                      height: 120,
-                      width: 400,
-                      color: Colors.lightBlue[100],
-                      child: listView_row_3_fields(salesumm_1, 40.0)),
-                SizedBox(
-                  height: 30,
-                ),
-                rowData4(
-                    "Sl.No", "Description ", " Items", "Amount      ", 14.0),
-                SizedBox(height: 10),
-                Container(
-                  height: 400,
-                  width: 560,
-                  color: Colors.lightBlue[100],
-                  child: listView_row_4_fields(salesumm_2),
-                ),
-              ],
+              ),
             ),
-          ),
-        ),
-      ),
     );
   }
 

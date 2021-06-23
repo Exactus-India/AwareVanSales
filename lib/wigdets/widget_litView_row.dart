@@ -13,7 +13,7 @@ listView_row_3_fields(List datasForDisplay, container_height) {
             subtitle: rowData3(
                 datasForDisplay[index].val1.toString(),
                 datasForDisplay[index].val2.toString(),
-                getNumberFormat(datasForDisplay[index].val3),
+                getNumberFormatRound(datasForDisplay[index].val3.round()),
                 14.0),
           ),
         ),
@@ -34,7 +34,7 @@ listView_row_4_fields(List datasForDisplay) {
                 datasForDisplay[index].val1.toString(),
                 datasForDisplay[index].val2.toString(),
                 datasForDisplay[index].val3.toString(),
-                getNumberFormat(datasForDisplay[index].val4),
+                getNumberFormatRound(datasForDisplay[index].val4.round()),
                 12.0),
           ),
         ),

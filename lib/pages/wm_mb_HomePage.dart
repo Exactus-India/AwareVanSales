@@ -9,6 +9,7 @@ import 'package:aware_van_sales/wigdets/widget_rowData.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:aware_van_sales/wigdets/willpopup.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'wm_mb_receipt.dart';
 import 'wm_mb_sales_summary.dart';
@@ -115,7 +116,7 @@ class _HomePageState extends State<HomePage> {
               listTile(StockSummary(), context, 'stock_summary.png',
                   'STOCK SUMMARY'),
               // listTile(null, context, 'about.png', 'ABOUT'),
-              listTile(Wm_mb_LoginPage(), context, 'sign_out.jpg', 'SIGN OUT'),
+              listTileSignout(context, 'sign_out.jpg', 'SIGN OUT'),
             ],
           )),
       body: WillPopScope(

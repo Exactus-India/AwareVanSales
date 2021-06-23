@@ -1,5 +1,6 @@
 import 'package:aware_van_sales/wigdets/listing_Builder.dart';
 import 'package:aware_van_sales/data/future_db.dart';
+import 'package:aware_van_sales/wigdets/spinkitLoading.dart';
 import 'package:aware_van_sales/wigdets/widget_rowData.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +19,7 @@ class _CustomerListState extends State<CustomerList> {
   List _datas = List();
   List _datasForDisplay = List();
   bool _timer_ = false;
+  bool loading = false;
 
   @override
   void initState() {
@@ -31,6 +33,7 @@ class _CustomerListState extends State<CustomerList> {
       _datasForDisplay.clear();
       setState(() {
         _datas.addAll(value);
+        loading = true;
         _datasForDisplay = _datas;
         list_length = 0;
         list_length = _datas.length;
@@ -48,17 +51,19 @@ class _CustomerListState extends State<CustomerList> {
         elevation: .1,
         backgroundColor: Color.fromRGBO(59, 87, 110, 1.0),
       ),
-      body: Column(children: <Widget>[
-        Container(
-            margin: EdgeInsets.only(top: 10.0, left: 10.0),
-            child: align(Alignment.centerLeft, gs_currentUser, 20.0)),
-        _searchBar(),
-        SizedBox(height: 5.0),
-        if (_timer_ == true)
-          if (list_length == 0) noValue(),
-        if (_timer_ == true)
-          Expanded(child: listView(_datasForDisplay, widget.toPage)),
-      ]),
+      body: (loading == false)
+          ? spinkitLoading()
+          : Column(children: <Widget>[
+              Container(
+                  margin: EdgeInsets.only(top: 10.0, left: 10.0),
+                  child: align(Alignment.centerLeft, gs_currentUser, 20.0)),
+              _searchBar(),
+              SizedBox(height: 5.0),
+              if (_timer_ == true)
+                if (list_length == 0) noValue(),
+              if (_timer_ == true)
+                Expanded(child: listView(_datasForDisplay, widget.toPage)),
+            ]),
     );
   }
 

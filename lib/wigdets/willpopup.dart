@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 BuildContext context;
@@ -18,7 +19,9 @@ Future<bool> onWillPop() async {
               child: new Text('No'),
             ),
             new ElevatedButton(
-              onPressed: () => Navigator.of(context).pop(true),
+              onPressed: () {
+                SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+              },
               // onPressed: () => Navigator.push(context,
               //     MaterialPageRoute(builder: (context) => LoginPage())),
               child: new Text('Yes'),

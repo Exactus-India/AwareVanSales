@@ -164,9 +164,9 @@ class _SalesReturnListingBuilderState extends State<SalesReturnListingBuilder> {
                 gs_sr_doc_salestype = _datasForDisplay[index].val3;
                 gs_sr_doc_date = gs_date;
                 gs_sr_doc_refno = _datasForDisplay[index].val4;
-                // gs_puom = _datasForDisplay[index].val8;
+                gs_puom = _datasForDisplay[index].val8;
                 gs_stk_puom = _datasForDisplay[index].val7;
-
+                gs_rate = _datasForDisplay[index].val11;
                 Navigator.of(context).pop(true);
                 // alert(context, gs_list_index.toString(), Colors.red);
 

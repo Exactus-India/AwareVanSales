@@ -158,6 +158,10 @@ getNumberFormat(number) {
   return NumberFormat("#,##,##0.00", "en_US").format(number);
 }
 
+getNumberFormatRound(number) {
+  return NumberFormat("#,##,##0", "en_US").format(number);
+}
+
 numberWithCommas(x) {
   return x.toString().replaceAll(',', '');
 }

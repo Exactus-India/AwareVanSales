@@ -101,6 +101,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
   List salesmiddleList = List();
   List search_ref_datas = List();
   List salesproduct = List();
+  List salesproduct_withoutdocref = List();
   List salesdetails = List();
   List srHDR = List();
   var list_serial_no;
@@ -186,7 +187,8 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
           selectedtype = srHDR[0]['SALE_TYPE'].toString();
         selected_return_type = srHDR[0]['RETURN_TYPE'].toString();
         customer.text = srHDR[0]['PARTY_NAME'].toString();
-        ref_doc_no.text = srHDR[0]['REF_DOC_NO'].toString();
+        if (srHDR[0]['REF_DOC_NO'] != null)
+          ref_doc_no.text = srHDR[0]['REF_DOC_NO'].toString();
         doc_type.text = srHDR[0]['REF_DOC_TYPE'].toString();
         if (srHDR[0]['REMARKS'] != null)
           remarks.text = srHDR[0]['REMARKS'].toString();
@@ -202,6 +204,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
         print(srHDR[0]['REF_NO'].toString() + ' 666');
         print(srHDR[0]['PARTY_NAME'].toString());
         fetch_products();
+        fetch_products_withoutdocref();
         fetch_EntryDetails(doc_no.text);
       });
     });
@@ -378,14 +381,14 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
                         // selected_return_type =
                         //     search_ref_datas[gs_list_index].val3.toString();
                         print("Accordingly");
-                        fetch_products();
+
                         // }
                         // });
                       });
                     })),
           if (doc_no.text.isEmpty && ref_doc_no.text.isNotEmpty)
             SizedBox(width: 4.0),
-          if (doc_no.text.isEmpty && ref_doc_no.text.isNotEmpty)
+          if (doc_no.text.isEmpty)
             Flexible(
                 child: Padding(
                     padding: EdgeInsets.only(left: 20.0),
@@ -466,8 +469,12 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
       ]),
       Row(children: <Widget>[
         Flexible(
-            child: textField("Unit rate ", rate, false,
-                rate.text != null ? true : false, TextAlign.right)),
+            child: textField(
+                "Unit rate ",
+                rate,
+                false,
+                rate.text != null || rate.text != '0' ? true : false,
+                TextAlign.right)),
         SizedBox(width: 10.0),
         Flexible(
             child: textField('Amount', amt, false,
@@ -619,6 +626,16 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
     });
   }
 
+  fetch_products_withoutdocref() {
+    return getAllSTRProduct('TST1').then((value) {
+      setState(() {
+        salesproduct_withoutdocref.clear();
+        salesproduct_withoutdocref.addAll(value);
+        print("Product length " + salesproduct_withoutdocref.length.toString());
+      });
+    });
+  }
+
   fetch_EntryDetails(param1) {
     return getAllSalesSR_EntryDetails(param1).then((value) {
       setState(() {
@@ -665,6 +682,24 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
             width: 300.0,
             child: ListBuilderCommon(
                 datas: salesproduct,
+                head: false,
+                toPage: null,
+                popBack: true)));
+  }
+
+  prodlist_withoutdocref() {
+    // ref_no.text.isEmpty || ref_no.text == 'null'
+    //     ? fetch_products_withoutdocref()
+    //     : fetch_products();
+
+    list_length = salesproduct_withoutdocref.length;
+    return AlertDialog(
+        title: Text('Products'),
+        content: Container(
+            height: 400.0,
+            width: 300.0,
+            child: ListBuilderCommon(
+                datas: salesproduct_withoutdocref,
                 head: false,
                 toPage: null,
                 popBack: true)));
@@ -779,9 +814,11 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
               alignment: Alignment.center,
               onPressed: () {
                 showDialog(
-                        context: context,
-                        builder: (BuildContext context) => prodlist())
-                    .then((value) {
+                    context: context,
+                    builder: (BuildContext context) =>
+                        ref_no.text.isEmpty || ref_no.text == 'null'
+                            ? prodlist_withoutdocref()
+                            : prodlist()).then((value) {
                   // setState(() {
                   //   if (gs_list_index != null) {
                   prod_update = false;
@@ -819,10 +856,13 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
     product_name.text = gs_prod_name;
     uppp = gs_uppp;
     cost_rate = gs_cost_rate;
+    rate.text = gs_rate;
+    // rate.text=salesproduct_withoutdocref[gs_list_index].qty_puom.toString()
     avl_qty = (stk_puom + stk_luom).toString();
     bal_stk.text = "Available Qty " + avl_qty;
     // puom.text = salesproduct[gs_list_index].qty_puom.toString();
-    luom.text = gs_luom;
+    luom.text = gs_stk_puom;
+    puom.text = gs_stk_luom;
   }
 
   productCalculate() {
@@ -867,6 +907,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
   generate_docno() {
     return GestureDetector(
         onTap: () {
+          doc_type.text = 'DN90';
           getSRDocno().then((value) {
             setState(() {
               if (value == null)
@@ -890,6 +931,8 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
                 middle_view = true;
               });
               fetch_products();
+              fetch_products_withoutdocref();
+              doc_type.text = 'DN90';
 
               print(doc_no.text);
             });
@@ -1064,6 +1107,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
             if (_text == 'QTY PUOM') {
               if (prod_update == true) productCalculate();
               if (prod_update == false) {
+                productCalculate();
                 if (int.parse(avl_qty) >= int.parse(puom.text))
                   productCalculate();
                 if (int.parse(avl_qty) < int.parse(puom.text)) {
@@ -1291,7 +1335,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
                   //             ])),
 
                   pdfLib.Row(children: [
-                    pdfLib.SizedBox(height: 180.0),
+                    // pdfLib.SizedBox(height: 180.0),
                     pdfLib.Table.fromTextArray(
                       headerStyle:
                           pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),

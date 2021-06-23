@@ -25,8 +25,8 @@ import 'receipt_data.dart';
 import 'stock_sum_data.dart';
 import 'stocktransfer.dart';
 
-String ip_port = "http://45.114.142.192:4005/api";
-// String ip_port = "http://exactusnet.dyndns.org:4005/api";
+// String ip_port = "http://45.114.142.192:4006/api";
+String ip_port = "http://exactusnet.dyndns.org:4005/api";
 var ls_mth_code;
 String org_filename;
 var description;
@@ -81,7 +81,9 @@ responseerror(response) {
 Future<List> getAllUserName() async {
   var url = '${ip_port}/user';
   try {
+    showToast("Connecting to database");
     var response = await http.get(url);
+
     var jsonBody = response.body;
     var jsonData = json.decode(jsonBody.substring(0));
     return jsonData;

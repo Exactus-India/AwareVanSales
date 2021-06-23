@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 card(text, page, color, context, image) {
   return Card(
@@ -41,12 +42,12 @@ listTile(page, context, image, text) {
   );
 }
 
-listTileSignout(page, context, image, text) {
+listTileSignout(context, image, text) {
   return new ListTile(
     leading: Image.asset('assets/icons/$image', width: 55, height: 40),
     title: new Text(text),
     onTap: () {
-      page;
+      SystemChannels.platform.invokeMethod('SystemNavigator.pop');
     },
   );
 }

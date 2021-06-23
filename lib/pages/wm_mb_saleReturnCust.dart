@@ -1,5 +1,6 @@
 import 'package:aware_van_sales/wigdets/listing_Builder.dart';
 import 'package:aware_van_sales/data/future_db.dart';
+import 'package:aware_van_sales/wigdets/spinkitLoading.dart';
 import 'package:flutter/material.dart';
 
 class SaleRetunCustomerList extends StatefulWidget {
@@ -9,11 +10,13 @@ class SaleRetunCustomerList extends StatefulWidget {
 
 class _SaleRetunCustomerListState extends State<SaleRetunCustomerList> {
   List _datas = List();
+  bool loading = false;
   @override
   void initState() {
     customersalesReturnlist().then((value) {
       setState(() {
         _datas.addAll(value);
+        loading = true;
         list_length = 0;
         list_length = _datas.length;
         print(list_length.toString() + '....');
@@ -30,8 +33,10 @@ class _SaleRetunCustomerListState extends State<SaleRetunCustomerList> {
         elevation: .1,
         backgroundColor: Color.fromRGBO(59, 87, 110, 1.0),
       ),
-      body: ListBuilderCommon(
-          datas: _datas, toPage: '/SalesReturnList', head: false),
+      body: (loading == false)
+          ? spinkitLoading()
+          : ListBuilderCommon(
+              datas: _datas, toPage: '/SalesReturnList', head: false),
     );
   }
 }

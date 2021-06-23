@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:aware_van_sales/data/future_db.dart';
 import 'package:aware_van_sales/pages/wm_mb_HomePage.dart';
 import 'package:aware_van_sales/wigdets/alert.dart';
 import 'package:aware_van_sales/wigdets/device_info.dart';
+import 'package:aware_van_sales/wigdets/spinkitLoading.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +28,7 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
   List user_list = [];
   List route_list = [];
+  bool isLoading = true;
   final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
   Map<String, dynamic> _deviceData = <String, dynamic>{};
   TextEditingController _password = new TextEditingController();
@@ -90,12 +93,15 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
   drop() {
     getAllUserName().then((value) {
       setState(() {
+        showToast("Data retrieving");
         user_list.clear();
         user_list.addAll(value);
+        user_list.sort((a, b) => a['RPT_NAME'].compareTo(b['RPT_NAME']));
+
         if (user_list.isNotEmpty) {
           showToast("Connected successfully");
+          isLoading = true;
           connected_server = true;
-          user_list.sort((a, b) => a['RPT_NAME'].compareTo(b['RPT_NAME']));
         } else {
           showToast("Not Connected ");
         }
@@ -110,12 +116,42 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
     });
   }
 
+  int _start = 0;
+  Timer _timer;
+  void startTimer() {
+    const oneSec = const Duration(seconds: 1);
+    _timer = new Timer.periodic(
+      oneSec,
+      (Timer timer) {
+        if (connected_server == true) {
+          setState(() {
+            timer.cancel();
+          });
+        } else {
+          setState(() {
+            _start++;
+          });
+        }
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: text("Aware Van Sales", Colors.white),
         backgroundColor: Color.fromRGBO(59, 87, 110, 1.0),
+        actions: <Widget>[
+          GestureDetector(
+              onTap: () {
+                SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+              },
+              child: Icon(Icons.close)),
+          SizedBox(
+            width: 15,
+          ),
+        ],
       ),
       body: Padding(
           padding: EdgeInsets.all(20.0),
@@ -142,6 +178,10 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
                       ),
                     ),
                     SizedBox(height: 30.0),
+                    if (isLoading == false)
+                      Center(
+                        child: spinkitLoading(),
+                      ),
                     if (connected_server == false)
                       ButtonTheme(
                         minWidth: 100.0,
@@ -157,9 +197,16 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
                               style: TextStyle(color: Colors.white),
                             ),
                             onPressed: () {
-                              drop();
+                              setState(() {
+                                startTimer();
+                                isLoading = false;
+
+                                drop();
+                              });
                             }),
                       ),
+                    if (connected_server == false && isLoading == false)
+                      Text("Connecting.....$_start"),
                     if (connected_server == true) loginButton(),
                     textTitle(
                         '\u00a9 1998-2020 Exactus Inc',
@@ -205,7 +252,7 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
                 });
                 var resp =
                     await loginCheck(selectedUser.toString(), _password.text);
-                if (resp == 1) {
+                if (resp == 1 && _geoLocation != " ") {
                   ipAddress = await GetIp.ipAddress;
                   print("IP" + ipAddress);
                   Platform.isAndroid
@@ -246,6 +293,13 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
                     drop();
                   });
                   alert(context, message, Colors.red);
+                } else if (_geoLocation == '' || _geoLocation == null) {
+                  setState(() {
+                    message = 'Turn on the location';
+                    drop();
+                  });
+                  alert(context, message, Colors.red);
+                  _getCurrentLocation();
                 }
               }
             }));
@@ -273,7 +327,7 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
       setState(() {
         // _currentAddress = "${place.locality}, ${place.country}";
         _currentAddress =
-            "${place.locality}, ${place.postalCode}, ${place.country}";
+            "${place.name},${place.administrativeArea},${place.subLocality},${place.street},${place.locality}, ${place.postalCode}, ${place.country}";
       });
       print(_currentAddress);
     } catch (e) {

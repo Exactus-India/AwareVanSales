@@ -293,7 +293,8 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
                               DataCell(Align(
                                   alignment: Alignment.centerRight,
                                   child: textBold(
-                                      getNumberFormat(bamt).toString()))),
+                                      getNumberFormatRound(bamt.round())
+                                          .toString()))),
                             //origin amt
                             if (index != itemCount - 1)
                               DataCell(
@@ -309,7 +310,8 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
                               DataCell(Align(
                                   alignment: Alignment.centerRight,
                                   child: textBold(
-                                      getNumberFormat(oamt).toString()))),
+                                      getNumberFormatRound(oamt.round())
+                                          .toString()))),
                           ],
                         )))),
       ),
@@ -399,7 +401,7 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
           third_insert = false;
           // showToast("Inserted 2");
           inv_List(widget.ac_code);
-          alert(context, "Datas Inserted", Colors.green);
+          alert(context, "Saved Successfully", Colors.green);
         } else {
           showToast(value.toString());
         }
