@@ -1,3 +1,4 @@
+import 'package:aware_van_sales/pages/REPLACEMENT/wm_mb_replacementList.dart';
 import 'package:aware_van_sales/wigdets/listing_Builder.dart';
 import 'package:aware_van_sales/data/future_db.dart';
 import 'package:aware_van_sales/wigdets/spinkitLoading.dart';
@@ -5,17 +6,18 @@ import 'package:aware_van_sales/wigdets/widget_rowData.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:flutter/material.dart';
 
-import 'wm_mb_LoginPage.dart';
+import '../wm_mb_LoginPage.dart';
 
-class CustomerList extends StatefulWidget {
+class CustomerListReplacemnet extends StatefulWidget {
   final toPage;
 
-  const CustomerList({Key key, this.toPage}) : super(key: key);
+  const CustomerListReplacemnet({Key key, this.toPage}) : super(key: key);
   @override
-  _CustomerListState createState() => _CustomerListState();
+  _CustomerListReplacemnetState createState() =>
+      _CustomerListReplacemnetState();
 }
 
-class _CustomerListState extends State<CustomerList> {
+class _CustomerListReplacemnetState extends State<CustomerListReplacemnet> {
   List _datas = List();
   List _datasForDisplay = List();
   bool _timer_ = false;
@@ -124,6 +126,10 @@ class _CustomerListState extends State<CustomerList> {
                   gs_sales_param3 = _datasForDisplay[index].param3.toString();
                 if (_datasForDisplay[index].param4 != null)
                   gs_sales_param4 = _datasForDisplay[index].param4.toString();
+                gs_rep_ac_code = _datasForDisplay[index].param4.toString();
+                print(gs_rep_ac_code);
+                print('gs_ac_code');
+
                 Navigator.pushNamed(context, toPage).then((value) {
                   setState(() {
                     _timer_ = false;

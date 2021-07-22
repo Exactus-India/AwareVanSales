@@ -8,6 +8,8 @@ import 'package:aware_van_sales/wigdets/alert.dart';
 import 'package:aware_van_sales/wigdets/widget_rowData.dart';
 import 'package:custom_datatable/custom_datatable.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 
@@ -15,9 +17,9 @@ import 'package:printing/printing.dart';
 import 'package:pdf/widgets.dart' as pdfLib;
 import 'package:ext_storage/ext_storage.dart';
 
-import '../wigdets/listing_Builder.dart';
-import '../wigdets/widgets.dart';
-import 'wm_mb_LoginPage.dart';
+import '../../wigdets/listing_Builder.dart';
+import '../../wigdets/widgets.dart';
+import '../wm_mb_LoginPage.dart';
 
 class SalesEntry extends StatefulWidget {
   final doc_no;
@@ -75,6 +77,7 @@ class _SalesEntryState extends State<SalesEntry> {
   TextEditingController bal_stk = new TextEditingController();
   TextEditingController qty = new TextEditingController();
   TextEditingController rate = new TextEditingController();
+  TextEditingController user_rate = new TextEditingController();
   TextEditingController amt = new TextEditingController();
   TextEditingController vat = new TextEditingController();
   TextEditingController net_amt = new TextEditingController();
@@ -138,6 +141,40 @@ class _SalesEntryState extends State<SalesEntry> {
     "AMOUNT ",
     "VAT"
   ];
+
+  void _getCurrentLocation() async {
+    final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    print(position);
+    print('position');
+
+    setState(() {
+      currentPosition = position;
+      geoLocation = "${position.latitude},${position.longitude}";
+
+      _getAddressFromLatLng();
+    });
+  }
+
+  _getAddressFromLatLng() async {
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+          currentPosition.latitude, currentPosition.longitude);
+
+      Placemark place = placemarks[0];
+
+      setState(() {
+        // _currentAddress = "${place.locality}, ${place.country}";
+        currentAddress =
+            "${place.name},${place.street},${place.locality}, ${place.postalCode},${place.administrativeArea}, ${place.country}";
+        country_name = '${place.country}';
+      });
+      print(currentAddress);
+      print('currentAddress');
+    } catch (e) {
+      print(e);
+    }
+  }
 
   @override
   void initState() {
@@ -237,6 +274,7 @@ class _SalesEntryState extends State<SalesEntry> {
             GestureDetector(
                 onTap: () {
                   setState(() {
+                    _getCurrentLocation();
                     if (doc_no.text.isNotEmpty) {
                       if (net_amt.text.isEmpty || qty.text.isEmpty)
                         updateHdr(true);
@@ -364,7 +402,8 @@ class _SalesEntryState extends State<SalesEntry> {
             TextAlign.left),
         dropDown_salestype(),
         textField("Remarks", remarks, false, editing == false ? true : false,
-            TextAlign.left)
+            TextAlign.left),
+        SizedBox(height: 5.0),
       ]),
     );
   }
@@ -372,7 +411,9 @@ class _SalesEntryState extends State<SalesEntry> {
   middle() {
     return Column(children: [
       product_row("Product", product),
+      SizedBox(height: 5.0),
       textField("", product_name, false, true, TextAlign.left),
+      SizedBox(height: 5.0),
       Row(children: <Widget>[
         Flexible(child: textData(_puom.toString(), Colors.purple, 13.0)),
         SizedBox(width: 10.0),
@@ -389,6 +430,7 @@ class _SalesEntryState extends State<SalesEntry> {
               flex: 1,
               child: textField("QTY LUOM", luom, false, false, TextAlign.end)),
       ]),
+      SizedBox(height: 5.0),
       Row(children: <Widget>[
         Flexible(
           child: textFields("Quantity", qty, false, true, TextAlign.end),
@@ -396,6 +438,7 @@ class _SalesEntryState extends State<SalesEntry> {
         SizedBox(width: 10.0),
         Flexible(child: labelWidget(Colors.red[500], bal_stk, 13.0)),
       ]),
+      SizedBox(height: 5.0),
       Row(children: <Widget>[
         Flexible(
             child: textField("Unit Rate", rate, false, false, TextAlign.end)),
@@ -403,7 +446,12 @@ class _SalesEntryState extends State<SalesEntry> {
         Flexible(
             child: textField('Amount', amt, false,
                 amt.text != null ? true : false, TextAlign.end)),
+        SizedBox(width: 10.0),
+        Flexible(
+            child: textField_userrate(
+                "User_Rate", user_rate, false, false, TextAlign.end)),
       ]),
+      SizedBox(height: 5.0),
       Row(children: <Widget>[
         Flexible(
             child: textField("VAT", vat, false, vat.text != null ? true : false,
@@ -574,8 +622,9 @@ class _SalesEntryState extends State<SalesEntry> {
             if (rate.text.isNotEmpty) productCalculate();
 
             if (_text == 'QTY PUOM') {
+              print("USER_RATE_QTY");
               if (luom.text.isEmpty) luom.text = '0';
-              if (puom.text.isEmpty) puom.text = '0';
+              // if (puom.text.isEmpty) puom.text = '0';
               var _qty_ = int.parse(puom.text) + int.parse(luom.text);
               if (prod_update == true) productCalculate();
               if (prod_update == false) {
@@ -589,6 +638,60 @@ class _SalesEntryState extends State<SalesEntry> {
                   net_amt.clear();
                 }
               }
+            }
+          });
+        },
+        style: TextStyle(fontSize: 13),
+        decoration: InputDecoration(
+            labelText: _text,
+            border: const OutlineInputBorder(),
+            contentPadding: EdgeInsets.all(10),
+            errorText: _validate ? 'Value Can\'t Be Empty' : null,
+            focusColor: Colors.blue,
+            labelStyle: TextStyle(color: Colors.black54)),
+        controller: _controller,
+      ),
+    );
+  }
+
+  textField_userrate(_text, _controller, _validate, read, align) {
+    return Container(
+      height: 40.0,
+      child: TextField(
+        textAlign: align,
+        readOnly: read,
+        onChanged: (value) {
+          setState(() {
+            if (_text == 'User_Rate') {
+              print("USER_RATE");
+              net_amt.text = user_rate.text;
+              double fiveperc = double.parse(user_rate.text) * 0.05;
+              var user_unitrate =
+                  (double.parse(user_rate.text) - fiveperc.round()) /
+                      int.parse(qty.text);
+              double user_unitMinusvat =
+                  (double.parse(user_rate.text) / int.parse(qty.text)) -
+                      double.parse(user_unitrate.toString());
+
+              double uservat = user_unitMinusvat * int.parse(qty.text);
+              double userRealvat = fiveperc * 0.05;
+              // vat.text =
+              //     getNumberFormatRound((uservat.round() - userRealvat.round()))
+              //         .toString();
+              // rate.text = getNumberFormatRound(
+              //         (user_unitrate.round() + userRealvat.round()))
+              //     .toString();
+
+              amt.text =
+                  getNumberFormat((double.parse(user_rate.text).round() / 1.05))
+                      .toString();
+              rate.text = getNumberFormat(
+                      (double.parse(user_rate.text).round() / 1.05) /
+                          int.parse(qty.text))
+                  .toString();
+              vat.text = getNumberFormat((double.parse(user_rate.text) -
+                      (double.parse(rate.text) * int.parse(qty.text))))
+                  .toString();
             }
           });
         },
@@ -681,8 +784,8 @@ class _SalesEntryState extends State<SalesEntry> {
           list_length = salesdetails.length;
 
           for (int i = 0; i < salesdetails.length; i++) {
-            _pqty += salesdetails[i].val5.toInt();
-            _lqty += salesdetails[i].val7.toInt();
+            _pqty += salesdetails[i].val5;
+            _lqty += salesdetails[i].val7;
             _amt += salesdetails[i].val8.toDouble();
             _vat += salesdetails[i].val9.toDouble();
             _tot += salesdetails[i].val10.toDouble();
@@ -744,6 +847,7 @@ class _SalesEntryState extends State<SalesEntry> {
     puom.clear();
     luom.clear();
     rate.clear();
+    user_rate.clear();
     print("SEARCHLIST");
     print(gs_rate);
     _puom = gs_puom;
@@ -757,8 +861,8 @@ class _SalesEntryState extends State<SalesEntry> {
     if (stk_luom == null) stk_luom = 0;
     avl_qty = (stk_puom + stk_luom).toString();
     bal_stk.text = 'Bal: ' + stk_puom.toString() + ' ' + _puom;
-    if (gs_rate == ' ' || gs_rate == null || gs_rate == '0')
-      rate.text = empty;
+    if (gs_rate == ' ' || gs_rate == 'null' || gs_rate == '0')
+      rate.text = '0';
     else
       rate.text = gs_rate.toString();
     // qty = ;
@@ -803,6 +907,7 @@ class _SalesEntryState extends State<SalesEntry> {
         amount = _qty * _rate;
         amt.text = getNumberFormat(_qty * _rate).toString();
         var _vat = (_rate * 0.05) * _qty;
+        user_rate.text = getNumberFormat(_amt + _vat).toString();
         if (amt.text.isNotEmpty) vat.text = getNumberFormat(_vat).toString();
         net_amt.text = getNumberFormat(_amt + _vat).toString();
       });
@@ -871,10 +976,23 @@ class _SalesEntryState extends State<SalesEntry> {
           rate.text);
       if (resp == 1) {
         setState(() {
+          gs_date_insert =
+              DateFormat("dd-MMM-yyyy kk:mm:ss").format(DateTime.now());
           clearFields();
           serial_no = serial_no + 1;
           fetch_saleseEntry(doc_no.text);
           showToast('Created Succesfully');
+          log_details(
+              geoLocation,
+              brand,
+              model.split('_')[0],
+              ipAddress,
+              currentAddress,
+              gs_dndoc_type,
+              gs_date_insert,
+              customer.text,
+              '',
+              country_name);
         });
       } else {
         alert(this.context, resp.toString(), Colors.red);
@@ -975,6 +1093,7 @@ class _SalesEntryState extends State<SalesEntry> {
     puom.clear();
     luom.clear();
     bal_stk.clear();
+    user_rate.clear();
   }
 
   _generatePdfAndView(String choice) async {

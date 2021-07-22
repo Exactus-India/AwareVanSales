@@ -8,9 +8,9 @@ import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:pdf/widgets.dart' as pdfLib;
-import '../data/future_db.dart';
-import '../wigdets/widgets.dart';
-import 'wm_mb_LoginPage.dart';
+import '../../data/future_db.dart';
+import '../../wigdets/widgets.dart';
+import '../wm_mb_LoginPage.dart';
 
 class StockSummary extends StatefulWidget {
   @override

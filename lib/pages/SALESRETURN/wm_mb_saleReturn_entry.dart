@@ -5,13 +5,15 @@ import 'package:aware_van_sales/components/number_to_text.dart';
 import 'package:aware_van_sales/data/constants.dart';
 import 'package:aware_van_sales/data/future_db.dart';
 import 'package:aware_van_sales/pages/wm_mb_LoginPage.dart';
-import 'package:aware_van_sales/pages/wm_mb_salesentry.dart';
+import 'package:aware_van_sales/pages/SALES/wm_mb_salesentry.dart';
 import 'package:aware_van_sales/wigdets/alert.dart';
 import 'package:aware_van_sales/wigdets/listing_Builder.dart';
 import 'package:aware_van_sales/wigdets/salesreturnListBuilder.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:custom_datatable/custom_datatable.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 // import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 // import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -23,7 +25,7 @@ import 'package:printing/printing.dart';
 import 'package:pdf/widgets.dart' as pdfLib;
 import 'package:ext_storage/ext_storage.dart';
 
-import '../wigdets/widget_rowData.dart';
+import '../../wigdets/widget_rowData.dart';
 import 'wm_mb_saleReturnList.dart';
 
 class SalesEntryComman extends StatefulWidget {
@@ -165,6 +167,38 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
     super.initState();
   }
 
+  void _getCurrentLocation() async {
+    final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    print(position);
+
+    setState(() {
+      currentPosition = position;
+      geoLocation = "${position.latitude},${position.longitude}";
+
+      _getAddressFromLatLng();
+    });
+  }
+
+  _getAddressFromLatLng() async {
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+          currentPosition.latitude, currentPosition.longitude);
+
+      Placemark place = placemarks[0];
+
+      setState(() {
+        // _currentAddress = "${place.locality}, ${place.country}";
+        currentAddress =
+            "${place.name},${place.street},${place.locality}, ${place.postalCode},${place.administrativeArea}, ${place.country}";
+        country_name = '${place.country}';
+      });
+      print(currentAddress);
+    } catch (e) {
+      print(e);
+    }
+  }
+
   reflist(accode, selectsale_type) {
     return srReflist(accode, selectsale_type).then((value) {
       setState(() {
@@ -220,6 +254,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
           GestureDetector(
               onTap: () {
                 setState(() {
+                  _getCurrentLocation();
                   if (doc_no.text.isNotEmpty) {
                     if (net_amt.text.isEmpty || qty.text.isEmpty)
                       updateHdr(true);
@@ -408,9 +443,12 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
   middle() {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       product_row("Product", product),
+      SizedBox(
+        height: 6,
+      ),
       textField("", product_name, false, true, TextAlign.left),
       SizedBox(
-        height: 4,
+        height: 6,
       ),
       // _image == null
       //     ? Container(
@@ -441,9 +479,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
       // ),
       //   ],
       // ),
-      SizedBox(
-        height: 4,
-      ),
+
       Row(children: <Widget>[
         Flexible(child: textData(_puom.toString(), Colors.purple, 13.0)),
         SizedBox(width: 10.0),
@@ -460,6 +496,9 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
               flex: 1,
               child: textField("QTY LUOM", luom, false, false, TextAlign.end)),
       ]),
+      SizedBox(
+        height: 6,
+      ),
       Row(children: <Widget>[
         Flexible(
           child: textField("Quantity", qty, false, true, TextAlign.right),
@@ -467,19 +506,20 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
         SizedBox(width: 10.0),
         Flexible(child: labelWidget(Colors.red[500], bal_stk, 13.0)),
       ]),
+      SizedBox(
+        height: 6,
+      ),
       Row(children: <Widget>[
         Flexible(
-            child: textField(
-                "Unit rate ",
-                rate,
-                false,
-                rate.text != null || rate.text != '0' ? true : false,
-                TextAlign.right)),
+            child: textField("Unit rate", rate, false, false, TextAlign.right)),
         SizedBox(width: 10.0),
         Flexible(
             child: textField('Amount', amt, false,
                 amt.text != null ? true : false, TextAlign.right)),
       ]),
+      SizedBox(
+        height: 6,
+      ),
       Row(children: <Widget>[
         Flexible(
             child: textField("VAT", vat, false, vat.text != null ? true : false,
@@ -627,7 +667,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
   }
 
   fetch_products_withoutdocref() {
-    return getAllSTRProduct('TST1').then((value) {
+    return getAllSTRProduct('S01').then((value) {
       setState(() {
         salesproduct_withoutdocref.clear();
         salesproduct_withoutdocref.addAll(value);
@@ -856,7 +896,11 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
     product_name.text = gs_prod_name;
     uppp = gs_uppp;
     cost_rate = gs_cost_rate;
-    rate.text = gs_rate;
+    if (gs_rate != 'null')
+      rate.text = gs_rate;
+    else {
+      rate.text = '0';
+    }
     // rate.text=salesproduct_withoutdocref[gs_list_index].qty_puom.toString()
     avl_qty = (stk_puom + stk_luom).toString();
     bal_stk.text = "Available Qty " + avl_qty;
@@ -866,8 +910,12 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
   }
 
   productCalculate() {
+    print(_puom);
+    print('_puom_././//.');
     var puoms;
     var luoms;
+    _puom = gs_puom;
+    _luom = gs_luom;
     puom.text.isNotEmpty ? puoms = int.parse(puom.text) : puoms = 0;
     luom.text.isNotEmpty ? luoms = int.parse(luom.text) : luoms = 0;
     var _qty = (puoms * uppp) + luoms;
@@ -1042,6 +1090,8 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
           selected_return_type);
 
       if (resp == 1) {
+        gs_date_insert =
+            DateFormat("dd-MMM-yyyy kk:mm:ss").format(DateTime.now());
         // image_sequence().then((value) {
         //   nextvalue = value;
         //   imageUpload(context, _image, doc_no.text).then((value) {
@@ -1049,6 +1099,17 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
         //       clearFields();
         //       fetch_EntryDetails(doc_no.text);
         showToast('Inserted Succesfully');
+        log_details(
+            geoLocation,
+            brand,
+            model.split('_')[0],
+            ipAddress,
+            currentAddress,
+            gs_srdoc_type,
+            gs_date_insert,
+            customer.text,
+            '',
+            country_name);
         //     });
         //   });
         // });
@@ -1104,6 +1165,7 @@ class _SalesEntryCommanState extends State<SalesEntryComman> {
         readOnly: read,
         onChanged: (value) {
           setState(() {
+            if (_text == 'Unit rate') productCalculate();
             if (_text == 'QTY PUOM') {
               if (prod_update == true) productCalculate();
               if (prod_update == false) {

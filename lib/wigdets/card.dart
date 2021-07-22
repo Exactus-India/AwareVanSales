@@ -16,6 +16,9 @@ card(text, page, color, context, image) {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             Image.asset('assets/icons/$image', width: 150, height: 100),
+            SizedBox(
+              height: 10,
+            ),
             // Icon(_icon, size: 70.0, color: color),
             Text(
               text,

@@ -10,9 +10,12 @@ import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_ip/get_ip.dart';
+import 'package:intl/intl.dart';
+// import 'package:animate_icons/animate_icons.dart';
 
 class Wm_mb_LoginPage extends StatefulWidget {
   @override
@@ -23,8 +26,16 @@ String message;
 String gs_Route;
 String gs_currentUser;
 String gs_currentUser_empid;
+String geoLocation = "";
+String brand = "";
+String model = "";
+String ipAddress = "";
+String currentAddress;
+Position currentPosition;
+String country_name;
 
 class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
+  //  final AnimateIconController controller;
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
   List user_list = [];
   List route_list = [];
@@ -35,19 +46,18 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
   String selectedUser;
   String selectedRoute;
   String _geoLocation = "";
-  String brand = "";
-  String model = "";
-  String ipAddress = "";
 
   Position _currentPosition;
   String _currentAddress;
 
   bool _validatePassword = false;
   bool connected_server = false;
+
   @override
   void initState() {
+    // controller = AnimateIconController();
     // drop();
-    _getCurrentLocation();
+
     initPlatformState();
     _password.clear();
     super.initState();
@@ -93,7 +103,7 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
   drop() {
     getAllUserName().then((value) {
       setState(() {
-        showToast("Data retrieving");
+        showToast("Connecting to database");
         user_list.clear();
         user_list.addAll(value);
         user_list.sort((a, b) => a['RPT_NAME'].compareTo(b['RPT_NAME']));
@@ -114,6 +124,17 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
         });
       });
     });
+  }
+
+  showToast(msg) {
+    Fluttertoast.showToast(
+        msg: msg,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 3,
+        backgroundColor: Colors.black,
+        textColor: Colors.white,
+        fontSize: 16.0);
   }
 
   int _start = 0;
@@ -198,10 +219,16 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
                             ),
                             onPressed: () {
                               setState(() {
-                                startTimer();
-                                isLoading = false;
-
-                                drop();
+                                if (_geoLocation != "") {
+                                  print('else_login');
+                                  print(_geoLocation);
+                                  startTimer();
+                                  isLoading = false;
+                                  drop();
+                                } else if (_geoLocation == "") {
+                                  print('else');
+                                  _getCurrentLocation();
+                                }
                               });
                             }),
                       ),
@@ -209,7 +236,7 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
                       Text("Connecting.....$_start"),
                     if (connected_server == true) loginButton(),
                     textTitle(
-                        '\u00a9 1998-2020 Exactus Inc',
+                        '\u00a9 1998-2022 Exactus Inc',
                         'ver ${gs_date_login_page}.01',
                         Colors.black,
                         Colors.black,
@@ -218,7 +245,25 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
                         TextAlign.center,
                         200.0,
                         50.0,
-                        0.0)
+                        0.0),
+                    // Row(children: [
+                    // AnimatedIcon(
+                    //   icon: AnimatedIcons.home_menu,
+                    //   // progress: controller,
+                    //   semanticLabel: 'Show menu',
+                    // ),
+                    textTitle(
+                        '',
+                        'GPS LOCATION IS ENABLED',
+                        Colors.black,
+                        Colors.black,
+                        8.0,
+                        8.0,
+                        TextAlign.center,
+                        200.0,
+                        50.0,
+                        150.0),
+                    // ]),
                   ],
                 ),
               ),
@@ -253,6 +298,8 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
                 var resp =
                     await loginCheck(selectedUser.toString(), _password.text);
                 if (resp == 1 && _geoLocation != " ") {
+                  gs_date_insert =
+                      DateFormat("dd-MMM-yyyy kk:mm:ss").format(DateTime.now());
                   ipAddress = await GetIp.ipAddress;
                   print("IP" + ipAddress);
                   Platform.isAndroid
@@ -264,8 +311,17 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
                   gs_Route = selectedRoute.toString();
                   if (gs_Route == 'null') gs_Route = 'All';
                   print(gs_Route + '.....');
-                  log_details(_geoLocation, brand, model.split('_')[0],
-                      ipAddress, _currentAddress);
+                  log_details(
+                      _geoLocation,
+                      brand,
+                      model.split('_')[0],
+                      ipAddress,
+                      _currentAddress,
+                      'LOG',
+                      gs_date_insert,
+                      '',
+                      '',
+                      country_name);
                   print("location " + _geoLocation + " " + brand + " " + model);
                   print(_currentAddress);
 
@@ -313,6 +369,10 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
     setState(() {
       _currentPosition = position;
       _geoLocation = "${position.latitude},${position.longitude}";
+      startTimer();
+      isLoading = false;
+
+      drop();
       _getAddressFromLatLng();
     });
   }
@@ -327,7 +387,8 @@ class _Wm_mb_LoginPageState extends State<Wm_mb_LoginPage> {
       setState(() {
         // _currentAddress = "${place.locality}, ${place.country}";
         _currentAddress =
-            "${place.name},${place.administrativeArea},${place.subLocality},${place.street},${place.locality}, ${place.postalCode}, ${place.country}";
+            "${place.name},${place.street},${place.locality}, ${place.postalCode},${place.administrativeArea}, ${place.country}";
+        country_name = '${place.country}';
       });
       print(_currentAddress);
     } catch (e) {

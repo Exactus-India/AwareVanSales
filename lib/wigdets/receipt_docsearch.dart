@@ -1,36 +1,39 @@
 import 'dart:async';
 
-import 'package:aware_van_sales/data/salesproducts.dart';
+import 'package:aware_van_sales/pages/RECEIPT/wm_mb_receipt_edit.dart';
+
+import '../data/future_db.dart';
+import '../data/salesproducts.dart';
 import 'package:aware_van_sales/pages/wm_mb_LoginPage.dart';
 import 'package:aware_van_sales/pages/SALES/wm_mb_salesentry.dart';
 import 'package:aware_van_sales/wigdets/alert.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:flutter/material.dart';
+import '../pages/SALESRETURN/wm_mb_saleReturn_entry.dart';
 
+import '../pages/SALESRETURN/wm_mb_saleReturn_entry.dart';
+import '../pages/SALESRETURN/wm_mb_saleReturn_entry.dart';
+import '../pages/SALESRETURN/wm_mb_saleReturn_entry.dart';
+import 'salesreturnListBuilder.dart';
 import 'widget_rowData.dart';
 
-class ListBuilderCommon extends StatefulWidget {
+class Doc_search extends StatefulWidget {
   final List datas;
   final toPage;
   final bool head;
   final bool popBack;
 
-  const ListBuilderCommon(
-      {Key key, this.datas, this.toPage, this.head, this.popBack})
+  const Doc_search({Key key, this.datas, this.toPage, this.head, this.popBack})
       : super(key: key);
   @override
-  _ListBuilderCommonState createState() => _ListBuilderCommonState();
+  _Doc_searchState createState() => _Doc_searchState();
 }
 
-int list_length;
+int list_length1;
 
-String gs_sales_param1;
-String gs_sales_param2;
-String gs_sales_param3;
 String gs_sales_param4;
-int gs_list_index;
 
-class _ListBuilderCommonState extends State<ListBuilderCommon> {
+class _Doc_searchState extends State<Doc_search> {
   List _datas = List();
   List _datasForDisplay = List();
   bool _timer_ = false;
@@ -43,7 +46,7 @@ class _ListBuilderCommonState extends State<ListBuilderCommon> {
       _datas = widget.datas;
       _datasForDisplay = _datas;
     });
-    print(list_length.toString() + '/////');
+    print(list_length1.toString() + '/////');
     super.initState();
     new Timer(const Duration(milliseconds: 400), () {
       setState(() {
@@ -64,7 +67,7 @@ class _ListBuilderCommonState extends State<ListBuilderCommon> {
             ? sales_head()
             : SizedBox(height: 5.0),
         if (_timer_ == true)
-          if (list_length == 0) noValue(),
+          if (list_length1 == 0) noValue(),
         if (_timer_ == true)
           Expanded(
             child: listView(_datasForDisplay, widget.toPage),
@@ -84,7 +87,7 @@ class _ListBuilderCommonState extends State<ListBuilderCommon> {
           setState(() {
             // _datasForDisplay.clear();
             _datasForDisplay = _datas.where((data) {
-              var search = data.search.toString().toUpperCase();
+              var search = data.val1.toString().toUpperCase();
               return search.contains(text);
             }).toList();
           });
@@ -139,20 +142,31 @@ class _ListBuilderCommonState extends State<ListBuilderCommon> {
                   gs_sales_param4 = _datasForDisplay[index].param4.toString();
                 Navigator.pushNamed(context, toPage);
               } else if (pop == true) {
-                gs_list_index = index;
-                print(index.toString());
-                print(gs_list_index.toString());
-                gs_prod_code = _datasForDisplay[index].val2;
-                gs_prod_name = _datasForDisplay[index].val1;
-                gs_puom = _datasForDisplay[index].val8;
-                gs_stk_puom = _datasForDisplay[index].val7;
-                gs_luom = _datasForDisplay[index].luom;
-                gs_stk_luom = _datasForDisplay[index].stk_luom;
-                gs_uppp = _datasForDisplay[index].uppp;
-                gs_rate = _datasForDisplay[index].val9.toString();
-                gs_cost_rate = _datasForDisplay[index].cost_rate;
-                print(gs_prod_code);
-                print(gs_rate);
+                gs_list_index1 = index;
+                // gs_sales_param1 = _datasForDisplay[index].param1.toString();
+
+                // gs_sales_param1 = _datasForDisplay[index].param1.toString();
+                // gs_sales_param2 = _datasForDisplay[index].param2.toString();
+                // ref_doc_no.text =
+                //     search_ref_datas[gs_list_index].val2.toString();
+                // ref_no.text =
+                //     search_ref_datas[gs_list_index].val4.toString();
+                // selectedtype =
+                //     search_ref_datas[gs_list_index].val3.toString();
+
+                // print(index.toString());
+                // print(gs_list_index.toString());
+                // gs_prod_code = _datasForDisplay[index].val2;
+                // gs_sr_doc_no = _datasForDisplay[index].val2;
+                // gs_sr_doc_salestype = _datasForDisplay[index].val3;
+                // gs_sr_doc_date = gs_date;
+                // gs_sr_doc_refno = _datasForDisplay[index].val4;
+                // gs_puom = _datasForDisplay[index].val8;
+                // gs_stk_puom = _datasForDisplay[index].val7;
+                // gs_rate = _datasForDisplay[index].val11;
+                gs_cust = _datasForDisplay[gs_list_index1].val4.toString();
+                gs_docno = _datasForDisplay[gs_list_index1].val1.toString();
+                gs_refno = _datasForDisplay[gs_list_index1].val2.toString();
                 Navigator.of(context).pop(true);
                 // alert(context, gs_list_index.toString(), Colors.red);
 

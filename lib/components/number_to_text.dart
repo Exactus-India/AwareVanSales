@@ -64,17 +64,15 @@ class NumberToText {
       } else if (k == 9 && _CONVERTED_NUMBER != '') {
         int _val = int.parse((_TEMPLATE[9] + _TEMPLATE[10] + _TEMPLATE[11]));
         if (_val > 0) {
-          if (_CONVERTED_NUMBER.toUpperCase().contains('ONE')) {
-            _CONVERTED_NUMBER = 'ONE THOUSAND' +
-                (NextNumbers().getThousand(template: _TEMPLATE) > 0
-                    ? ' '
-                    : ' ');
-          } else {
-            _CONVERTED_NUMBER += ' THOUSAND' +
-                (NextNumbers().getThousand(template: _TEMPLATE) > 0
-                    ? ' '
-                    : ' ');
-          }
+          // if (_CONVERTED_NUMBER.toUpperCase().contains('ONE')) {
+          //   _CONVERTED_NUMBER = 'ONE THOUSAND' +
+          //       (NextNumbers().getThousand(template: _TEMPLATE) > 0
+          //           ? ' '
+          //           : ' ');
+          // } else {
+          _CONVERTED_NUMBER += ' THOUSAND' +
+              (NextNumbers().getThousand(template: _TEMPLATE) > 0 ? ' ' : ' ');
+          // }
         }
       } else if (k == 12) {
         int _cents = int.parse((_TEMPLATE[16] + _TEMPLATE[17])); //CENTS

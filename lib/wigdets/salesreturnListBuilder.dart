@@ -3,15 +3,15 @@ import 'dart:async';
 import '../data/future_db.dart';
 import '../data/salesproducts.dart';
 import 'package:aware_van_sales/pages/wm_mb_LoginPage.dart';
-import 'package:aware_van_sales/pages/wm_mb_salesentry.dart';
+import 'package:aware_van_sales/pages/SALES/wm_mb_salesentry.dart';
 import 'package:aware_van_sales/wigdets/alert.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:flutter/material.dart';
-import '../pages/wm_mb_saleReturn_entry.dart';
+import '../pages/SALESRETURN/wm_mb_saleReturn_entry.dart';
 
-import '../pages/wm_mb_saleReturn_entry.dart';
-import '../pages/wm_mb_saleReturn_entry.dart';
-import '../pages/wm_mb_saleReturn_entry.dart';
+import '../pages/SALESRETURN/wm_mb_saleReturn_entry.dart';
+import '../pages/SALESRETURN/wm_mb_saleReturn_entry.dart';
+import '../pages/SALESRETURN/wm_mb_saleReturn_entry.dart';
 import 'widget_rowData.dart';
 
 class SalesReturnListingBuilder extends StatefulWidget {

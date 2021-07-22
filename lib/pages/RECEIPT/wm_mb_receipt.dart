@@ -1,23 +1,21 @@
 import 'dart:async';
 
-import 'package:aware_van_sales/data/future_db.dart';
-import 'package:aware_van_sales/pages/wm_mb_LoginPage.dart';
-import 'package:aware_van_sales/pages/wm_mb_salesentry.dart';
-import 'package:aware_van_sales/wigdets/listing_Builder.dart';
 import 'package:aware_van_sales/wigdets/spinkitLoading.dart';
-import 'package:aware_van_sales/wigdets/widget_rowData.dart';
-import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:flutter/material.dart';
 
-class SalesList extends StatefulWidget {
+import 'wm_mb_receipt_edit.dart';
+import 'wm_mb_receipt_entry.dart';
+import '../../wigdets/widget_rowData.dart';
+import '../../wigdets/widgets.dart';
+import '../../data/future_db.dart';
+import '../wm_mb_LoginPage.dart';
+
+class ReceiptList extends StatefulWidget {
   @override
-  _SalesListState createState() => _SalesListState();
+  _ReceiptListState createState() => _ReceiptListState();
 }
 
-String gs_ac_code;
-String gs_party_address;
-
-class _SalesListState extends State<SalesList> {
+class _ReceiptListState extends State<ReceiptList> {
   List _datas = List();
   List _datasForDisplay = List();
   int length;
@@ -37,21 +35,17 @@ class _SalesListState extends State<SalesList> {
   }
 
   list() {
-    saleslist(gs_sales_param1).then((value) {
+    receipt().then((value) {
       setState(() {
-        print("saleslist" + gs_sales_param1);
+        print("Recipt");
         _datas.clear();
         _datas.addAll(value);
         loading = true;
-        gs_ac_code = gs_sales_param4;
-        gs_party_address = gs_sales_param3;
         if (_datas.isNotEmpty) {
-          gs_ac_code = _datas[0].val9.toString();
           _datasForDisplay = _datas;
         }
         length = 0;
         length = _datas.length;
-        print(gs_ac_code + '....' + gs_party_address);
       });
     });
   }
@@ -60,28 +54,21 @@ class _SalesListState extends State<SalesList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: text("Sales List", Colors.white),
+        title: text("Receipt List", Colors.white),
         elevation: .1,
         backgroundColor: Color.fromRGBO(59, 87, 110, 1.0),
-        actions: <Widget>[
+        actions: [
           GestureDetector(
-              onTap: () {
-                Navigator.push(
+            child: FlatButton(
+                onPressed: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => SalesEntry(
-                            doc_no: null,
-                            party_address: gs_party_address,
-                            ac_code: gs_ac_code,
-                            ac_name: gs_sales_param2))).then((value) {
-                  setState(() {
-                    list();
-                    _searchBar();
-                  });
-                });
-              },
-              child: Icon(Icons.add)),
-          SizedBox(width: 20.0),
+                        builder: (context) => ReceiptEntry_Edit())),
+                child: Icon(
+                  Icons.edit,
+                  color: Colors.white,
+                )),
+          )
         ],
       ),
       body: (loading == false) ? spinkitLoading() : head(),
@@ -95,9 +82,6 @@ class _SalesListState extends State<SalesList> {
             margin: EdgeInsets.only(top: 10.0, left: 10.0),
             child: align(Alignment.centerLeft, gs_currentUser, 20.0)),
         _searchBar(),
-        Container(
-            margin: EdgeInsets.only(left: 20.0, right: 20.0, bottom: 10.0),
-            child: align(Alignment.centerLeft, gs_sales_param2, 18.0)),
         SizedBox(height: 5.0),
         if (_timer_ == true && length == 0) noValue(),
         if (_timer_ == true)
@@ -113,7 +97,7 @@ class _SalesListState extends State<SalesList> {
       itemBuilder: (context, index) {
         var val3;
         datasForDisplay[index].val3 is num
-            ? val3 = getNumberFormat(datasForDisplay[index].val3)
+            ? val3 = getNumberFormatRound(datasForDisplay[index].val3.round())
             : val3 = datasForDisplay[index].val3;
         return Card(
           color: Colors.green[200],
@@ -122,31 +106,20 @@ class _SalesListState extends State<SalesList> {
               children: <Widget>[
                 align(Alignment.centerLeft,
                     datasForDisplay[index].val1.toString(), 14.0),
-                rowData_2(datasForDisplay[index].val2.toString(),
-                    val3.toString(), 14.0),
-                if (datasForDisplay[index].val4 != null)
-                  align(Alignment.centerLeft,
-                      datasForDisplay[index].val4.toString(), 14.0),
-                if (datasForDisplay[index].val11 == 'Y')
-                  alignCon(Alignment.centerLeft, "Confirmed", 14.0),
+                rowData_2(datasForDisplay[index].val2.toString(), val3, 14.0),
               ],
             ),
             onTap: () {
-              var doc_no = _datasForDisplay[index].param1.toString();
-              var partyaddress = _datasForDisplay[index].param2.toString();
-              var ac_name = _datasForDisplay[index].val8.toString();
-              var salestype = _datasForDisplay[index].val3.toString();
-              var doc_date = _datasForDisplay[index].val1.toString();
-              // var last_dn_serialno=_datasForDisplay[index].val12.toString();
+              var out_bal = _datasForDisplay[index].val3.toString();
+              var ac_name = _datasForDisplay[index].val2.toString();
+              var ac_code = _datasForDisplay[index].val1.toString();
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => SalesEntry(
-                            doc_no: doc_no,
-                            party_address: partyaddress,
-                            ac_code: gs_ac_code,
-                            ac_name: ac_name,
-                          ))).then((value) {
+                      builder: (context) => ReceiptEntry(
+                          ac_code: ac_code,
+                          ac_name: ac_name,
+                          outbal: out_bal))).then((value) {
                 setState(() {
                   _searchBar();
                   list();
@@ -160,6 +133,20 @@ class _SalesListState extends State<SalesList> {
     );
   }
 
+  rowDataRound_2(first, last, size) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        if (first != null || first != 'null')
+          columnRow(first.toString(), CrossAxisAlignment.start,
+              MainAxisAlignment.start, size, TextAlign.left),
+        if (last != null || last != 'null')
+          columnRow(last.round(), CrossAxisAlignment.start,
+              MainAxisAlignment.end, size, TextAlign.right),
+      ],
+    );
+  }
+
   _searchBar() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -170,7 +157,7 @@ class _SalesListState extends State<SalesList> {
           text = text.toUpperCase();
           setState(() {
             _datasForDisplay = _datas.where((data) {
-              var search = data.search.toString().toUpperCase();
+              var search = data.val2.toString().toUpperCase();
               return search.contains(text);
             }).toList();
           });

@@ -5,11 +5,11 @@ import 'package:aware_van_sales/wigdets/spinkitLoading.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../wigdets/widget_litView_row.dart';
-import '../wigdets/widget_rowData.dart';
-import '../wigdets/widgets.dart';
-import 'wm_mb_LoginPage.dart';
-import '../data/future_db.dart';
+import '../../wigdets/widget_litView_row.dart';
+import '../../wigdets/widget_rowData.dart';
+import '../../wigdets/widgets.dart';
+import '../wm_mb_LoginPage.dart';
+import '../../data/future_db.dart';
 import 'package:pdf/pdf.dart';
 
 import 'package:printing/printing.dart';
@@ -108,7 +108,7 @@ class _SalesSummaryState extends State<SalesSummary> {
     });
   }
 
-  textFieldDate(_text, _controller, _validate, read) {
+  textFieldUser(_text, _controller, _validate, read) {
     return TextField(
       // onTap: () => _presentDatePicker(),
       readOnly: read,
@@ -197,8 +197,8 @@ class _SalesSummaryState extends State<SalesSummary> {
                                 )),
                             Flexible(
                                 flex: 1,
-                                child: textFieldDate(
-                                    "salesmanid", userid, false, false)),
+                                child: textFieldUser(
+                                    "SALESMAN ID", userid, false, false)),
                           ],
                         ),
                       ),

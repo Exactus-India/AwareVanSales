@@ -141,7 +141,7 @@ showToast(msg) {
       msg: msg,
       toastLength: Toast.LENGTH_LONG,
       gravity: ToastGravity.CENTER,
-      timeInSecForIosWeb: 3,
+      timeInSecForIosWeb: 6,
       backgroundColor: Colors.black,
       textColor: Colors.white,
       fontSize: 16.0);

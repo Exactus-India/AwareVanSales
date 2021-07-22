@@ -2,22 +2,24 @@ import 'dart:async';
 
 import 'package:aware_van_sales/data/future_db.dart';
 import 'package:aware_van_sales/pages/wm_mb_LoginPage.dart';
-import 'package:aware_van_sales/pages/wm_mb_saleReturn_entry.dart';
+import 'package:aware_van_sales/pages/SALES/wm_mb_salesentry.dart';
 import 'package:aware_van_sales/wigdets/listing_Builder.dart';
 import 'package:aware_van_sales/wigdets/spinkitLoading.dart';
 import 'package:aware_van_sales/wigdets/widget_rowData.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:flutter/material.dart';
 
-class SalesReturnList extends StatefulWidget {
+import 'wm_mb_replacement.dart';
+
+class ReplaceDocno extends StatefulWidget {
   @override
-  _SalesReturnListState createState() => _SalesReturnListState();
+  _ReplaceDocnoState createState() => _ReplaceDocnoState();
 }
 
-String gs_ac_code;
+String gs_rep_ac_code;
 String gs_party_address;
 
-class _SalesReturnListState extends State<SalesReturnList> {
+class _ReplaceDocnoState extends State<ReplaceDocno> {
   List _datas = List();
   List _datasForDisplay = List();
   int length;
@@ -37,21 +39,24 @@ class _SalesReturnListState extends State<SalesReturnList> {
   }
 
   list() {
-    salesReturnlist(gs_sales_param1).then((value) {
+    replacement_hdr_get(0, gs_rep_ac_code).then((value) {
       setState(() {
-        _datas.clear();
-        _datas.addAll(value);
+        print("replacemntlist" + gs_sales_param1);
+        if (value != null) {
+          _datas.clear();
+          _datas.addAll(value);
+        }
         loading = true;
-        gs_ac_code = gs_sales_param4;
+        gs_rep_ac_code = gs_sales_param4;
         gs_party_address = gs_sales_param3;
         if (_datas.isNotEmpty) {
-          gs_ac_code = _datas[0].val9.toString();
           _datasForDisplay = _datas;
         }
         length = 0;
         length = _datas.length;
-        print(list_length.toString() + '....');
-        print(gs_ac_code + '....' + gs_party_address);
+        print(length);
+        print("length....");
+        print(gs_rep_ac_code + '....' + gs_party_address);
       });
     });
   }
@@ -60,19 +65,21 @@ class _SalesReturnListState extends State<SalesReturnList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: text("SalesReturn List", Colors.white),
+        title: text("Sales List", Colors.white),
         elevation: .1,
         backgroundColor: Color.fromRGBO(59, 87, 110, 1.0),
         actions: <Widget>[
           GestureDetector(
               onTap: () {
+                print(gs_rep_ac_code);
+                print('gs_rep_ac_code');
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => SalesEntryComman(
+                        builder: (context) => Replacement(
                             doc_no: null,
                             party_address: gs_party_address,
-                            ac_code: gs_ac_code,
+                            ac_code: gs_rep_ac_code,
                             ac_name: gs_sales_param2))).then((value) {
                   setState(() {
                     list();
@@ -112,36 +119,46 @@ class _SalesReturnListState extends State<SalesReturnList> {
     return ListView.builder(
       itemBuilder: (context, index) {
         var val3;
-        datasForDisplay[index].val3 is num
-            ? val3 = getNumberFormat(datasForDisplay[index].val3)
-            : val3 = datasForDisplay[index].val3;
+        datasForDisplay[index]['REF_NO'] is num
+            ? val3 = getNumberFormat(datasForDisplay[index]['REF_NO'])
+            : val3 = datasForDisplay[index]['REF_NO'];
         return Card(
           color: Colors.green[200],
           child: ListTile(
             subtitle: Column(
               children: <Widget>[
-                align(Alignment.centerLeft,
-                    datasForDisplay[index].val1.toString(), 14.0),
-                rowData_2(datasForDisplay[index].val2.toString(),
+                align(
+                    Alignment.centerLeft,
+                    datasForDisplay[index]['DOC_DATE'].toString().split('T')[0],
+                    14.0),
+                SizedBox(
+                  height: 8,
+                ),
+                rowData_2(datasForDisplay[index]['DOC_NO'].toString(),
                     val3.toString(), 14.0),
-                if (datasForDisplay[index].val4 != null)
-                  align(Alignment.centerLeft,
-                      datasForDisplay[index].val4.toString(), 14.0),
+                // if (datasForDisplay[index]['REF_NO'] != null)
+                //   align(Alignment.centerLeft,
+                //       datasForDisplay[index].val4.toString(), 14.0),
+                if (datasForDisplay[index]['CONFIRMED'] == 'Y')
+                  alignCon(Alignment.centerLeft, "Confirmed", 14.0),
               ],
             ),
             onTap: () {
-              var doc_no = datasForDisplay[index].param1.toString();
-              var partyaddress = _datasForDisplay[index].param2.toString();
-              var ac_name = _datasForDisplay[index].val8.toString();
-              var ac_code = _datasForDisplay[index].val9.toString();
+              var doc_no = _datasForDisplay[index]['DOC_NO'].toString();
+              var partyaddress = _datasForDisplay[index][''].toString();
+              var ac_name = _datasForDisplay[index]['AC_CODE'].toString();
+              // var salestype = _datasForDisplay[index][].toString();
+              var doc_date = _datasForDisplay[index]['DOC_DATE'].toString();
+              // var last_dn_serialno=_datasForDisplay[index].val12.toString();
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => SalesEntryComman(
-                          doc_no: doc_no,
-                          party_address: partyaddress,
-                          ac_code: ac_code,
-                          ac_name: ac_name))).then((value) {
+                      builder: (context) => Replacement(
+                            doc_no: doc_no,
+                            party_address: gs_party_address,
+                            ac_code: gs_rep_ac_code,
+                            ac_name: ac_name,
+                          ))).then((value) {
                 setState(() {
                   _searchBar();
                   list();

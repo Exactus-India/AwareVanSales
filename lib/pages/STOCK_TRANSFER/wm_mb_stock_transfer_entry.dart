@@ -10,6 +10,8 @@ import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:custom_datatable/custom_datatable.dart';
 import 'package:ext_storage/ext_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
@@ -83,6 +85,38 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
       });
     });
     super.initState();
+  }
+
+  void _getCurrentLocation() async {
+    final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    print(position);
+
+    setState(() {
+      currentPosition = position;
+      geoLocation = "${position.latitude},${position.longitude}";
+
+      _getAddressFromLatLng();
+    });
+  }
+
+  _getAddressFromLatLng() async {
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+          currentPosition.latitude, currentPosition.longitude);
+
+      Placemark place = placemarks[0];
+
+      setState(() {
+        // _currentAddress = "${place.locality}, ${place.country}";
+        currentAddress =
+            "${place.name},${place.street},${place.locality}, ${place.postalCode},${place.administrativeArea}, ${place.country}";
+        country_name = '${place.country}';
+      });
+      print(currentAddress);
+    } catch (e) {
+      print(e);
+    }
   }
 
   getHDR(docno) {
@@ -169,6 +203,7 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
               GestureDetector(
                   onTap: () {
                     setState(() {
+                      _getCurrentLocation();
                       if (doc_no.text.isNotEmpty) {
                         if (quantity.text.isEmpty)
                           updateHdr(true, det_serial_no);
@@ -634,12 +669,25 @@ class _StocktransferEntryState extends State<StocktransferEntry> {
       );
       if (resp == 1) {
         setState(() {
+          gs_date_insert =
+              DateFormat("dd-MMM-yyyy kk:mm:ss").format(DateTime.now());
           det_serial_no = serial_no;
           updateHdr(false, serial_no);
           clearFields();
           serial_no = serial_no + 1;
           fetch_EntryDetails(doc_no.text);
           showToast('Created Succesfully');
+          log_details(
+              geoLocation,
+              brand,
+              model.split('_')[0],
+              ipAddress,
+              currentAddress,
+              gs_strdoc_type,
+              gs_date_insert,
+              '',
+              '',
+              country_name);
         });
       } else {
         alert(this.context, resp.toString(), Colors.red);

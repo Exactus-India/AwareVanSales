@@ -1,20 +1,20 @@
 import 'dart:async';
 
+import 'package:aware_van_sales/data/future_db.dart';
+import 'package:aware_van_sales/pages/STOCK_TRANSFER/wm_mb_stock_transfer_entry.dart';
 import 'package:aware_van_sales/wigdets/spinkitLoading.dart';
+import 'package:aware_van_sales/wigdets/widget_rowData.dart';
+import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:flutter/material.dart';
 
-import 'wm_mb_receipt_entry.dart';
-import '../wigdets/widget_rowData.dart';
-import '../wigdets/widgets.dart';
-import '../data/future_db.dart';
-import 'wm_mb_LoginPage.dart';
+import '../wm_mb_LoginPage.dart';
 
-class ReceiptList extends StatefulWidget {
+class Stocktransfer extends StatefulWidget {
   @override
-  _ReceiptListState createState() => _ReceiptListState();
+  _StocktransferState createState() => _StocktransferState();
 }
 
-class _ReceiptListState extends State<ReceiptList> {
+class _StocktransferState extends State<Stocktransfer> {
   List _datas = List();
   List _datasForDisplay = List();
   int length;
@@ -24,7 +24,7 @@ class _ReceiptListState extends State<ReceiptList> {
   void initState() {
     list();
     super.initState();
-    new Timer(const Duration(milliseconds: 300), () {
+    new Timer(const Duration(milliseconds: 200), () {
       setState(() {
         _timer_ = true;
       });
@@ -34,28 +34,43 @@ class _ReceiptListState extends State<ReceiptList> {
   }
 
   list() {
-    receipt().then((value) {
+    stocktransfer().then((value) {
+      print("STock Transfer Report");
       setState(() {
-        print("Recipt");
         _datas.clear();
         _datas.addAll(value);
+        _datasForDisplay = _datas;
         loading = true;
-        if (_datas.isNotEmpty) {
-          _datasForDisplay = _datas;
-        }
         length = 0;
         length = _datas.length;
+        print(length);
       });
     });
   }
 
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: text("Receipt List", Colors.white),
+        title: Text("Stock Transfer", style: TextStyle(color: Colors.white)),
         elevation: .1,
         backgroundColor: Color.fromRGBO(59, 87, 110, 1.0),
+        actions: <Widget>[
+          GestureDetector(
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            StocktransferEntry(doc_no: null))).then((value) {
+                  setState(() {
+                    list();
+                    _searchBar();
+                  });
+                });
+              },
+              child: Icon(Icons.add)),
+          SizedBox(width: 20.0),
+        ],
       ),
       body: (loading == false) ? spinkitLoading() : head(),
     );
@@ -68,7 +83,6 @@ class _ReceiptListState extends State<ReceiptList> {
             margin: EdgeInsets.only(top: 10.0, left: 10.0),
             child: align(Alignment.centerLeft, gs_currentUser, 20.0)),
         _searchBar(),
-        SizedBox(height: 5.0),
         if (_timer_ == true && length == 0) noValue(),
         if (_timer_ == true)
           Expanded(
@@ -81,10 +95,6 @@ class _ReceiptListState extends State<ReceiptList> {
   listView(List datasForDisplay) {
     return ListView.builder(
       itemBuilder: (context, index) {
-        var val3;
-        datasForDisplay[index].val3 is num
-            ? val3 = getNumberFormatRound(datasForDisplay[index].val3.round())
-            : val3 = datasForDisplay[index].val3;
         return Card(
           color: Colors.green[200],
           child: ListTile(
@@ -92,20 +102,24 @@ class _ReceiptListState extends State<ReceiptList> {
               children: <Widget>[
                 align(Alignment.centerLeft,
                     datasForDisplay[index].val1.toString(), 14.0),
-                rowData_2(datasForDisplay[index].val2.toString(), val3, 14.0),
+                if (datasForDisplay[index].val4 != null)
+                  align(Alignment.centerLeft,
+                      datasForDisplay[index].val4.toString(), 14.0),
+                rowData_2(datasForDisplay[index].val5.toString(),
+                    datasForDisplay[index].val6.toString(), 14.0),
+                if (datasForDisplay[index].val7 == 'Y')
+                  alignCon(Alignment.bottomLeft, "Confirmed", 14.0)
               ],
             ),
             onTap: () {
-              var out_bal = _datasForDisplay[index].val3.toString();
-              var ac_name = _datasForDisplay[index].val2.toString();
-              var ac_code = _datasForDisplay[index].val1.toString();
+              var doc_no = _datasForDisplay[index].param1.toString();
+              var from_zone = _datasForDisplay[index].param2.toString();
+              var to_zone = _datasForDisplay[index].param3.toString();
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => ReceiptEntry(
-                          ac_code: ac_code,
-                          ac_name: ac_name,
-                          outbal: out_bal))).then((value) {
+                      builder: (context) =>
+                          StocktransferEntry(doc_no: doc_no))).then((value) {
                 setState(() {
                   _searchBar();
                   list();
@@ -119,20 +133,6 @@ class _ReceiptListState extends State<ReceiptList> {
     );
   }
 
-  rowDataRound_2(first, last, size) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        if (first != null || first != 'null')
-          columnRow(first.toString(), CrossAxisAlignment.start,
-              MainAxisAlignment.start, size, TextAlign.left),
-        if (last != null || last != 'null')
-          columnRow(last.round(), CrossAxisAlignment.start,
-              MainAxisAlignment.end, size, TextAlign.right),
-      ],
-    );
-  }
-
   _searchBar() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -143,7 +143,7 @@ class _ReceiptListState extends State<ReceiptList> {
           text = text.toUpperCase();
           setState(() {
             _datasForDisplay = _datas.where((data) {
-              var search = data.val2.toString().toUpperCase();
+              var search = data.search.toString().toUpperCase();
               return search.contains(text);
             }).toList();
           });

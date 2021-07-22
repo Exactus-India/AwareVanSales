@@ -2,8 +2,8 @@ import 'package:aware_van_sales/data/future_db.dart';
 import 'package:aware_van_sales/data/user_alert.dart';
 import 'package:aware_van_sales/pages/wm_mb_LoginPage.dart';
 import 'package:aware_van_sales/pages/wm_mb_addalert.dart';
-import 'package:aware_van_sales/pages/wm_mb_customer.dart';
-import 'package:aware_van_sales/pages/wm_mb_os_summary.dart';
+import 'package:aware_van_sales/pages/SALES/wm_mb_customer.dart';
+import 'package:aware_van_sales/pages/OS_SUMMARY/wm_mb_os_summary.dart';
 import 'package:aware_van_sales/wigdets/card.dart';
 import 'package:aware_van_sales/wigdets/widget_rowData.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
@@ -11,10 +11,15 @@ import 'package:aware_van_sales/wigdets/willpopup.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'wm_mb_receipt.dart';
-import 'wm_mb_sales_summary.dart';
-import 'wm_mb_stock_summary.dart';
-import 'wm_mb_stock_transfer.dart';
+import 'CASH_SUMMARY/wm_mb_cashsummary.dart';
+import 'REPLACEMENT/wm_mb_cust_replacement.dart';
+import 'REPLACEMENT/wm_mb_replacement.dart';
+import 'TRACKING/wm_mb_location.dart';
+import 'TRACKING/wm_mb_log_entry.dart';
+import 'RECEIPT/wm_mb_receipt.dart';
+import 'SALES_SUMMARY/wm_mb_sales_summary.dart';
+import 'STOCK_SUMMARY/wm_mb_stock_summary.dart';
+import 'STOCK_TRANSFER/wm_mb_stock_transfer.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -31,7 +36,7 @@ class _HomePageState extends State<HomePage> {
       gl_ac_cash = value[0]['CASH_AC'];
       print("CASH_AC " + gl_ac_cash);
     });
-    alert_list_();
+    // alert_list_();
     getContext(this.context);
     super.initState();
   }
@@ -117,6 +122,8 @@ class _HomePageState extends State<HomePage> {
                   'STOCK SUMMARY'),
               // listTile(null, context, 'about.png', 'ABOUT'),
               listTileSignout(context, 'sign_out.jpg', 'SIGN OUT'),
+              if (gs_currentUser == 'BABU')
+                listTile(Location(), context, 'sign_out.jpg', 'TRACKING'),
             ],
           )),
       body: WillPopScope(
@@ -134,6 +141,14 @@ class _HomePageState extends State<HomePage> {
               //--------------------------RETURNS-------------------------
               card("RETURNS", CustomerList(toPage: '/SalesReturnList'),
                   Colors.blue[800], this.context, 'sale_returns.jpg'),
+              card(
+                  "REPLACEMENT",
+                  CustomerListReplacemnet(
+                    toPage: '/replace_doc',
+                  ),
+                  Colors.blue[800],
+                  this.context,
+                  'replacement.png'),
 
               //--------------------------RECEIPT-------------------------
               card("RECEIPT", ReceiptList(), Colors.blue[800], this.context,
@@ -154,6 +169,20 @@ class _HomePageState extends State<HomePage> {
               //--------------------------STOCK SUMMARY-------------------------
               card("STOCK SUMMARY", StockSummary(), Colors.blue[800],
                   this.context, 'stock_summary.png'),
+              card("CASH SUMMARY", Cash_Summary(), Colors.blue[800],
+                  this.context, 'money.jpg'),
+
+              // if (gs_currentUser == 'BABU')
+              // card(
+              //     "TRACKING",
+              //     Location(
+              //       toPage: '/Maplist',
+              //     ),
+              //     Colors.blue[800],
+              //     this.context,
+              //     'tracking.png'),
+              // card("LOG ENTRY", Log_details(), Colors.blue[800], this.context,
+              //     'log_entry.jpg'),
 
               //--------------------------DAILY ACTIVITY-------------------------
               // card("ALERT", AddAlert(), Colors.blue[800], this.context,

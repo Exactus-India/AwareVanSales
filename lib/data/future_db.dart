@@ -2,22 +2,26 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
 import 'package:async/async.dart';
+import 'package:aware_van_sales/data/replacement.dart';
 import 'package:aware_van_sales/data/user_alert.dart';
+
 import 'package:aware_van_sales/wigdets/alert.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import 'Rec_inv_list.dart';
+import 'Rec_product.dart';
 import 'os_summ.dart';
 import 'sales_Middle.dart';
 import 'sales_detailList.dart';
+import 'salesman_tracking.dart';
 import 'salesproducts.dart';
 import 'sales_customer.dart';
 import 'salessum.dart';
 import 'sr_entrydetails.dart';
 import '../pages/wm_mb_LoginPage.dart';
-import '../pages/wm_mb_sales.dart';
+import '../pages/SALES/wm_mb_sales.dart';
 import 'package:intl/intl.dart';
 import './User_data.dart';
 import 'ST_DetailList.dart';
@@ -26,12 +30,14 @@ import 'stock_sum_data.dart';
 import 'stocktransfer.dart';
 
 // String ip_port = "http://45.114.142.192:4006/api";
-String ip_port = "http://exactusnet.dyndns.org:4005/api";
+// String ip_port = "http://exactusnet.dyndns.org:4005/api";
+String ip_port = "http://exactusnet.dyndns.org:4006/api";
 var ls_mth_code;
 String org_filename;
 var description;
 var docno;
 int nextvalue;
+String gs_replacement_doctype = 'SE90';
 String gs_dndoc_type = 'DN90';
 String gs_srdoc_type = 'SR90';
 String gs_strdoc_type = 'STR';
@@ -60,6 +66,7 @@ int gl_tx_compt_hdisc_lcur_amt = 0;
 int gl_rec_hdr_sno = 9001;
 int gl_amt_org = 0;
 var gs_date = DateFormat("dd-MMM-yyyy").format(DateTime.now());
+var gs_date_insert;
 var gs_date_login_page = DateFormat("yy.MM.dd").format(DateTime.now());
 var gs_doc_date = DateFormat("dd-MMM-yyyy").add_jms().format(DateTime.now());
 var gs_sys_date = DateFormat("dd-MMM-yyyy").format(DateTime.now());
@@ -81,7 +88,6 @@ responseerror(response) {
 Future<List> getAllUserName() async {
   var url = '${ip_port}/user';
   try {
-    showToast("Connecting to database");
     var response = await http.get(url);
 
     var jsonBody = response.body;
@@ -222,6 +228,28 @@ Future<List<Ossumm>> os_summary() async {
   return datas;
 }
 
+Future cash_sum_pro(empid) async {
+  print(empid);
+  var url = '${ip_port}/sales/cashsummary/procedure/$gs_company_code/$empid';
+  var response = await http.get(url);
+  var jsonBody = response.body;
+  var jsonData = json.decode(jsonBody.substring(0));
+  return jsonData;
+}
+
+Future<List<CashSummary>> cash_summary() async {
+  var url = '${ip_port}/sales/cashsummary/get';
+  var response = await http.get(url);
+  var datas = List<CashSummary>();
+  if (response.statusCode == 200) {
+    Object datasJson = json.decode(response.body.substring(0));
+    for (var dataJson in datasJson) {
+      datas.add(CashSummary.fromJson(dataJson));
+    }
+  }
+  return datas;
+}
+
 Future product_insertion(
     doc_no,
     serial_no,
@@ -274,7 +302,7 @@ Future product_insertion(
     "SIGN_IND": sign_ind,
     "SALESMAN_CODE": gs_currentUser_empid,
     "CANCELLED": gs_cancelled,
-    "USER_ID": gs_currentUser,
+    "USER_ID": gs_currentUser_empid,
     "TX_IDENTITY_NO": tx_id_no,
     "ZONE_CODE": gs_zonecode,
     "LCUR_AMT_DISC": lcur_amt_disc,
@@ -365,9 +393,10 @@ Future docno_insert(
     "PARTY_ADDRESS": gs_party_address,
     "SALESMAN_CODE": gs_currentUser_empid,
     "SALE_TYPE": sales_type,
-    "USER_ID": gs_currentUser,
+    "USER_ID": gs_currentUser_empid,
     "REF_NO": ref_no,
     "CURR_CODE": gs_curr,
+    "EX_RATE": gl_EX_rate,
   };
   var value = json.encode(data);
   var url = '${ip_port}/sales/customerList/salesDN/doc_no_insert';
@@ -527,6 +556,32 @@ Future<List<Customer>> customersaleslist() async {
   return datas;
 }
 
+Future<List> customerlist() async {
+  var url = '${ip_port}/sales/customerList/$gs_Route';
+  var response = await http.get(url);
+  var jsonBody = response.body;
+  var jsonData = json.decode(jsonBody.substring(0));
+  return jsonData;
+}
+
+Future<List<Salesman_track>> salesman_tracking(logindate, user) async {
+  var url = '${ip_port}/user/logdetails/get/$logindate/$user';
+  var response = await http.get(url);
+  var datas = List<Salesman_track>();
+  if (response.statusCode == 200) {
+    Object datasJson = json.decode(response.body.substring(0));
+    for (var dataJson in datasJson) {
+      datas.add(Salesman_track.fromJson(dataJson));
+    }
+  }
+  datas.sort((a, b) {
+    var ab = a.val2;
+    var ba = b.val2;
+    return ba.compareTo(ab);
+  });
+  return datas;
+}
+
 Future<List<Sales>> saleslist(ac_code) async {
   var url =
       '${ip_port}/sales/customerList/salesList/$gs_dndoc_type/$ac_code/$gs_currentUser_empid';
@@ -644,12 +699,13 @@ Future srno_insert(party_name, doc_no, sales_type, ref_no, ref_docno,
     "PARTY_ADDRESS": party_address,
     "SALESMAN_CODE": gs_currentUser_empid,
     "SALE_TYPE": sales_type,
-    "USER_ID": gs_currentUser,
+    "USER_ID": gs_currentUser_empid,
     "REF_NO": ref_no,
     "CURR_CODE": gs_curr,
     "ref_doc_no": ref_docno,
     "ref_doc_type": ref_doctype,
     "RETURN_TYPE": selected_return_type,
+    "EX_RATE": gl_EX_rate
   };
   var value = json.encode(data);
   var url = '${ip_port}/sales/customerList/salesSR/doc_no_insert';
@@ -662,7 +718,7 @@ Future srno_insert(party_name, doc_no, sales_type, ref_no, ref_docno,
   if (response.statusCode == 200) {
     return 1;
   } else {
-    return null;
+    return responseerror(response);
   }
 }
 
@@ -681,9 +737,78 @@ Future<int> getRecDocno() async {
   var response = await http.get(url);
   var jsonBody = response.body;
   var jsonData = json.decode(jsonBody.substring(0));
-  print(jsonData[0]['DOC_NO'].toString() + "last dnno");
+  print(jsonData[0]['DOC_NO'].toString() + "last in RECEIPT ENTRY dnno");
 
   return jsonData[0]['DOC_NO'];
+}
+
+Future<int> getReplacementMax() async {
+  var url = '${ip_port}/sales/replacement/MaxDocNo';
+  var response = await http.get(url);
+  var jsonBody = response.body;
+  var jsonData = json.decode(jsonBody.substring(0));
+  print(jsonData[0]['DOC_NO'].toString() + "last in Replacement dnno");
+
+  return jsonData[0]['DOC_NO'];
+}
+
+Future<int> getReplacementMaxSerial() async {
+  var url = '${ip_port}/sales/replacement/hdrGet/maxserial';
+  var response = await http.get(url);
+  var jsonBody = response.body;
+  var jsonData = json.decode(jsonBody.substring(0));
+  print(jsonData[0]['LAST_DTL_SERIAL_NO'].toString() +
+      "last in Replacement dnno");
+
+  return jsonData[0]['LAST_DTL_SERIAL_NO'];
+}
+
+Future replacement_pro(docno) async {
+  print(gs_date.toString());
+  var url =
+      '${ip_port}/sales/replacement/procedure/$gs_company_code/$gs_replacement_doctype/$docno';
+  var response = await http.get(url);
+  var jsonBody = response.body;
+  var jsonData = json.decode(jsonBody.substring(0));
+  return jsonData;
+}
+
+Future<List> replacement_det_get(doc_no) async {
+  var url = '${ip_port}/sales/replacement/detGet/$doc_no';
+  var response = await http.get(url);
+  var datas = List<Replacement_list>();
+  if (response.statusCode == 200) {
+    Object datasJson = json.decode(response.body.substring(0));
+    for (var dataJson in datasJson) {
+      datas.add(Replacement_list.fromJson(dataJson));
+    }
+  }
+  return datas;
+}
+
+Future<bool> replacementDetDelete(serial_no, doc_no) async {
+  var url =
+      '${ip_port}/sales/replacement/det/delete/$serial_no/$doc_no/$gs_company_code/$gs_replacement_doctype';
+  var response = await http.delete(url);
+  if (response.statusCode == 200) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+Future<List> replacement_prod(docno, serialno) async {
+  var url =
+      '${ip_port}/sales/replacement/det/Detail/$gs_replacement_doctype/$gs_company_code/$docno/$serialno';
+  var response = await http.get(url);
+  var datas = List<Salesmiddle>();
+  if (response.statusCode == 200) {
+    Object datasJson = json.decode(response.body.substring(0));
+    for (var dataJson in datasJson) {
+      datas.add(Salesmiddle.fromJson(dataJson));
+    }
+  }
+  return datas;
 }
 
 Future<List> sr_HDR(docno) async {
@@ -703,6 +828,85 @@ Future<List> rec_inv_Table(accode) async {
     Object datasJson = json.decode(response.body.substring(0));
     for (var dataJson in datasJson) {
       datas.add(Rec_InvList.fromJson(dataJson));
+    }
+  }
+  return datas;
+}
+
+Future<List> mse_product() async {
+  var url = '${ip_port}/sales/replacement/products';
+  var response = await http.get(url);
+  var datas = List<Mse_product>();
+  if (response.statusCode == 200) {
+    Object datasJson = json.decode(response.body.substring(0));
+    for (var dataJson in datasJson) {
+      datas.add(Mse_product.fromJson(dataJson));
+    }
+  }
+  return datas;
+}
+
+Future<List> rec_doc_list(accode) async {
+  var url =
+      '${ip_port}/sales/receipt/header/$gs_rec_doctype/$gs_company_code/$gs_currentUser';
+  var response = await http.get(url);
+  var datas = List<Doc_Rec_InvList>();
+  if (response.statusCode == 200) {
+    Object datasJson = json.decode(response.body.substring(0));
+    for (var dataJson in datasJson) {
+      datas.add(Doc_Rec_InvList.fromJson(dataJson));
+    }
+  }
+  datas.sort((a, b) {
+    var ab = a.val1;
+    var ba = b.val1;
+    return ba.compareTo(ab);
+  });
+  return datas;
+}
+
+Future<String> rec_list_delete(doc_no) async {
+  var url =
+      '${ip_port}/sales/receipt/Delete/$gs_rec_doctype/$gs_company_code/$doc_no';
+  var response = await http.delete(url);
+  if (response.statusCode == 200) {
+    return "true";
+  } else {
+    return responseerror(response);
+  }
+}
+
+Future<String> rec_list_detail_delete(doc_no) async {
+  var url =
+      '${ip_port}/sales/receipt/Detail_Delete/$gs_rec_doctype/$gs_company_code/$doc_no';
+  var response = await http.delete(url);
+  if (response.statusCode == 200) {
+    return "true";
+  } else {
+    return responseerror(response);
+  }
+}
+
+Future<String> rec_list_invdetail_delete(doc_no) async {
+  var url =
+      '${ip_port}/sales/receipt/InvDetail_Delete/$gs_rec_doctype/$gs_company_code/$doc_no';
+  var response = await http.delete(url);
+  if (response.statusCode == 200) {
+    return "true";
+  } else {
+    return responseerror(response);
+  }
+}
+
+Future<List> edit_rec_invlist(docno) async {
+  var url =
+      '${ip_port}/sales/receipt/detail/$gs_rec_doctype/$gs_company_code/$docno';
+  var response = await http.get(url);
+  var datas = List<Doc_Rec_InvList_detail>();
+  if (response.statusCode == 200) {
+    Object datasJson = json.decode(response.body.substring(0));
+    for (var dataJson in datasJson) {
+      datas.add(Doc_Rec_InvList_detail.fromJson(dataJson));
     }
   }
   return datas;
@@ -734,6 +938,8 @@ Future sr_product_insertion(
     ref_doctype,
     ref_docno,
     selected_return_type) async {
+  print(lcur_amt);
+  print('lcur_amt');
   Map data = {
     "COMPANY_CODE": gs_company_code,
     "DOC_TYPE": gs_srdoc_type,
@@ -761,7 +967,7 @@ Future sr_product_insertion(
     "LCUR_AMOUNT": lcur_amt,
     "SIGN_IND": 1,
     "SALESMAN_CODE": gs_currentUser_empid,
-    "USER_ID": gs_currentUser,
+    "USER_ID": gs_currentUser_empid,
     "TX_IDENTITY_NUMBER": tx_id_no,
     "ZONE_CODE": gs_zonecode,
     "LCUR_AMOUNT_DISCOUNTED": lcur_amt_disc,
@@ -775,6 +981,7 @@ Future sr_product_insertion(
     "ref_doc_no": ref_docno,
     "RETURN_TYPE": selected_return_type,
   };
+
   var value = json.encode(data);
   var url = '${ip_port}/sales/customerList/salesSR/insert';
   var response = await http.post(url,
@@ -786,7 +993,7 @@ Future sr_product_insertion(
   if (response.statusCode == 200) {
     return 1;
   } else {
-    return null;
+    return responseerror(response);
   }
 }
 
@@ -840,6 +1047,111 @@ Future sr_product_updation(
   }
 }
 
+Future Replacement_HDR(ref_no, doc_no, remarks, last_det_sno, ac_code) async {
+  Map data = {
+    "COMPANY_CODE": gs_company_code,
+    "DOC_TYPE": gs_replacement_doctype,
+    "USER_ID": gs_currentUser_empid,
+    "DOC_NO": doc_no,
+    "REF_NO": ref_no,
+    "REMARKS": remarks,
+    "EX_RATE": gl_EX_rate,
+    // "LAST_SERIAL_NO": last_sno,
+    "LAST_DTL_SERIAL_NO": last_det_sno,
+    "ZONE_CODE": gs_zonecode,
+    "DEPT_CODE": gs_dept_code,
+    "DIV_CODE": gl_Div_code,
+    "AC_CODE": ac_code
+  };
+  var value = json.encode(data);
+  var url = '${ip_port}/sales/replacement/hdr/insert';
+  var response = await http.post(url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+      body: value);
+
+  if (response.statusCode == 200) {
+    return 1;
+  } else {
+    return responseerror(response);
+  }
+}
+
+Future replacement_DET(doc_no, remarks, prodcode, prodname, puom, qty_puom,
+    luom, qty_luom, uppp, qty, amt, unitprice, signind, serialno) async {
+  Map data = {
+    "COMPANY_CODE": gs_company_code,
+    "DOC_TYPE": gs_replacement_doctype,
+    "USER_ID": gs_currentUser_empid,
+    "DOC_NO": doc_no,
+    "REMARKS": remarks,
+    "PROD_CODE": prodcode,
+    "PROD_NAME": prodname,
+    "PUOM": puom,
+    "QTY_PUOM": qty_puom,
+    "LUOM": luom,
+    "QTY_LUOM": qty_luom,
+    "UPPP": uppp,
+    "QUANTITY": qty,
+    "AMOUNT": amt,
+    "SIGN_IND": signind,
+    "UNIT_PRICE": unitprice,
+    "SERIAL_NO": serialno,
+    "ZONE_CODE": gs_zonecode,
+    "DEPT_CODE": gs_dept_code,
+    "DIV_CODE": gl_Div_code
+  };
+  var value = json.encode(data);
+  var url = '${ip_port}/sales/replacement/det/insert';
+  var response = await http.post(url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+      body: value);
+
+  if (response.statusCode == 200) {
+    return 1;
+  } else {
+    return responseerror(response);
+  }
+}
+
+Future<List> replacement_hdr_get(docno, ac_code) async {
+  var url = '${ip_port}/sales/replacement/hdrGet/$docno/$ac_code';
+  var response = await http.get(url);
+  var jsonBody = response.body;
+  if (response.body.isNotEmpty) {
+    var jsonData = json.decode(jsonBody.substring(0));
+
+    return jsonData;
+  }
+}
+
+Future replacement_hdr_update(doc_no, refno, remarks, last_det_sno) async {
+  Map data = {
+    "DOC_NO": doc_no,
+    "DOC_TYPE": gs_replacement_doctype,
+    "COMPANY_CODE": gs_company_code,
+    "REF_NO": refno,
+    "REMARKS": remarks,
+    "LAST_DTL_SERIAL_NO": last_det_sno,
+  };
+  var value = json.encode(data);
+  var url = '${ip_port}/sales/replacement/HDR/update';
+  var response = await http.put(url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+      body: value);
+
+  if (response.statusCode == 200) {
+    return 1;
+  } else {
+    return responseerror(response);
+  }
+}
+
 Future sr_hdr_update(doc_no, ref_no, salestype, ref_doctype, ref_docno,
     lst_dtl_serial_no, remarks, selected_return_type) async {
   Map data = {
@@ -857,6 +1169,41 @@ Future sr_hdr_update(doc_no, ref_no, salestype, ref_doctype, ref_docno,
   var value = json.encode(data);
   var url = '${ip_port}/sales_return/customerList/salesSR/sr_hdr/update';
   var response = await http.put(url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+      body: value);
+
+  if (response.statusCode == 200) {
+    return 1;
+  } else {
+    return responseerror(response);
+  }
+}
+
+Future receipt_detail(doc_no, serial_no, accode, party, invno, inv_date, amt,
+    amt_org, tot_amt, tot_amt_org, bal_amt, bal_amt_org, refno) async {
+  Map data = {
+    "COMPANY_CODE": gs_company_code,
+    "DOC_TYPE": gs_rec_doctype,
+    "DOC_NO": doc_no,
+    "SERIAL_NO": serial_no,
+    "AC_CODE": accode,
+    "PARTY_NAME": party,
+    "INV_NO": invno,
+    "INV_DATE": inv_date,
+    "AMOUNT": amt,
+    "AMOUNT_ORIGIN": amt_org,
+    "TOTAL_AMOUNT": tot_amt,
+    "TOTAL_AMOUNT_ORIGIN": tot_amt_org,
+    "BAL_AMOUNT": bal_amt,
+    "BAL_AMOUNT_ORIGIN": bal_amt_org,
+    "REF_NO": refno,
+    "USER_ID": gs_currentUser_empid,
+  };
+  var value = json.encode(data);
+  var url = '${ip_port}/sales/Rec/recdet/insert';
+  var response = await http.post(url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8'
       },
@@ -950,7 +1297,8 @@ Future<List> receipt_HDR(doc_type, doc_no) async {
 }
 
 Future<List<StockTransfer>> stocktransfer() async {
-  var url = '${ip_port}/sales/stock_transfer/$gs_strdoc_type/$gs_currentUser';
+  var url =
+      '${ip_port}/sales/stock_transfer/$gs_strdoc_type/$gs_currentUser_empid';
   var response = await http.get(url);
   var datas = List<StockTransfer>();
   if (response.statusCode == 200) {
@@ -1035,7 +1383,7 @@ Future st_docno_insert(docno, remarks, from_zone, to_zone, hdr_lst_serialno,
     "TO_ZONE_CODE": to_zone,
     "ISSUED_BY": gs_currentUser_empid,
     // "RECEIVED_BY": "",
-    "USER_ID": gs_currentUser,
+    "USER_ID": gs_currentUser_empid,
     // "USER_DT": "",
     // "JOB_NO": "",
     "DEPT_CODE": gs_dept_code,
@@ -1244,7 +1592,7 @@ Future rec_docno_insert(
   if (response.statusCode == 200) {
     return 1;
   } else {
-    return null;
+    return responseerror(response);
   }
 }
 
@@ -1287,7 +1635,7 @@ Future rec_inv_det_insert(docno, sno, dtl_sr_no, ac_code, inv_no, amount,
 }
 
 Future rec_ac_hdr_insert(
-    docno, remarks, ref_no, ac_payee, ac_code, lst_dtl_sr_no) async {
+    docno, remarks, ref_no, ac_payee, ac_code, lst_dtl_sr_no, party) async {
   Map data = {
     "COMPANY_CODE": gs_company_code,
     "DOC_TYPE": gs_recdoc_type,
@@ -1303,6 +1651,7 @@ Future rec_ac_hdr_insert(
     "SALESMAN_CODE": gs_currentUser_empid,
     "LAST_DTL_SERIAL_NO": lst_dtl_sr_no,
     "CREATE_USER": gs_currentUser,
+    "PARTY_NAME": party,
   };
   var value = json.encode(data);
   var url = '${ip_port}/sales/Rec/ac_Header/insert';
@@ -1319,8 +1668,14 @@ Future rec_ac_hdr_insert(
   }
 }
 
-Future log_details(geo_loc, device, model_no, ip_addr, loc_addr) async {
+Future log_details(geo_loc, device, model_no, ip_addr, loc_addr, doc_type,
+    log_date, customer, remarks, country) async {
   print(loc_addr);
+  print(geo_loc);
+  print(country);
+  print(log_date);
+
+  print("geo_loc");
   Map data = {
     "COMPANY_CODE": gs_company_code,
     "LOGIN_USER": gs_currentUser,
@@ -1329,6 +1684,11 @@ Future log_details(geo_loc, device, model_no, ip_addr, loc_addr) async {
     "MODEL_NO": model_no,
     "IP_ADDR": ip_addr,
     "LOC_ADDR": loc_addr,
+    "DOC_TYPE": doc_type,
+    "CUST": customer,
+    "REMARKS": remarks,
+    "LOGIN_DATE": log_date,
+    "COUNTRY": country,
   };
   var value = json.encode(data);
   var url = '${ip_port}/user/logdetails/insert';
@@ -1341,7 +1701,7 @@ Future log_details(geo_loc, device, model_no, ip_addr, loc_addr) async {
   if (response.statusCode == 200) {
     return 1;
   } else {
-    return null;
+    return responseerror(response);
   }
 }
 
@@ -1379,7 +1739,7 @@ Future alert_user_insertion(
     "DOC_TYPE": gs_alert_doc_type,
     "COMPANY_CODE": gs_company_code,
     "ALERT_MSG": alert_msg,
-    "USER_ID": gs_currentUser,
+    "USER_ID": gs_currentUser_empid,
     "REMARKS": remarks,
   };
   var value = json.encode(data);

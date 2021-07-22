@@ -1,20 +1,23 @@
 import 'dart:async';
 
 import 'package:aware_van_sales/data/future_db.dart';
-import 'package:aware_van_sales/pages/wm_mb_stock_transfer_entry.dart';
+import 'package:aware_van_sales/pages/wm_mb_LoginPage.dart';
+import 'package:aware_van_sales/pages/SALES/wm_mb_salesentry.dart';
+import 'package:aware_van_sales/wigdets/listing_Builder.dart';
 import 'package:aware_van_sales/wigdets/spinkitLoading.dart';
 import 'package:aware_van_sales/wigdets/widget_rowData.dart';
 import 'package:aware_van_sales/wigdets/widgets.dart';
 import 'package:flutter/material.dart';
 
-import 'wm_mb_LoginPage.dart';
-
-class Stocktransfer extends StatefulWidget {
+class SalesList extends StatefulWidget {
   @override
-  _StocktransferState createState() => _StocktransferState();
+  _SalesListState createState() => _SalesListState();
 }
 
-class _StocktransferState extends State<Stocktransfer> {
+String gs_ac_code;
+String gs_party_address;
+
+class _SalesListState extends State<SalesList> {
   List _datas = List();
   List _datasForDisplay = List();
   int length;
@@ -24,7 +27,7 @@ class _StocktransferState extends State<Stocktransfer> {
   void initState() {
     list();
     super.initState();
-    new Timer(const Duration(milliseconds: 200), () {
+    new Timer(const Duration(milliseconds: 300), () {
       setState(() {
         _timer_ = true;
       });
@@ -34,24 +37,30 @@ class _StocktransferState extends State<Stocktransfer> {
   }
 
   list() {
-    stocktransfer().then((value) {
-      print("STock Transfer Report");
+    saleslist(gs_sales_param1).then((value) {
       setState(() {
+        print("saleslist" + gs_sales_param1);
         _datas.clear();
         _datas.addAll(value);
-        _datasForDisplay = _datas;
         loading = true;
+        gs_ac_code = gs_sales_param4;
+        gs_party_address = gs_sales_param3;
+        if (_datas.isNotEmpty) {
+          gs_ac_code = _datas[0].val9.toString();
+          _datasForDisplay = _datas;
+        }
         length = 0;
         length = _datas.length;
-        print(length);
+        print(gs_ac_code + '....' + gs_party_address);
       });
     });
   }
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Stock Transfer", style: TextStyle(color: Colors.white)),
+        title: text("Sales List", Colors.white),
         elevation: .1,
         backgroundColor: Color.fromRGBO(59, 87, 110, 1.0),
         actions: <Widget>[
@@ -60,8 +69,11 @@ class _StocktransferState extends State<Stocktransfer> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) =>
-                            StocktransferEntry(doc_no: null))).then((value) {
+                        builder: (context) => SalesEntry(
+                            doc_no: null,
+                            party_address: gs_party_address,
+                            ac_code: gs_ac_code,
+                            ac_name: gs_sales_param2))).then((value) {
                   setState(() {
                     list();
                     _searchBar();
@@ -83,6 +95,10 @@ class _StocktransferState extends State<Stocktransfer> {
             margin: EdgeInsets.only(top: 10.0, left: 10.0),
             child: align(Alignment.centerLeft, gs_currentUser, 20.0)),
         _searchBar(),
+        Container(
+            margin: EdgeInsets.only(left: 20.0, right: 20.0, bottom: 10.0),
+            child: align(Alignment.centerLeft, gs_sales_param2, 18.0)),
+        SizedBox(height: 5.0),
         if (_timer_ == true && length == 0) noValue(),
         if (_timer_ == true)
           Expanded(
@@ -95,6 +111,10 @@ class _StocktransferState extends State<Stocktransfer> {
   listView(List datasForDisplay) {
     return ListView.builder(
       itemBuilder: (context, index) {
+        var val3;
+        datasForDisplay[index].val3 is num
+            ? val3 = getNumberFormat(datasForDisplay[index].val3)
+            : val3 = datasForDisplay[index].val3;
         return Card(
           color: Colors.green[200],
           child: ListTile(
@@ -102,24 +122,31 @@ class _StocktransferState extends State<Stocktransfer> {
               children: <Widget>[
                 align(Alignment.centerLeft,
                     datasForDisplay[index].val1.toString(), 14.0),
+                rowData_2(datasForDisplay[index].val2.toString(),
+                    val3.toString(), 14.0),
                 if (datasForDisplay[index].val4 != null)
                   align(Alignment.centerLeft,
                       datasForDisplay[index].val4.toString(), 14.0),
-                rowData_2(datasForDisplay[index].val5.toString(),
-                    datasForDisplay[index].val6.toString(), 14.0),
-                if (datasForDisplay[index].val7 == 'Y')
-                  alignCon(Alignment.bottomLeft, "Confirmed", 14.0)
+                if (datasForDisplay[index].val11 == 'Y')
+                  alignCon(Alignment.centerLeft, "Confirmed", 14.0),
               ],
             ),
             onTap: () {
               var doc_no = _datasForDisplay[index].param1.toString();
-              var from_zone = _datasForDisplay[index].param2.toString();
-              var to_zone = _datasForDisplay[index].param3.toString();
+              var partyaddress = _datasForDisplay[index].param2.toString();
+              var ac_name = _datasForDisplay[index].val8.toString();
+              var salestype = _datasForDisplay[index].val3.toString();
+              var doc_date = _datasForDisplay[index].val1.toString();
+              // var last_dn_serialno=_datasForDisplay[index].val12.toString();
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) =>
-                          StocktransferEntry(doc_no: doc_no))).then((value) {
+                      builder: (context) => SalesEntry(
+                            doc_no: doc_no,
+                            party_address: partyaddress,
+                            ac_code: gs_ac_code,
+                            ac_name: ac_name,
+                          ))).then((value) {
                 setState(() {
                   _searchBar();
                   list();

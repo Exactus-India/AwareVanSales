@@ -4,9 +4,11 @@ import 'package:aware_van_sales/components/number_to_text.dart';
 import 'package:aware_van_sales/data/constants.dart';
 import 'package:aware_van_sales/pages/wm_mb_LoginPage.dart';
 import 'package:aware_van_sales/wigdets/alert.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 
-import '../data/future_db.dart';
-import '../wigdets/widgets.dart';
+import '../../data/future_db.dart';
+import '../../wigdets/widgets.dart';
 import 'package:custom_datatable/custom_datatable.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -46,6 +48,8 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
   bool doc_generate = false;
   bool second_insert = false;
   bool third_insert = false;
+  bool saves = false;
+  int j = 0;
   var lcur_amt;
   var docdate;
   var pdf_baltot;
@@ -62,6 +66,7 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
   List recHDR = List();
   List rec_inv_List = List();
   List pdf_List = List();
+  List invlist = List();
   List datacolumn = ["INV. NO", "INV. DATE", "AMT", "BAL AMT", "ORG AMT"];
   List<TextEditingController> _controller;
   @override
@@ -73,7 +78,57 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
     //   recHDR.addAll(value);
     // });
     inv_List(widget.ac_code);
+
     super.initState();
+  }
+
+  void _getCurrentLocation() async {
+    final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    print(position);
+
+    setState(() {
+      currentPosition = position;
+      geoLocation = "${position.latitude},${position.longitude}";
+
+      _getAddressFromLatLng();
+    });
+  }
+
+  _getAddressFromLatLng() async {
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+          currentPosition.latitude, currentPosition.longitude);
+
+      Placemark place = placemarks[0];
+
+      setState(() {
+        // _currentAddress = "${place.locality}, ${place.country}";
+        currentAddress =
+            "${place.name},${place.street},${place.locality}, ${place.postalCode},${place.administrativeArea}, ${place.country}";
+        country_name = '${place.country}';
+      });
+      print(currentAddress);
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  rec_inv_list() {
+    edit_rec_invlist(doc_no.text).then((value) {
+      setState(() {
+        tot_amt = 0;
+        invlist.clear();
+        invlist.addAll(value);
+        print(invlist.length.toString());
+        print("./././invlist");
+        docdate = invlist[0].val7;
+        print(docdate);
+        for (int i = 0; i < invlist.length; i++) {
+          tot_amt += invlist[i].val3;
+        }
+      });
+    });
   }
 
   inv_List(ac_code) {
@@ -103,16 +158,17 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
         title: Text("Receipt Entry"),
         backgroundColor: Color.fromRGBO(59, 87, 110, 1.0),
         actions: <Widget>[
-          GestureDetector(
-            onTap: () async {
-              if (doc_no.text.isNotEmpty) {
-                save();
-              } else {
-                alert(context, "Doc no is Empty", Colors.red);
-              }
-            },
-            child: Icon(Icons.save),
-          ),
+          if (saves == false)
+            GestureDetector(
+              onTap: () async {
+                if (doc_no.text.isNotEmpty) {
+                  save();
+                } else {
+                  alert(context, "Doc no is Empty", Colors.red);
+                }
+              },
+              child: Icon(Icons.save),
+            ),
           SizedBox(width: 20.0),
           PopupMenuButton<String>(
             onSelected: choiceAction,
@@ -319,6 +375,10 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
   }
 
   save() async {
+    gs_date_insert = DateFormat("dd-MMM-yyyy kk:mm:ss").format(DateTime.now());
+    _getCurrentLocation();
+    pdf_List.clear();
+    saves = true;
     var count = 0;
     tot_amt = 0.0;
     remarks = customer.text;
@@ -331,16 +391,28 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
       }
     for (int i = 0; i < rec_inv_List.length; i++) {
       count += 1;
+
+      print(count);
+      print('count');
+
       if (count == rec_inv_List.length) second_insert = true;
       if (_controller[i].text.isNotEmpty) {
+        print(i);
+        print("iiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
         pdf_List.add(rec_inv_List[i]);
-        pdf_List[i].val4 = double.parse(_controller[i].text);
-        pdf_tot_amt += pdf_List[i].val4.toDouble();
+        print(pdf_List);
+        print("pdf_List..................value");
+        pdf_List[j].val4 = double.parse(_controller[i].text);
+        pdf_tot_amt += pdf_List[j].val4.toDouble();
         pdf_baltot +=
-            (rec_inv_List[i].val5.toDouble() - pdf_List[i].val4.toDouble());
+            (rec_inv_List[i].val5.toDouble() - pdf_List[j].val4.toDouble());
         pdf_orgtot += rec_inv_List[i].val6;
+
         print('pdf_List.length');
         print(pdf_List.length);
+        print(j.toString() + "jjjjjjjjjjjjjjjjjjjjjjjjjjjjj");
+        print(i);
+
         // for (int i = 0; i < pdf_List.length; i++) {
         // }
         remarks = " " + rec_inv_List[i].val2.toString();
@@ -349,6 +421,7 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
         print("det_serial_no");
         print(_controller[i].text);
         var amount = double.parse(_controller[i].text);
+
         // var loc_amt = amount * gl_EX_rate;
         lcur_amt = amount * gl_EX_rate;
         var resp = await rec_inv_det_insert(
@@ -360,10 +433,33 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
             _controller[i].text,
             lcur_amt,
             -1);
+        j += 1;
         if (resp == 1) print("inserted ac_inv_detail");
-        if (resp != 1) alert(context, "ERROR", Colors.red);
+        if (resp != 1) alert(context, resp, Colors.red);
+        // receipt_detail(
+        //   doc_no.text,
+        //   det_serial_no,
+        //   widget.ac_code,
+        //   customer.text,
+        //   rec_inv_List[i].val2,
+        //   rec_inv_List[i].val3,
+        //   _controller[i].text,
+        //   rec_inv_List[i].val6,
+        //   tot_amt,
+        //   oamt,
+        //   rec_inv_List[i].val5,
+        //   bamt,
+        //   ref_no.text,
+        // ).then((value) {
+        //   if (value == 1) {
+        //     print("@@@Success@@@");
+        //   } else {
+        //     alert(context, value, Colors.red);
+        //   }
+        // });
       }
     }
+
     if (second_insert == true) {
       lcur_amt = 0;
       // var loc_amt = tot_amt * gl_EX_rate;
@@ -394,9 +490,10 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
     }
     if (third_insert == true)
       await rec_ac_hdr_insert(doc_no.text, remarks, ref_no.text, "ac_payee",
-              gl_ac_cash, det_serial_no)
+              gl_ac_cash, det_serial_no, customer.text)
           .then((value) {
         if (value == 1) {
+          rec_inv_list();
           second_insert = false;
           third_insert = false;
           // showToast("Inserted 2");
@@ -406,6 +503,17 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
           showToast(value.toString());
         }
       });
+    log_details(
+        geoLocation,
+        brand,
+        model.split('_')[0],
+        ipAddress,
+        currentAddress,
+        gs_rec_doctype,
+        gs_date_insert,
+        customer.text,
+        '',
+        country_name);
   }
 
   textField_data(_label, _controller_, _align, bal_amt) {
@@ -434,6 +542,253 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
   }
 
   _generatePdfAndView(String choice) async {
+    final pdf = pdfLib.Document();
+    print(getNumberFormatRound(tot_amt));
+    final valamounts = [
+      // VatAmounts(" ", " "),
+      // VatAmounts("Total Balance ", getNumberFormat(pdf_baltot).toString()),
+      // VatAmounts(" ", " "),
+      VatAmounts('Total Amount', getNumberFormatRound(tot_amt))
+    ];
+    // final headvat = ['Total Amount', getNumberFormat(tot_amt).toString()];
+
+    final vatdat =
+        valamounts.map((vatamnt) => [vatamnt.name, vatamnt.amt]).toList();
+
+    String now = DateFormat("dd-MM-yyyy hh:mm:ss").format(DateTime.now());
+    // ignore: deprecated_member_use
+    final PdfImage assetImage = await pdfImageFromImageProvider(
+      pdf: pdf.document,
+      image: const AssetImage('assets/BMK.png'),
+    );
+    pdf.addPage(
+      pdfLib.MultiPage(
+        header: (context) {
+          pdfLib.Text(now);
+          return pdfLib.Row(children: [
+            pdfLib.ClipRRect(
+                child: pdfLib.Container(
+                    // ignore: deprecated_member_use
+                    child: pdfLib.Image(assetImage),
+                    width: 150)),
+            pdfLib.SizedBox(width: 15.0),
+            pdfLib.Column(
+                crossAxisAlignment: pdfLib.CrossAxisAlignment.start,
+                children: [
+                  pdfLib.Text(
+                    "Island Valley Electronics L.L.C",
+                    style: pdfLib.TextStyle(
+                        fontSize: 18.0, fontWeight: pdfLib.FontWeight.bold),
+                  ),
+                  pdfLib.Text("Address :" +
+                      "Office No.306,\nAl Habtoor Naif Building\nBaniyas Square\nDubai U.A.E"),
+                  pdfLib.Text("Tel : " + " 04-2324747"),
+                  pdfLib.Text("TRN_NO : " + "100299579100003"),
+                ])
+          ]);
+        },
+        build: (context) => [
+          pdfLib.SizedBox(height: 15.0),
+          pdfLib.Center(
+            child: pdfLib.Column(
+                crossAxisAlignment: pdfLib.CrossAxisAlignment.center,
+                // mainAxisAlignment: pdfLib.MainAxisAlignment.center,
+                children: [
+                  // pdfLib.Align(alignment:  ),
+                  pdfLib.Text("RECEIPT"),
+                  // if (printed_y.toString() == "Y")
+                  // pdfLib.Center(
+                  //     child: pdfLib.Text("Duplicate copy",
+                  //         style: pdfLib.TextStyle(fontSize: 10.0))),
+                ]),
+          ),
+          pdfLib.SizedBox(height: 10.0),
+          pdfLib.Container(
+            margin: pdfLib.EdgeInsets.all(5.0),
+            padding: pdfLib.EdgeInsets.all(55.0),
+            decoration: pdfLib.BoxDecoration(
+                border: pdfLib.Border.all(color: PdfColors.black)),
+            child: pdfLib.Column(
+                crossAxisAlignment: pdfLib.CrossAxisAlignment.start,
+                children: [
+                  pdfLib.Text("Doc No: " + doc_no.text),
+                  pdfLib.Row(
+                      mainAxisAlignment: pdfLib.MainAxisAlignment.spaceBetween,
+                      children: [
+                        pdfLib.Text("Doc Date: " + docdate.toString()),
+                        pdfLib.Text("Ref No " + ref_no.text),
+                      ]),
+                  pdfLib.Row(
+                      mainAxisAlignment: pdfLib.MainAxisAlignment.spaceBetween,
+                      children: [
+                        pdfLib.Text("Customer: " + customer.text),
+                        // pdfLib.Text("Sale Tyoe: " + selectedtype),
+                      ]),
+                  pdfLib.Text("Salesman Name: " + gs_currentUser),
+
+                  pdfLib.SizedBox(height: 20.0),
+                  pdfLib.Table.fromTextArray(
+                      context: context,
+                      border: null,
+                      // border: pdfLib.TableBorder.symmetric(
+                      //     outside: pdfLib.BorderSide(
+                      //         width: 1, style: pdfLib.BorderStyle.solid)),
+                      headerStyle:
+                          pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
+                      headerDecoration:
+                          pdfLib.BoxDecoration(color: PdfColors.grey300),
+                      headers: <String>['INVOICE NO', 'INVOICE DATE', 'AMOUNT'],
+                      cellAlignment: pdfLib.Alignment.center,
+                      data: <List<dynamic>>[
+                        // for (int i = 0; i < rec_inv_List.length; i++)
+                        //   if (_controller[i].text.isNotEmpty)
+                        ...invlist.asMap().keys.toList().map((index) => [
+                              invlist[index].val1.toString(),
+                              invlist[index].val2.toString(),
+                              invlist[index].val3.toString(),
+                            ])
+                      ]),
+
+                  // pdfLib.SizedBox(height: 10.0),
+                  // pdfLib.Container(
+                  //   width: double.infinity,
+                  // child:
+                  //     pdfLib.Column(crossAxisAlignment: pdfLib.CrossAxisAlignment.end,
+                  //         // mainAxisAlignment: pdfLib.MainAxisAlignment.end,
+                  //         children: [
+                  //       pdfLib.Text(
+                  //         "Total Amount " +
+                  //             "AED " +
+                  //             getNumberFormat(pdf_tot_amt).toString(),
+                  //         style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
+                  //       ),
+                  //       pdfLib.Text(
+                  //         "Total Balance  " +
+                  //             "AED " +
+                  //             getNumberFormat(pdf_baltot).toString(),
+                  //         style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
+                  //       ),
+                  //       pdfLib.Text(
+                  //         "Total Orgin Amount " +
+                  //             "AED " +
+                  //             getNumberFormat(pdf_orgtot).toString(),
+                  //         style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold),
+                  //       ),
+                  //       pdfLib.FittedBox(
+                  //           child: pdfLib.Row(
+                  //               mainAxisAlignment: pdfLib.MainAxisAlignment.end,
+                  //               children: [
+                  //             pdfLib.Text(
+                  //               "Amount(VAT Inclusive) In words : ",
+                  //               style: pdfLib.TextStyle(
+                  //                 fontWeight: pdfLib.FontWeight.bold,
+                  //               ),
+                  //             ),
+                  //             pdfLib.Text(
+                  //               _translatedValue,
+                  //               style: pdfLib.TextStyle(
+                  //                   fontWeight: pdfLib.FontWeight.bold,
+                  //                   fontSize: 9.0),
+                  //             ),
+                  //           ])),
+                  //     ]),
+                  // ),
+
+                  // pdfLib.SizedBox(height: 320.0),
+
+                  // pdfLib.Footer()
+
+                  pdfLib.Row(
+                      crossAxisAlignment: pdfLib.CrossAxisAlignment.end,
+                      mainAxisAlignment: pdfLib.MainAxisAlignment.end,
+                      children: [
+                        pdfLib.SizedBox(height: 180.0),
+                        pdfLib.Table.fromTextArray(
+                          headerStyle: pdfLib.TextStyle(
+                              fontWeight: pdfLib.FontWeight.bold),
+                          oddCellStyle: pdfLib.TextStyle(
+                              fontWeight: pdfLib.FontWeight.bold),
+                          // defaultColumnWidth: 30,
+                          cellAlignment: pdfLib.Alignment.centerRight,
+
+                          data: vatdat,
+                        ),
+                      ]),
+                  pdfLib.SizedBox(height: 10.0),
+                  pdfLib.Container(
+                      width: double.infinity,
+                      child: pdfLib.Column(
+                          crossAxisAlignment: pdfLib.CrossAxisAlignment.end,
+                          mainAxisAlignment: pdfLib.MainAxisAlignment.end,
+                          children: [
+                            pdfLib.Text(
+                              _gscurrencycode +
+                                  " " +
+                                  _translatedValue +
+                                  " ONLY",
+                              style: pdfLib.TextStyle(
+                                  fontWeight: pdfLib.FontWeight.bold,
+                                  fontSize: 9.0),
+                            ),
+                          ])),
+                ]),
+          ),
+        ],
+        footer: (context) {
+          return pdfLib.Column(
+              crossAxisAlignment: pdfLib.CrossAxisAlignment.start,
+              children: [
+                pdfLib.Row(
+                    mainAxisAlignment: pdfLib.MainAxisAlignment.spaceBetween,
+                    children: [
+                      pdfLib.Text(
+                          "Issued by: " + "Island Valley Electronics L.L.C"),
+                      pdfLib.Text("Received By: " + customer.text),
+                    ]),
+                pdfLib.Text("Salesman name: " + gs_currentUser),
+                pdfLib.Text("Today: " + gs_date),
+              ]);
+        },
+      ),
+    );
+    var path = await ExtStorage.getExternalStoragePublicDirectory(
+        ExtStorage.DIRECTORY_DOWNLOADS);
+    print(path);
+    String fileName = "/RECEIPT-" + doc_no.text + ".pdf";
+    // if (printed_y.toString() == "Y")
+    fileName = "/RECEIPT-" + doc_no.text + "-copy.pdf";
+    final File file = File(path + fileName);
+    // if (choice == Constants.DownloadPdf) await file.writeAsBytes(pdf.save());
+    // if (choice == Constants.DownloadPdf) showToast("Downloaded to $path");
+    if (choice == Constants.ViewPdf)
+      Printing.layoutPdf(onLayout: (PdfPageFormat format) async => pdf.save());
+    if (choice == Constants.SharePdf) {
+      await Printing.sharePdf(bytes: pdf.save(), filename: fileName);
+      // if (printed_y == "N")
+      //   setState(() {
+      //     printed_y = "Y";
+      //     updateHdr();
+      //   });
+    }
+  }
+
+  void choiceAction(String choice) {
+    if (choice == Constants.ViewPdf) {
+      String _translated = NumberToText().convert(value: tot_amt);
+      setState(() {
+        _translatedValue = _translated;
+      });
+      _generatePdfAndView(choice);
+    } else {
+      String _translated = NumberToText().convert(value: tot_amt);
+      setState(() {
+        _translatedValue = _translated;
+      });
+      _generatePdfAndView(choice);
+    }
+  }
+
+  _generatePdfAndViews(String choice) async {
     final pdf = pdfLib.Document();
 
     final valamounts = [
@@ -487,7 +842,7 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
                 // mainAxisAlignment: pdfLib.MainAxisAlignment.center,
                 children: [
                   // pdfLib.Align(alignment:  ),
-                  pdfLib.Text("INVOICE "),
+                  pdfLib.Text("RECEIPT"),
                   // if (printed_y.toString() == "Y")
                   // pdfLib.Center(
                   //     child: pdfLib.Text("Duplicate copy",
@@ -612,6 +967,7 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
                           // defaultColumnWidth: 30,
                           cellAlignment: pdfLib.Alignment.centerRight,
                           headers: headvat,
+                          headerAlignment: pdfLib.Alignment.centerRight,
                           data: vatdat,
                         ),
                       ]),
@@ -655,9 +1011,9 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
     var path = await ExtStorage.getExternalStoragePublicDirectory(
         ExtStorage.DIRECTORY_DOWNLOADS);
     print(path);
-    String fileName = "/SALES-" + doc_no.text + ".pdf";
+    String fileName = "/RECEIPT-" + doc_no.text + ".pdf";
     // if (printed_y.toString() == "Y")
-    fileName = "/SALES-" + doc_no.text + "-copy.pdf";
+    fileName = "/RECEIPT-" + doc_no.text + "-copy.pdf";
     final File file = File(path + fileName);
     // if (choice == Constants.DownloadPdf) await file.writeAsBytes(pdf.save());
     // if (choice == Constants.DownloadPdf) showToast("Downloaded to $path");
@@ -670,24 +1026,6 @@ class _ReceiptEntryState extends State<ReceiptEntry> {
       //     printed_y = "Y";
       //     updateHdr();
       //   });
-    }
-  }
-
-  void choiceAction(String choice) {
-    if (choice == Constants.ViewPdf) {
-      String _translated =
-          NumberToText().convert(value: double.parse(pdf_orgtot.toString()));
-      setState(() {
-        _translatedValue = _translated;
-      });
-      _generatePdfAndView(choice);
-    } else {
-      String _translated =
-          NumberToText().convert(value: double.parse(pdf_orgtot.toString()));
-      setState(() {
-        _translatedValue = _translated;
-      });
-      _generatePdfAndView(choice);
     }
   }
 }
